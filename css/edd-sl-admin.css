@@ -1,0 +1,58 @@
+.edd-sl-keys-input {
+	width: 96%;
+}
+
+.edd-sl-generate-keys-wrapper {
+	text-align: center;
+}
+
+.sl-limit input {
+	width: 70px;
+}
+
+#edd-payment-licenses .inside {
+	margin: 0;
+	padding: 0;
+}
+
+.edd-sl-graph-controls {
+	padding-top: 0;
+}
+
+#renewals_chart_div {
+	height: 300px;
+}
+
+#edd_sl_renewal_notices td,
+#edd_sl_renewal_notices th {
+	padding-left: 10px;
+}
+
+.sl-upgrade-download {
+	width: 20%;
+}
+
+.sl-upgrade-prorate {
+	width: 10%;
+	text-align: center !important;
+}
+
+.sl-upgrade-discount {
+	width: 20%;
+}
+
+.sl-upgrade-remove {
+	width: 10px;
+}
+.edd-sl-generate-keys-wrapper .button-secondary {
+	margin-left: 30px;
+}
+
+.edd-sl-generate-keys-wrapper .spinner {
+	float: none;
+}
+
+.edd-sl-generate-keys-message {
+	text-align: center;
+	font-style: italic;
+}
