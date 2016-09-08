@@ -51,51 +51,51 @@ function edd_sl_show_renewals_graph() {
 	// Determine graph options
 	switch( $dates['range'] ) :
 		case 'today' :
-			$time_format 	= '%d/%b';
-			$tick_size		= 'hour';
-			$day_by_day		= true;
+			$time_format = '%d/%b';
+			$tick_size   = 'hour';
+			$day_by_day  = true;
 			break;
 		case 'last_year' :
-			$time_format 	= '%b';
-			$tick_size		= 'month';
-			$day_by_day		= false;
+			$time_format = '%b';
+			$tick_size   = 'month';
+			$day_by_day  = false;
 			break;
 		case 'this_year' :
-			$time_format 	= '%b';
-			$tick_size		= 'month';
-			$day_by_day		= false;
+			$time_format = '%b';
+			$tick_size   = 'month';
+			$day_by_day  = false;
 			break;
 		case 'last_quarter' :
-			$time_format	= '%b';
-			$tick_size		= 'month';
-			$day_by_day 	= false;
+			$time_format = '%b';
+			$tick_size   = 'month';
+			$day_by_day  = false;
 			break;
 		case 'this_quarter' :
-			$time_format	= '%b';
-			$tick_size		= 'month';
-			$day_by_day 	= false;
+			$time_format = '%b';
+			$tick_size   = 'month';
+			$day_by_day  = false;
 			break;
 		case 'other' :
 			if( ( $dates['m_end'] - $dates['m_start'] ) >= 2 ) {
-				$time_format	= '%b';
-				$tick_size		= 'month';
-				$day_by_day 	= false;
+				$time_format = '%b';
+				$tick_size   = 'month';
+				$day_by_day  = false;
 			} else {
-				$time_format 	= '%d/%b';
-				$tick_size		= 'day';
-				$day_by_day 	= true;
+				$time_format = '%d/%b';
+				$tick_size   = 'day';
+				$day_by_day  = true;
 			}
 			break;
 		default:
-			$time_format 	= '%d/%b'; 	// Show days by default
-			$tick_size		= 'day'; 	// Default graph interval
-			$day_by_day 	= true;
+			$time_format = '%d/%b'; 	// Show days by default
+			$tick_size   = 'day'; 	// Default graph interval
+			$day_by_day  = true;
 			break;
 	endswitch;
 
-	$time_format 	= apply_filters( 'edd_graph_timeformat', $time_format );
-	$tick_size 		= apply_filters( 'edd_graph_ticksize', $tick_size );
-	$totals 		= (float) 0.00; // Total renewal earnings for time period shown
+	$time_format = apply_filters( 'edd_graph_timeformat', $time_format );
+	$tick_size   = apply_filters( 'edd_graph_ticksize', $tick_size );
+	$totals      = (float) 0.00; // Total renewal earnings for time period shown
 
 	ob_start(); ?>
 	<div class="tablenav top">
@@ -116,8 +116,8 @@ function edd_sl_show_renewals_graph() {
 							$month = date( 'n' );
 							while ( $hour <= 23 ) :
 								$renewals = edd_sl_get_renewals_by_date( $dates['day'], $month, $dates['year'], $hour );
-								$totals += $renewals['earnings'];
-								$date = mktime( $hour, 0, 0, $month, $dates['day'], $dates['year'] ); ?>
+								$totals   += $renewals['earnings'];
+								$date     = mktime( $hour, 0, 0, $month, $dates['day'], $dates['year'] ); ?>
 								[<?php echo $date * 1000; ?>, <?php echo $renewals['count']; ?>],
 								<?php
 								$hour++;
@@ -140,28 +140,31 @@ function edd_sl_show_renewals_graph() {
 
 						} else {
 
-							$i = $dates['m_start'];
-							while ( $i <= $dates['m_end'] ) :
-								if ( $day_by_day ) :
-									$num_of_days 	= cal_days_in_month( CAL_GREGORIAN, $i, $dates['year'] );
-									$d 				= 1;
-									while ( $d <= $num_of_days ) :
-										$date = mktime( 0, 0, 0, $i, $d, $dates['year'] );
-										$renewals = edd_sl_get_renewals_by_date( $d, $i, $dates['year'] );
-										$totals += $renewals['earnings']; ?>
+							$y = $dates['year'];
+							while ( $y <= $dates['year_end'] ) :
+								$i = $dates['m_start'];
+								while ( $i <= $dates['m_end'] ) :
+									if ( $day_by_day ) :
+										$num_of_days = cal_days_in_month( CAL_GREGORIAN, $i, $y );
+										$d           = 1;
+										while ( $d <= $num_of_days ) :
+											$date     = mktime( 0, 0, 0, $i, $d, $y );
+											$renewals = edd_sl_get_renewals_by_date( $d, $i, $y );
+											$totals   += $renewals['earnings']; ?>
+											[<?php echo $date * 1000; ?>, <?php echo $renewals['count']; ?>],
+										<?php $d++; endwhile;
+									else :
+										$date     = mktime( 0, 0, 0, $i, 1, $y );
+										$renewals = edd_sl_get_renewals_by_date( null, $i, $y );
+										$totals   += $renewals['earnings'];
+										?>
 										[<?php echo $date * 1000; ?>, <?php echo $renewals['count']; ?>],
-									<?php $d++; endwhile;
-								else :
-									$date = mktime( 0, 0, 0, $i, 1, $dates['year'] );
-									$renewals = edd_sl_get_renewals_by_date( null, $i, $dates['year'] );
-									$totals += $renewals['earnings'];
-									?>
-									[<?php echo $date * 1000; ?>, <?php echo $renewals['count']; ?>],
-								<?php
-								endif;
-								$i++;
+									<?php
+									endif;
+									$i++;
+								endwhile;
+								$y++;
 							endwhile;
-
 						}
 						?>,
 					],
@@ -268,11 +271,11 @@ function edd_sl_show_upgrades_graph() {
 		case 'this_year' :
 		case 'last_quarter' :
 		case 'this_quarter' :
-			$day_by_day		= false;
+			$day_by_day = false;
 			break;
 		case 'other' :
 			if( ( $dates['m_end'] - $dates['m_start'] ) >= 2 ) {
-				$day_by_day 	= false;
+				$day_by_day = false;
 			}
 			break;
 	endswitch;
@@ -288,8 +291,8 @@ function edd_sl_show_upgrades_graph() {
 
 	if( $dates['range'] == 'today' ) {
 		// Hour by hour
-	   	$hour  = 1;
-	   	$month = date( 'n' );
+		$hour  = 1;
+		$month = date( 'n' );
 
 		while ( $hour <= 23 ) :
 
@@ -320,36 +323,40 @@ function edd_sl_show_upgrades_graph() {
 
 	} else {
 
-		$i = $dates['m_start'];
+		$y = $dates['year'];
+		while ( $y <= $dates['year_end'] ) :
+			$i = $dates['m_start'];
 
-		while ( $i <= $dates['m_end'] ) :
+			while ( $i <= $dates['m_end'] ) :
 
-			if ( $day_by_day ) :
+				if ( $day_by_day ) :
 
-				$num_of_days = cal_days_in_month( CAL_GREGORIAN, $i, $dates['year'] );
-				$d           = 1;
+					$num_of_days = cal_days_in_month( CAL_GREGORIAN, $i, $y );
+					$d           = 1;
 
-				while ( $d <= $num_of_days ) :
+					while ( $d <= $num_of_days ) :
 
-					$date        = mktime( 0, 0, 0, $i, $d, $dates['year'] );
-					$upgrades    = edd_sl_get_upgrades_by_date( $d, $i, $dates['year'], null );
+						$date        = mktime( 0, 0, 0, $i, $d, $y );
+						$upgrades    = edd_sl_get_upgrades_by_date( $d, $i, $y, null );
+						$total      += $upgrades['earnings'];
+						$data[]      = array( $date * 1000, (int) $upgrades['count'] );
+						$d++;
+
+					endwhile;
+
+				else :
+
+					$date        = mktime( 0, 0, 0, $i, 1, $y );
+					$upgrades    = edd_sl_get_upgrades_by_date( null, $i, $y, null );
 					$total      += $upgrades['earnings'];
 					$data[]      = array( $date * 1000, (int) $upgrades['count'] );
-					$d++;
 
-				endwhile;
+				endif;
 
-			else :
+				$i++;
 
-				$date        = mktime( 0, 0, 0, $i, 1, $dates['year'] );
-				$upgrades    = edd_sl_get_upgrades_by_date( null, $i, $dates['year'], null );
-				$total      += $upgrades['earnings'];
-				$data[]      = array( $date * 1000, (int) $upgrades['count'] );
-
-			endif;
-
-			$i++;
-
+			endwhile;
+			$y++;
 		endwhile;
 	}
 
@@ -372,9 +379,9 @@ function edd_sl_show_upgrades_graph() {
 				<p id="edd_graph_totals">
 					<strong><?php _e( 'Total earnings from upgrades period shown: ', 'edd_sl' ); echo edd_currency_filter( edd_format_amount( $total ) ); ?></strong>
 				</p>
-   			</div>
-   		</div>
-   	</div>
+			</div>
+		</div>
+	</div>
 	<?php
 	echo ob_get_clean();
 }

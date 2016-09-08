@@ -143,50 +143,54 @@ function edd_sl_license_has_upgrades( $license_id = 0 ) {
 		$ret = false;
 	}
 
-	$download_id   = edd_software_licensing()->get_download_id( $license_id );
-	$price_id      = edd_software_licensing()->get_price_id( $license_id );
+	$has_parent = get_post_field( 'post_parent', $license_id );
 
-	$upgrade_paths = edd_sl_get_upgrade_paths( $download_id );
-	$payment_id    = edd_software_licensing()->get_payment_id( $license_id );
-	$payment       = new EDD_Payment( $payment_id );
+	if ( empty( $has_parent ) ) {
+		$download_id   = edd_software_licensing()->get_download_id( $license_id );
+		$price_id      = edd_software_licensing()->get_price_id( $license_id );
 
-	if ( is_array( $upgrade_paths ) && 'publish' === $payment->status ) {
+		$upgrade_paths = edd_sl_get_upgrade_paths( $download_id );
+		$payment_id    = edd_software_licensing()->get_payment_id( $license_id );
+		$payment       = new EDD_Payment( $payment_id );
 
-		foreach( $upgrade_paths as $path ) {
+		if ( is_array( $upgrade_paths ) && 'publish' === $payment->status ) {
 
-			if ( edd_has_variable_prices( $download_id ) ) {
+			foreach( $upgrade_paths as $path ) {
 
-				// If there is a different product in the upgrade paths, upgrade is available
-				if ( (int) $path['download_id'] !== (int) $download_id ) {
+				if ( edd_has_variable_prices( $download_id ) ) {
 
-					$ret = true;
+					// If there is a different product in the upgrade paths, upgrade is available
+					if ( (int) $path['download_id'] !== (int) $download_id ) {
 
-				} else {
+						$ret = true;
 
-					// If same download but with a more expensive price ID is in upgrade paths, upgrade is available
-					if ( (int) $path['price_id'] !== (int) $price_id ) {
+					} else {
 
-						if( edd_get_price_option_amount( $path['download_id'], $path['price_id'] ) > edd_get_price_option_amount( $download_id, $price_id ) ) {
+						// If same download but with a more expensive price ID is in upgrade paths, upgrade is available
+						if ( (int) $path['price_id'] !== (int) $price_id ) {
 
-							$ret = true;
+							if( edd_get_price_option_amount( $path['download_id'], $path['price_id'] ) > edd_get_price_option_amount( $download_id, $price_id ) ) {
+
+								$ret = true;
+
+							}
 
 						}
 
 					}
 
-				}
+				} else {
 
-			} else {
+					// If there is a different product in the upgrade paths, upgrade is available
+					if( (int) $path['download_id'] !== (int) $download_id ) {
+						$ret = true;
+					}
 
-				// If there is a different product in the upgrade paths, upgrade is available
-				if( (int) $path['download_id'] !== (int) $download_id ) {
-					$ret = true;
 				}
 
 			}
 
 		}
-
 	}
 
 	return apply_filters( 'edd_sl_license_has_upgrades', $ret, $license_id );
@@ -328,6 +332,14 @@ function edd_sl_add_upgrade_to_cart( $data ) {
 
 	if ( $allow_upgrade ) {
 
+		// If this license ID is already in the cart, remove it to add the new choice
+		foreach ( $cart_contents as $key => $item ) {
+			if ( isset( $item['options']['license_id'] ) && $item['options']['license_id'] == $data['license_id'] ) {
+				edd_remove_from_cart( $key );
+				break;
+			}
+		}
+
 		$upgrade     = edd_sl_get_upgrade_path( $download_id, $data['upgrade_id'] );
 		$options     = array(
 			'price_id'   => $upgrade['price_id'],
@@ -347,7 +359,7 @@ function edd_sl_add_upgrade_to_cart( $data ) {
 
 		} else {
 
-			edd_set_error( 'edd-sl-unique-action', __( 'Expired license keys cannot be upgraded. Renew your license and then you may upgrade it.', 'edd_sl' ) );
+			edd_set_error( 'edd-sl-unique-action', __( 'License renewals and upgrades must be purchased separately. Please complete your license renewal before upgrading it.', 'edd_sl' ) );
 
 		}
 
@@ -437,7 +449,7 @@ function edd_sl_process_license_upgrade( $download_id = 0, $payment_id = 0, $typ
 	$purchase_date   = get_post_field( 'post_date', $old_payment_id );
 	$upgrade         = edd_sl_get_upgrade_path( $old_download_id, $upgrade_id );
 
-	if( edd_is_bundled_product( $download_id ) ) {
+	if( edd_is_bundled_product( $download_id ) && ! edd_is_bundled_product( $old_download_id ) ) {
 
 		// Upgrade to a bundle from a standard license
 
@@ -508,7 +520,6 @@ function edd_sl_process_license_upgrade( $download_id = 0, $payment_id = 0, $typ
 			add_post_meta( $l_id, '_edd_sl_key', $license_key );
 			add_post_meta( $l_id, '_edd_sl_user_id', $user_info['id'] );
 			add_post_meta( $l_id, '_edd_sl_status', 'inactive' );
-			add_post_meta( $l_id, '_edd_sl_site_count', 0 );
 
 			if ( $parent_license_id && ! empty( $activation_limit ) ) {
 				add_post_meta( $l_id, '_edd_sl_limit', $activation_limit );
@@ -535,6 +546,129 @@ function edd_sl_process_license_upgrade( $download_id = 0, $payment_id = 0, $typ
 
 		update_post_meta( $license_id, '_edd_sl_cart_index', $cart_index );
 		add_post_meta( $license_id, '_edd_sl_payment_id', $payment_id );
+
+	} else if ( edd_is_bundled_product( $download_id ) && edd_is_bundled_product( $old_download_id ) ) {
+
+		// Bundle to Bundle upgrade
+
+		// Change out the details on the bundle license
+		$new_title = get_the_title( $download_id );
+
+		if( edd_has_variable_prices( $download_id ) ) {
+			$new_title .= ' - ' . edd_get_price_option_name( $download_id, $upgrade['price_id'] );
+		}
+
+		$new_title .= ' - ' . edd_get_payment_user_email( $payment_id );
+
+		wp_update_post( array( 'ID' => $license_id, 'post_title' => $new_title ) );
+
+		update_post_meta( $license_id, '_edd_sl_cart_index', $cart_index );
+		add_post_meta( $license_id, '_edd_sl_payment_id', $payment_id );
+		update_post_meta( $license_id, '_edd_sl_download_id', $download_id );
+
+		if( edd_has_variable_prices( $download_id ) ) {
+
+			$limit       = edd_software_licensing()->get_price_activation_limit( $download_id, $upgrade['price_id'] );
+			$is_lifetime = edd_software_licensing()->get_price_is_lifetime( $download_id, $upgrade['price_id'] );
+
+			update_post_meta( $license_id, '_edd_sl_download_price_id', $upgrade['price_id'] );
+
+		} else {
+
+			$limit = edd_software_licensing()->get_license_limit( $download_id, $license_id );
+
+		}
+
+		update_post_meta( $license_id, '_edd_sl_limit', $limit );
+
+		$license_length = edd_software_licensing()->get_license_length( $license_id, $payment_id, $download_id );
+
+		if ( empty( $is_lifetime ) && 'lifetime' !== $license_length ) {
+			// Set license expiration date
+			delete_post_meta( $license_id, '_edd_sl_is_lifetime' );
+			edd_software_licensing()->set_license_expiration( $license_id, strtotime( $license_length, strtotime( $purchase_date ) ) );
+		} else {
+			edd_software_licensing()->set_license_as_lifetime( $license_id );
+		}
+
+		// Now see if the bundle contains any new items we need to add, or update existing items if the bundles have overlap in the downloads
+		$downloads         = array();
+		$bundle_licensing  = (bool) get_post_meta( $download_id, '_edd_sl_enabled', true );
+		$user_info         = edd_get_payment_meta_user_info( $payment_id );
+
+		if ( $bundle_licensing ) {
+			$downloads[] = $download_id;
+		}
+
+		$downloads = array_merge( $downloads, edd_get_bundled_products( $download_id ) );
+
+		foreach ( $downloads as $d_id ) {
+
+			if( (int) $d_id === (int) $old_download_id ) {
+				continue;
+			}
+
+			if ( ! get_post_meta( $d_id, '_edd_sl_enabled', true ) ) {
+				continue;
+			}
+
+			$existing_license = edd_software_licensing()->get_license_by_purchase( $old_payment_id, $d_id );
+			if ( ! empty( $existing_license ) ) {
+				continue;
+			}
+
+			$license_title    = get_the_title( $d_id ) . ' - ' . $user_info['email'];
+
+			$license_args = array(
+				'post_type'   => 'edd_license',
+				'post_title'  => $license_title,
+				'post_status' => 'publish',
+				'post_date'   => get_post_field( 'post_date', $payment_id, 'raw' ),
+				'post_parent' => $license_id,
+			);
+
+			$l_id        = wp_insert_post( apply_filters( 'edd_sl_insert_license_args', $license_args ) );
+			$license_key = edd_software_licensing()->get_new_download_license_key( $d_id );
+
+			if( ! $license_key ) {
+				// No predefined license key available, generate a random one
+				$license_key = edd_software_licensing()->generate_license_key( $l_id, $d_id, $payment_id, $cart_index );
+			}
+
+			$price_id = isset( $cart_item['item_number']['options']['price_id'] ) ? (int) $cart_item['item_number']['options']['price_id'] : false;
+
+			add_post_meta( $l_id, '_edd_sl_download_id', $d_id );
+
+			if( false !== $price_id ) {
+				add_post_meta( $l_id, '_edd_sl_download_price_id', $price_id );
+			}
+
+			add_post_meta( $l_id, '_edd_sl_cart_index', $cart_index );
+			add_post_meta( $l_id, '_edd_sl_payment_id', $payment_id );
+			add_post_meta( $l_id, '_edd_sl_key', $license_key );
+			add_post_meta( $l_id, '_edd_sl_user_id', $user_info['id'] );
+			add_post_meta( $l_id, '_edd_sl_status', 'inactive' );
+			add_post_meta( $l_id, '_edd_sl_site_count', 0 );
+
+			if ( ! empty( $limit ) ) {
+				add_post_meta( $l_id, '_edd_sl_limit', $limit );
+			}
+
+			// Get license length
+			$license_length = edd_software_licensing()->get_license_length( $l_id, $payment_id, $d_id );
+
+			if ( empty( $is_lifetime ) && 'lifetime' !== $license_length ) {
+				// Set license expiration date
+				delete_post_meta( $l_id, '_edd_sl_is_lifetime' );
+				edd_software_licensing()->set_license_expiration( $l_id, strtotime( $license_length, strtotime( $purchase_date ) ) );
+			} else {
+				edd_software_licensing()->set_license_as_lifetime( $l_id );
+			}
+
+			do_action( 'edd_sl_store_license', $l_id, $d_id, $payment_id, $type );
+
+		}
+
 
 	} else {
 
@@ -635,8 +769,8 @@ add_action( 'edd_complete_download_purchase', 'edd_sl_process_license_upgrade', 
  */
 function edd_sl_payment_details_inner_upgrade_history( $payment_id = 0 ) {
 
-	$upgraded_from = get_post_meta( $payment_id, '_edd_sl_upgraded_payment_id', true );
-	$upgraded_to = get_post_meta( $payment_id, '_edd_sl_upgraded_to_payment_id', true );
+	$upgraded_from = edd_get_payment_meta( $payment_id, '_edd_sl_upgraded_payment_id', true );
+	$upgraded_to   = edd_get_payment_meta( $payment_id, '_edd_sl_upgraded_to_payment_id', true );
 
 	if( $upgraded_from ) :
 

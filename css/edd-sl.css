@@ -35,6 +35,7 @@
 	background: #f0f0f0;
 	padding: 4px;
 	width: 20em;
+	max-width: inherit;
 	text-align: center;
 }
 
@@ -62,4 +63,9 @@
 #edd-cancel-license-renewal {
 	text-decoration: none;
 	color: red;
+}
+
+.edd-sl-manage-license-key,
+.edd-sl-manage-license-product {
+	display: block;
 }

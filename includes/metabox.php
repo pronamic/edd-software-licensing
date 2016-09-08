@@ -22,7 +22,7 @@ add_action( 'add_meta_boxes', 'edd_sl_add_license_meta_box', 100 );
  *
  * @since 1.0
  */
-function edd_sl_render_licenses_meta_box()	{
+function edd_sl_render_licenses_meta_box() {
 
 	global $post;
 	// Use nonce for verification
@@ -63,7 +63,11 @@ function edd_sl_render_licenses_meta_box()	{
 		echo '<tr' . $display . ' class="edd_sl_toggled_row">';
 			echo '<td class="edd_field_type_text" colspan="2">';
 				echo '<input type="number" class="small-text" name="edd_sl_limit" id="edd_sl_limit" value="' . esc_attr( $limit ) . '"/>&nbsp;';
-				echo __( 'Limit number of times this license can be activated. If using variable prices, set the limit for each price option.', 'edd_sl' );
+				echo __( 'Limit number of times this license can be activated. Use 0 for unlimited. If using variable prices, set the limit for each price option.', 'edd_sl' );
+				printf(
+					'<span alt="f223" class="edd-help-tip dashicons dashicons-editor-help" title="' . esc_attr__( '%s' ) . '"></span>',
+					__( '<strong>Activation Limit</strong>: Set the number of activations allowed per license. If individual activation limits are set for variable pricing, they take precedence. If your product is a bundle, the activation limit set here will override the activation limits set on the individual products.', 'edd_sl' )
+				);
 			echo '</td>';
 		echo '</tr>';
 
@@ -303,9 +307,9 @@ function edd_sl_render_license_upgrade_paths_meta_box()	{
  */
 function edd_sl_missing_keys_metabox( $post ) {
 	?>
-	<p><?php _e( 'Generate missing licenses for purchases of this product that did not have a key generated.', 'edd_sl' ); ?></p>
-	<p class="edd-sl-generate-keys-wrapper"><a id="edd-generate-download-keys" class="button-secondary"><?php _e( 'Generate Licenses Now', 'edd_sl' ); ?></a><span class="spinner"></span></p>
-	<p class="edd-sl-generate-keys-message" style="display: none;"></p>
+	<p class="edd-sl-generate-keys-moved">
+		<?php printf( __( 'Missing license keys can be generated for past purchases of this %s from the %sTools%s page', 'edd_sl' ), edd_get_label_singular( true ), '<a href="' . admin_url( 'edit.php?post_type=download&page=edd-tools&tab=general' ) . '">', '</a>' ); ?>
+	</p>
 	<?php
 }
 
@@ -522,7 +526,7 @@ function edd_sl_payment_details_meta_box( $payment_id = 0 ) {
 			<?php if ( current_user_can( 'edit_shop_payments' ) ) : ?>
 			<div class="inside">
 				<p><?php _e( 'Use this to generate missing license keys for this purchase. If you add a product to the purchase, click this after saving the payment.', 'edd_sl' ); ?></p>
-				<a href="<?php echo wp_nonce_url( add_query_arg( array( 'edd_action' => 'generate_new_license_keys' ) ), 'generate_new_license_keys', 'edd_sl_generate_keys_nonce' ); ?>" class="button-secondary">
+				<a href="<?php echo wp_nonce_url( add_query_arg( array( 'posts' => $payment_id ), admin_url( 'edit.php?post_type=download&page=edd-tools&tab=general' ) ), 'edd_sl_retroactive', 'edd_sl_retroactive' ); ?>" class="button-secondary">
 					<?php _e( 'Generate License Keys', 'edd_sl' ); ?>
 				</a>
 			</div>
@@ -532,124 +536,6 @@ function edd_sl_payment_details_meta_box( $payment_id = 0 ) {
 	<?php
 }
 add_action( 'edd_view_order_details_main_after', 'edd_sl_payment_details_meta_box' );
-
-
-/**
- * Process the Generate License Keys button from the View Order Details metabox
- *
- * @since 1.9
- */
-function edd_sl_process_new_license_generation( $data ) {
-
-	if ( empty( $data['edd_sl_generate_keys_nonce'] ) || ! wp_verify_nonce( $data['edd_sl_generate_keys_nonce'], 'generate_new_license_keys' ) ) {
-		wp_die( __( 'Verification failed', 'edd_sl' ), __( 'Error', 'edd_sl' ), array( 'response' => 401 ) );
-	}
-
-	$payment_id = absint( $data['id'] );
-	if( empty( $payment_id ) ) {
-		return;
-	}
-
-	if ( ! current_user_can( 'edit_shop_payments' ) ) {
-		wp_die( __( 'You do not have permission to perform this action', 'edd_sl' ), __( 'Error', 'edd_sl' ), array( 'response' => 401 ) );
-	}
-
-	$downloads = edd_get_payment_meta_cart_details( $payment_id, false );
-	if( empty( $downloads ) ) {
-		return;
-	}
-
-	$payment_date = get_post_field( 'post_date', $payment_id );
-
-	// Generate keys for each iem that needs it
-	foreach( $downloads as $cart_index => $download ) {
-
-		if( 'bundle' === edd_get_download_type( $download['id'] ) ) {
-
-			// Get products for the bundle and check if any need a license key
-			$bundle_license = edd_software_licensing()->get_license_by_purchase( $payment_id, $download['id'], $cart_index );
-
-			if( ! $bundle_license ) {
-
-				// Create a new bundle key
-				$bundle_keys    = edd_software_licensing()->generate_license( $download['id'], $payment_id, 'default', array(), $cart_index );
-				$bundle_key_id  = isset( $bundle_keys[0] ) ? $bundle_keys[0] : 0;
-
-				if( empty( $bundle_key_id ) ) {
-					continue;
-				}
-
-				$license_length = edd_software_licensing()->get_license_length( $bundle_key_id, $payment_id, $download['id'] );
-
-				if ( ! edd_software_licensing()->is_lifetime_license( $bundle_key_id ) ) {
-					$expiration = strtotime( $license_length, strtotime( $payment_date ) );
-					edd_software_licensing()->set_license_expiration( $bundle_key_id, strtotime( $license_length ) );
-				}
-
-			} else {
-
-				$bundle_key_id = $bundle_license->ID;
-
-			}
-
-			$bundle_items = edd_get_bundled_products( $download['id'] );
-
-			foreach( $bundle_items as $item_id ) {
-
-				if( edd_software_licensing()->get_license_by_purchase( $payment_id, $item_id, $cart_index ) ) {
-					continue; // This product already has keys
-				}
-
-				$keys = edd_software_licensing()->generate_license( $item_id, $payment_id, 'default', array(), $cart_index );
-
-				foreach( $keys as $license_id ) {
-
-					$license_length = edd_software_licensing()->get_license_length( $license_id, $payment_id, $download['id'] );
-
-					if ( ! edd_software_licensing()->is_lifetime_license( $license_id ) ) {
-						$expiration = strtotime( $license_length, strtotime( $payment_date ) );
-						edd_software_licensing()->set_license_expiration( $license_id, strtotime( $license_length ) );
-					}
-
-					// Set the post parent to the Bundle Key
-					$update_args = array(
-						'ID'          => $license_id,
-						'post_parent' => $bundle_key_id
-					);
-
-					wp_update_post( $update_args );
-
-
-				}
-
-			}
-
-		} else {
-
-			if( edd_software_licensing()->get_license_by_purchase( $payment_id, $download['id'], $cart_index ) ) {
-				continue; // This product already has keys
-			}
-
-			$keys = edd_software_licensing()->generate_license( $download['id'], $payment_id, 'default', $download, $cart_index );
-
-			foreach( $keys as $license_id ) {
-
-				$license_length = edd_software_licensing()->get_license_length( $license_id, $payment_id, $download['id'] );
-
-				if ( ! edd_software_licensing()->is_lifetime_license( $license_id ) ) {
-					$expiration = strtotime( $license_length, strtotime( $payment_date ) );
-					edd_software_licensing()->set_license_expiration( $license_id, strtotime( $license_length ) );
-				}
-
-			}
-
-		}
-
-	}
-
-	wp_redirect( admin_url( 'edit.php?post_type=download&page=edd-payment-history&view=view-order-details&id=' . $payment_id ) ); exit;
-}
-add_action( 'edd_generate_new_license_keys', 'edd_sl_process_new_license_generation' );
 
 /**
  * Add ReadMe Meta Box

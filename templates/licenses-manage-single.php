@@ -3,6 +3,7 @@
 $payment_id  = absint( $_GET['payment_id' ] );
 $license_id  = absint( $_GET['license_id' ] );
 $download_id = absint( edd_software_licensing()->get_download_id( $license_id ) );
+$download    = new EDD_Download( $download_id );
 $user_id     = edd_get_payment_user_id( $payment_id );
 
 if( ! current_user_can( 'edit_shop_payments' ) && $user_id != get_current_user_id() ) {
@@ -17,6 +18,11 @@ $sites = edd_software_licensing()->get_sites( $license_id );
 ?>
 <p><a href="<?php echo esc_url( remove_query_arg( array( 'license_id', 'edd_sl_error', '_wpnonce' ) ) ); ?>" class="edd-manage-license-back edd-submit button <?php echo esc_attr( $color ); ?>"><?php _e( 'Go back', 'edd_sl' ); ?></a></p>
 <?php edd_sl_show_errors(); ?>
+<h5 class="edd-sl-manage-license-header"><?php _e( 'Manage License', 'edd_sl' ); ?></h5>
+<p class="edd-sl-manage-license-details">
+	<span class="edd-sl-manage-license-key"><?php _e( 'License', 'edd_sl' ); ?>: <?php echo '<code>' . edd_software_licensing()->get_license_key( $license_id ) . '</code>'; ?></span>
+	<span class="edd-sl-manage-license-product"><?php _e( 'Product', 'edd_sl' ); ?>: <span><?php echo $download->get_name(); ?></span></span>
+</p>
 <table id="edd_sl_license_sites" class="edd_sl_table">
 	<thead>
 		<tr class="edd_sl_license_row">

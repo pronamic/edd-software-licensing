@@ -17,7 +17,8 @@ function edd_sl_admin_scripts() {
 		'download_page_edd-licenses',
 		'download_page_edd-license-renewal-notice',
 		'download_page_edd-reports',
-		'download_page_edd-settings'
+		'download_page_edd-settings',
+		'download_page_edd-tools',
 	);
 
 	$allowed_screens = apply_filters( 'edd-sl-admin-script-screens', $allowed_screens );
