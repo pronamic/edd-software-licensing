@@ -49,7 +49,7 @@ if ( $keys ) : ?>
 				<td>
 					<span class="view-key-wrapper">
 						<a href="#" class="edd_sl_show_key" title="<?php _e( 'Click to view license key', 'edd_sl' ); ?>"><img src="<?php echo EDD_SL_PLUGIN_URL . '/images/key.png'; ?>"/></a>
-						<input type="text" readonly="readonly" class="edd_sl_license_key" value="<?php echo esc_attr( $edd_sl->get_license_key( $license->ID ) ); ?>" />
+						<input type="text" readonly="readonly" class="edd_sl_license_key" value="<?php echo esc_attr( $edd_sl->get_license_key( $license->ID ) ); ?>" style="display:none;"/>
 					</span>
 				</td>
 				<td class="edd_sl_license_status edd-sl-<?php echo $edd_sl->get_license_status( $license->ID ); ?>"><?php echo $edd_sl->license_status( $license->ID ); ?></td>

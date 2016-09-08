@@ -39,6 +39,8 @@ function edd_sl_site_management_links( $payment_id, $purchase_data ) {
 				echo '-';
 			}
 		echo '</td>';
+	else:
+		echo '<td>&mdash;</td>';
 	endif;
 }
 add_action( 'edd_purchase_history_row_end', 'edd_sl_site_management_links', 10, 2 );
@@ -58,7 +60,7 @@ function edd_sl_override_history_content( $content ) {
 		return $content;
 	}
 
-	if( ! is_main_query() ) {
+	if( ! in_the_loop() ) {
 		return $content;
 	}
 

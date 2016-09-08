@@ -6,7 +6,6 @@ $color = ( $color == 'inherit' ) ? '' : $color;
 if ( is_user_logged_in() ) :
 	$license_keys = edd_software_licensing()->get_license_keys_of_user();
 	?>
-	<script type="text/javascript">jQuery(document).ready(function($){ $(".edd_sl_show_key").on("click",function(e){e.preventDefault(),$(this).parent().find(".edd_sl_license_key").on("click",function(){$(this).select()}).fadeToggle("fast")}); });</script>
 	<?php do_action( 'edd_sl_license_keys_before' ); ?>
 	<table id="edd_sl_license_keys" class="edd_sl_table">
 		<thead>
@@ -69,7 +68,7 @@ if ( is_user_logged_in() ) :
 							<?php endif; ?>
 						<?php endif; ?>
 						<br/>
-						<a class="edd_sl_purchase_number" href="<?php echo esc_url( edd_get_success_page_url( '?payment_key=' . edd_get_payment_key( $payment_id ) ) ); ?>" title="<?php esc_attr_e( 'View Purchase Record', 'edd_sl' ); ?>"><?php printf( __( 'Purchase #%d', 'edd_sl' ), edd_get_payment_number( $payment_id ) ); ?></a>
+						<a class="edd_sl_purchase_number" href="<?php echo esc_url( edd_get_success_page_uri( '?payment_key=' . edd_get_payment_key( $payment_id ) ) ); ?>" title="<?php esc_attr_e( 'View Purchase Record', 'edd_sl' ); ?>"><?php printf( __( 'Purchase #%d', 'edd_sl' ), edd_get_payment_number( $payment_id ) ); ?></a>
 						<?php do_action( 'edd_sl_license_key_details', $license->ID ); ?>
 					</td>
 					<?php do_action( 'edd_sl_license_keys_row_end', $license->ID ); ?>

@@ -31,19 +31,18 @@ class EDD_SL_Retroactive_Licensing {
 			wp_die( $this->post_id, esc_html__( 'Your user account doesn\'t have permission to access this.', 'edd_sl' ), array( 'response' => 401 ) );
 		}
 ?>
-		<div class="postbox">
+		<div class="postbox edd-sl-retroactive-licensing">
 			<h3><span><?php _e( 'Software Licensing - Retroactive Licensing Processor', 'edd_sl' ); ?></span></h3>
 			<div class="inside">
 <?php
 				// If the button was clicked
 				if ( ! empty( $_POST[ 'edd-retroactive-licensing' ] ) || ! empty( $_REQUEST['posts'] ) ) {
-					// Form nonce check
-					check_admin_referer( 'edd-retroactive-licensing' );
+					if ( ! wp_verify_nonce( $_REQUEST['edd_sl_retroactive'], 'edd_sl_retroactive' ) ) {
+						wp_die();
+					}
 
-					// Create the list of image IDs
 					if ( ! empty( $_REQUEST['posts'] ) ) {
-						$posts = explode( ',', trim( $_REQUEST['posts'], ',' ) );
-						$posts = array_map( 'intval', $posts );
+						$posts = array( intval( $_REQUEST['posts'] ) );
 					} else {
 						$posts = self::get_unlicensed_payments();
 					}
@@ -62,8 +61,9 @@ class EDD_SL_Retroactive_Licensing {
 						return;
 					}
 
-					$posts = "'" . implode( "','", $posts ) . "'";
-					$this->show_status( $count, $posts );
+					$posts       = "'" . implode( "','", $posts ) . "'";
+					$download_id = ! empty( $_REQUEST['edd_sl_single_id'] ) ? absint( $_REQUEST['edd_sl_single_id'] ) : 0;
+					$this->show_status( $count, $posts, $download_id );
 				} else {
 ?>
 					<p><?php _e( 'Use this tool to provision licenses for unlicensed Easy Digital Downloads products.', 'edd_sl' ); ?></p>
@@ -71,7 +71,16 @@ class EDD_SL_Retroactive_Licensing {
 					<form method="post" action="">
 						<?php wp_nonce_field( 'edd-retroactive-licensing' ); ?>
 						<p>
-							<input type="submit" class="button hide-if-no-js" name="<?php echo 'edd-retroactive-licensing'; ?>" id="<?php echo 'edd-retroactive-licensing'; ?>" value="<?php _e( 'Generate License Keys for Past Purchases', 'edd_sl' ) ?>" />
+							<span id="sl-retro-type-wrapper">
+								<select name="sl_retro_type" id="sl-retro-type">
+									<option value="all"><?php printf( __( 'All %s', 'edd_sl' ), edd_get_label_plural() ); ?></option>
+									<option value="single"><?php printf( __( 'Single %s', 'edd_sl' ), edd_get_label_singular() ); ?></option>
+								</select>
+							<span>
+							<span id="sl-retro-single-wrapper" style="display:none;">
+								<?php echo EDD()->html->product_dropdown( array( 'chosen' => true, 'name' => 'edd_sl_single_id', 'id' => 'edd-sl-single-id' ) ); ?>
+							</span>
+							<input type="submit" class="button hide-if-no-js" name="edd-retroactive-licensing" id="edd-retroactive-licensing" value="<?php _e( 'Generate License Keys for Past Purchases', 'edd_sl' ) ?>" />
 							<?php wp_nonce_field( 'edd_sl_retroactive', 'edd_sl_retroactive' ); ?>
 						</p>
 						<noscript><p><em><?php _e( 'You must enable Javascript in order to proceed!', 'edd_sl' ) ?></em></p></noscript>
@@ -92,7 +101,7 @@ class EDD_SL_Retroactive_Licensing {
 	 * @since       2.4
 	 * @return      void
 	*/
-	public function show_status( $count, $posts ) {
+	public function show_status( $count, $posts, $download_id ) {
 		echo '<p>' . esc_html__( 'Please be patient while this script runs. This can take a while, up to a minute per payment. Do not navigate away from this page until this script is done or the licensing will not be completed. You will be notified via this page when the licensing is completed.', 'edd_sl' ) . '</p>';
 
 		$text_goback = ( ! empty( $_GET['goback'] ) ) ? sprintf( __( 'To go back to the previous page, <a href="%s">click here</a>.', 'edd_sl' ), 'javascript:history.go(-1)' ) : '';
@@ -128,6 +137,7 @@ class EDD_SL_Retroactive_Licensing {
 				var i;
 				var rt_posts = [<?php echo $posts; ?>];
 				var rt_total = rt_posts.length;
+				var rt_single_id  = <?php echo $download_id; ?>;
 				var rt_count = 1;
 				var rt_percent = 0;
 				var rt_successes = 0;
@@ -189,13 +199,14 @@ class EDD_SL_Retroactive_Licensing {
 				}
 
 				// Regenerate a specified image via AJAX
-				function WPSPosts( id ) {
+				function WPSPosts( id, dl ) {
 					$.ajax({
 						type: 'POST',
 						url: ajaxurl,
 						data: {
 							action: "edd_sl_process_retroactive_post",
-							id: id
+							id: id,
+							dl: dl
 						},
 						success: function( response ) {
 							if ( response.success ) {
@@ -206,7 +217,7 @@ class EDD_SL_Retroactive_Licensing {
 							}
 
 							if ( rt_posts.length && rt_continue ) {
-								WPSPosts( rt_posts.shift() );
+								WPSPosts( rt_posts.shift(), dl );
 							}
 							else {
 								WPSPostsFinishUp();
@@ -216,7 +227,7 @@ class EDD_SL_Retroactive_Licensing {
 							WPSPostsUpdateStatus( id, false, response );
 
 							if ( rt_posts.length && rt_continue ) {
-								WPSPosts( rt_posts.shift() );
+								WPSPosts( rt_posts.shift(), dl );
 							}
 							else {
 								WPSPostsFinishUp();
@@ -225,7 +236,7 @@ class EDD_SL_Retroactive_Licensing {
 					});
 				}
 
-				WPSPosts( rt_posts.shift() );
+				WPSPosts( rt_posts.shift(), rt_single_id );
 			});
 		// ]]>
 		</script>
@@ -261,68 +272,26 @@ class EDD_SL_Retroactive_Licensing {
 	public static function get_unlicensed_payments() {
 		global $wpdb;
 
-		$products = self::get_licensed_products();
-		if ( empty( $products ) )
+		// Create the list of payment IDs
+		if ( ! empty( $_REQUEST['edd_sl_single_id'] ) ) {
+			$products = array( absint( $_REQUEST['edd_sl_single_id'] ) );
+		} else {
+			$products = self::get_licensed_products();
+		}
+
+		if ( empty( $products ) ) {
 			return array();
-
-		$products     = array_keys( $products );
-		$products_csv = implode( ',', $products );
-
-		$license_query = <<<EOD
-			SELECT pm.meta_value
-			FROM {$wpdb->postmeta} pm
-			WHERE 1 = 1
-				AND pm.meta_key = '_edd_sl_payment_id'
-				AND pm.post_id NOT IN (
-					SELECT post_id
-					FROM {$wpdb->postmeta}
-					WHERE 1 = 1
-						AND meta_key = '_edd_sl_download_id'
-						AND meta_value IN ( {$products_csv} )
-				)
-EOD;
-
-		$post__not_in = $wpdb->get_col( $license_query );
-
-		$post__in = array();
-		foreach ( $products as $product ) {
-			$args  = array(
-				'download' => $product,
-				'number' => -1,
-			);
-			$query = new EDD_Payments_Query( $args );
-
-			$payments = $query->get_payments();
-
-			foreach ( $payments as $payment )
-				$post__in[] = $payment->ID;
 		}
 
-		$query = array(
-			'post_status' => array( 'publish', 'edd_subscription' ),
-			'post_type' => 'edd_payment',
-			'orderby' => 'post_modified',
-			'order' => 'DESC',
-			'posts_per_page' => 1,
+		// Gather all the payments, and individual download IDs so we can verify licenses exist
+		$args = array(
+			'download' => $products,
+			'number'   => -1,
+			'fields'   => 'ids',
 		);
-
-		if ( ! empty( $post__in ) && ! empty( $post__not_in ) ) {
-			$post__in          = array_diff( $post__in, $post__not_in );
-			$post__in          = array_unique( $post__in );
-			$query['post__in'] = $post__in;
-		} elseif ( ! empty( $post__in ) ) {
-			$post__in          = array_unique( $post__in );
-			$query['post__in'] = $post__in;
-		} elseif ( ! empty( $post__not_in ) ) {
-			$post__not_in          = array_unique( $post__not_in );
-			$query['post__not_in'] = $post__not_in;
-		}
-
-		$results  = new WP_Query( $query );
-		$query_wp = $results->request;
-		$query_wp = preg_replace( '#\bLIMIT 0,.*#', '', $query_wp );
-
-		$payments = $wpdb->get_col( $query_wp );
+		$query    = new EDD_Payments_Query( $args );
+		$payments = $query->get_payments();
+		$payments = wp_list_pluck( $payments, 'ID' );
 
 		return $payments;
 	}
@@ -347,16 +316,21 @@ EOD;
 
 		$payment_id = intval( $_REQUEST['id'] );
 		$post       = get_post( $payment_id );
+		$download   = intval( $_REQUEST['dl'] );
 
 		if ( ! $post || $post->post_type != 'edd_payment' )
 			die( json_encode( array( 'error' => sprintf( esc_html__( 'Failed Licensing: %s is incorrect post type.', 'edd_sl' ), esc_html( $payment_id ) ) ) ) );
 
-		$success = self::generate_license_keys( $payment_id );
+		$number_generated = self::generate_license_keys( $payment_id, $download );
 
-		if ( true === $success )
-			die( json_encode( array( 'success' => sprintf( __( 'License keys for Payment ID <a href="%1$s" target="_blank">%2$s</a> were successfully generated.', 'edd_sl' ), self::get_order_url( $payment_id ), $payment_id ) ) ) );
-		else
-			die( json_encode( array( 'error' => sprintf( __( 'Payment ID <a href="%1$s" target="_blank">%2$s</a> was NOT licensed because "%4$".', 'edd_sl' ), self::get_order_url( $payment_id ), $payment_id, $success ) ) ) );
+		if ( ! empty( $number_generated ) ) {
+			$message = _n( '%1$s License key for Payment ID <a href="%2$s" target="_blank">%3$s</a> was successfully generated.', '%1$s License keys for Payment ID <a href="%2$s" target="_blank">%3$s</a> were successfully generated.', $number_generated, 'edd_sl' );
+			die( json_encode( array( 'success' => sprintf( $message, $number_generated, self::get_order_url( $payment_id ), $payment_id ) ) ) );
+		} else if ( 0 === $number_generated ) {
+			die( json_encode( array( 'success' => sprintf( __( 'Payment ID <a href="%1$s" target="_blank">%2$s</a> processed. No licenses needed to be generated.', 'edd_sl' ), self::get_order_url( $payment_id ), $payment_id ) ) ) );
+		} else {
+			die( json_encode( array( 'error' => sprintf( __( 'Payment ID <a href="%1$s" target="_blank">%2$s</a> was NOT licensed because "%4$".', 'edd_sl' ), self::get_order_url( $payment_id ), $payment_id, $number_generated ) ) ) );
+		}
 	}
 
 	/**
@@ -366,37 +340,89 @@ EOD;
 	 * @since       2.4
 	 * @return      mixed
 	*/
-	public static function generate_license_keys( $payment_id ) {
+	public static function generate_license_keys( $payment_id, $download_id ) {
 		$payment_id = absint( $payment_id );
-		if ( empty( $payment_id ) )
+		if ( empty( $payment_id ) ) {
 			return esc_html__( 'Empty `$payment_id`', 'edd_sl' );
+		}
 
-		$downloads = edd_get_payment_meta_cart_details( $payment_id, true );
-		if ( empty( $downloads ) )
+		$payment   = new EDD_Payment( $payment_id );
+		$downloads = $payment->cart_details;
+
+		if ( empty( $downloads ) ) {
 			return esc_html__( 'No payment downloads found', 'edd_sl' );
+		}
 
-		foreach ( $downloads as $download ) {
+		$keys_generated = 0;
 
-			if( edd_software_licensing()->get_license_by_purchase( $payment_id, $download['id'] ) ) {
-				continue; // This product already has keys
+		foreach ( $downloads as $cart_key => $download ) {
+
+			if ( ! empty( $download_id ) && (int) $download['id'] !== (int) $download_id ) {
+				continue; // We've been told to only generate for a specific download, and this wasn't it
 			}
 
-			$keys = edd_software_licensing()->generate_license( $download['id'], $payment_id, 'default', $download );
+			$item    = new EDD_Download( $download['id'] );
+			$type    = $item->is_bundled_download() ? 'bundle' : 'default';
+			$license = edd_software_licensing()->get_license_by_purchase( $payment_id, $download['id'], $cart_key, false );
 
-			foreach( $keys as $license_id ) {
+			if( $license ) {
+				if ( 'bundle' === $type ) {
+					$parent_license_id = $license->ID;
 
-				$license_length = edd_software_licensing()->get_license_length( $license_id, $payment_id, $download['id'] );
-				if ( 'lifetime' !== $license_length ) {
-					$expiration     = strtotime( $license_length, strtotime( $payment_date ) );
+					// Get any licenses that have a parent with this license ID
+					$child_licenses             = get_children( array( 'post_parent' => $parent_license_id, 'post_type' => 'edd_license' ) );
+					$existing_download_licenses = array();
 
-					edd_software_licensing()->set_license_expiration( $license_id, strtotime( $license_length ) );
+					// Collect the download IDs of these existing child licenses so we can determine which downloads need licenses
+					foreach ( $child_licenses as $child_license ) {
+						$license_download_id = get_post_meta( $child_license->ID, '_edd_sl_download_id', true );
+						if ( ! empty( $license_download_id ) ) {
+							$existing_download_licenses[] = $license_download_id;
+						}
+					}
+
+					$bundle_downloads = edd_get_bundled_products( $download['id'] );
+
+					foreach ( $bundle_downloads as $bundle_download ) {
+
+						// If we don't find this download ID in the existing licenses, generate one
+						if ( ! in_array( $bundle_download, $existing_download_licenses ) ) {
+							$child_key = edd_software_licensing()->generate_license( $bundle_download, $payment_id, 'default', $download );
+
+							// Set the post parent to the Bundle Key
+							$update_args = array(
+								'ID'          => $child_key[0],
+								'post_parent' => $parent_license_id,
+							);
+
+							wp_update_post( $update_args );
+							$keys_generated++;
+						}
+					}
+
+				} else {
+					continue; // This product already has keys
+				}
+			} else {
+
+				$keys     = edd_software_licensing()->generate_license( $download['id'], $payment_id, $type, $download );
+
+				foreach( $keys as $license_id ) {
+
+					$license_length = edd_software_licensing()->get_license_length( $license_id, $payment_id, $download['id'] );
+					if ( 'lifetime' !== $license_length ) {
+						edd_software_licensing()->set_license_expiration( $license_id, strtotime( $license_length ) );
+					}
+
+					$keys_generated++;
+
 				}
 
 			}
 
 		}
 
-		return true;
+		return $keys_generated;
 	}
 
 	/**

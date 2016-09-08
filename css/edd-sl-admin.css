@@ -56,3 +56,7 @@
 	text-align: center;
 	font-style: italic;
 }
+
+.edd-sl-retroactive-licensing .ui-progressbar-value {
+	margin-top: -19px !important;
+}

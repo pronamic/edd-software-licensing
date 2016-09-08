@@ -95,6 +95,13 @@ function edd_sl_show_upgrade_notice() {
 				echo $notice;
 			}
 
+			if ( version_compare( $edd_sl_version, '3.4.8', '<' ) || ! edd_has_upgrade_completed( 'sl_deprecate_site_count_meta' ) ) {
+				printf(
+					'<div class="updated"><p>' . __( 'The Software Licensing post meta needs to be upgraded, click <a href="%s">here</a> to start the upgrade.', 'edd_sl' ) . '</p></div>',
+					esc_url( add_query_arg( array( 'edd_action' => 'sl_deprecate_site_count_meta' ), admin_url() ) )
+				);
+			}
+
 		}
 	}
 }
@@ -123,15 +130,16 @@ function edd_sl_v22_upgrades() {
 	if( $payments ) {
 		foreach( $payments as $payment ) {
 
-			if( get_post_meta( $payment, '_edd_sl_is_renewal', true ) )
+			if( edd_get_payment_meta( $payment, '_edd_sl_is_renewal', true ) ) {
 				continue;
+			}
 
 			$args = array(
 				'posts_per_page' => -1,
-				'meta_key' 		 => '_edd_sl_payment_id',
-				'meta_value' 	 => $payment,
-				'post_type' 	 => 'edd_license',
-				'fields'         => 'ids'
+				'meta_key'       => '_edd_sl_payment_id',
+				'meta_value'     => $payment,
+				'post_type'      => 'edd_license',
+				'fields'         => 'ids',
 			);
 
 			$keys = get_posts( $args );
@@ -570,3 +578,92 @@ function edd_sl_v32_add_bundle_licenses() {
 	}
 }
 add_action( 'edd_sl_add_bundle_licenses', 'edd_sl_v32_add_bundle_licenses' );
+
+/**
+ * Runs an upgrade routine to remove old _edd_sl_site_count meta in favor of the helper method in the main class:
+ * edd_software_licensing->get_site_count( $license_id )
+ *
+ * @since  3.4.8
+ * @return void
+ */
+function edd_sl_348_remove_site_count_meta() {
+	global $wpdb;
+
+	if( ! current_user_can( 'manage_shop_settings' ) ) {
+		wp_die( __( 'You do not have permission to do shop upgrades', 'edd' ), __( 'Error', 'edd' ), array( 'response' => 403 ) );
+	}
+
+	ignore_user_abort( true );
+
+	if ( ! edd_is_func_disabled( 'set_time_limit' ) && ! ini_get( 'safe_mode' ) ) {
+		@set_time_limit(0);
+	}
+
+	$step   = isset( $_GET['step'] ) ? absint( $_GET['step'] ) : 1;
+	$number = 25;
+	$total  = isset( $_GET['total'] ) ? absint( $_GET['total'] ) : false;
+	if ( $step < 2 ) {
+
+		// Check if we have any licenses before moving on
+		$sql = "SELECT ID FROM $wpdb->posts WHERE post_type = 'edd_license' LIMIT 1";
+		$has_licenses = $wpdb->get_col( $sql );
+
+		if( empty( $has_licenses ) ) {
+			// We had no licenses, just complete
+			update_option( 'edd_sl_version', preg_replace( '/[^0-9.].*/', '', EDD_SL_VERSION ) );
+			edd_set_upgrade_complete( 'sl_deprecate_site_count_meta' );
+			delete_option( 'edd_doing_upgrade' );
+			wp_redirect( admin_url() ); exit;
+		}
+
+		// Check if we have any _edd_sl_site_count meta items as well
+		$sql = "SELECT post_id FROM $wpdb->postmeta WHERE meta_key = '_edd_sl_site_count' LIMIT 1";
+		$has_site_counts = $wpdb->get_col( $sql );
+
+		if ( empty( $has_site_counts ) ) {
+			// We had no site count meta, just complete
+			update_option( 'edd_sl_version', preg_replace( '/[^0-9.].*/', '', EDD_SL_VERSION ) );
+			edd_set_upgrade_complete( 'sl_deprecate_site_count_meta' );
+			delete_option( 'edd_doing_upgrade' );
+			wp_redirect( admin_url() ); exit;
+		}
+
+	}
+
+	if ( false === $total ) {
+		$sql   = "SELECT COUNT( post_id ) FROM $wpdb->postmeta WHERE meta_key = '_edd_sl_site_count' ";
+		$total = $wpdb->get_var( $sql );
+	}
+
+	$sql      = $wpdb->prepare( "SELECT meta_id FROM $wpdb->postmeta WHERE meta_key = '_edd_sl_site_count' LIMIT %d;", $number );
+	$meta_ids = $wpdb->get_col( $sql );
+
+	if( ! empty( $meta_ids ) ) {
+
+		$meta_ids = '"' . implode( '","', $meta_ids ) . '"';
+		$sql      = "DELETE FROM $wpdb->postmeta WHERE meta_id IN ({$meta_ids})";
+
+		$wpdb->query( $sql );
+
+		// More Payments found so upgrade them
+		$step++;
+		$redirect = add_query_arg( array(
+			'page'        => 'edd-upgrades',
+			'edd-upgrade' => 'sl_deprecate_site_count_meta',
+			'step'        => $step,
+			'number'      => $number,
+			'total'       => $total,
+		), admin_url( 'index.php' ) );
+		wp_safe_redirect( $redirect ); exit;
+
+	} else {
+
+		// No more data to update. Downloads have been altered or dismissed
+		update_option( 'edd_sl_version', preg_replace( '/[^0-9.].*/', '', EDD_SL_VERSION ) );
+		edd_set_upgrade_complete( 'sl_deprecate_site_count_meta' );
+		delete_option( 'edd_doing_upgrade' );
+
+		wp_redirect( admin_url() ); exit;
+	}
+}
+add_action( 'edd_sl_deprecate_site_count_meta', 'edd_sl_348_remove_site_count_meta' );
