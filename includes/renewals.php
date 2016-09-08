@@ -327,33 +327,7 @@ function edd_sl_add_renewal_to_cart( $license_id = 0, $by_key = false ) {
 
 	// if product has variable prices, find previous used price id and add it to cart
 	if ( edd_has_variable_prices( $download_id ) ) {
-
-		$price_id = edd_software_licensing()->get_price_id( $license_id );
-
-		if( '' === $price_id ) {
-
-			// If no $price_id is available, try and find it from the payment ID. See https://github.com/pippinsplugins/EDD-Software-Licensing/issues/110
-			$payment_items = edd_get_payment_meta_downloads( $payment_id );
-
-			foreach( $payment_items as $payment_item ) {
-
-				if( (int) $payment_item['id'] !== (int) $download_id ) {
-					continue;
-				}
-
-				if( isset( $payment_item['options']['price_id'] ) ) {
-
-					$options['price_id'] = $payment_item['options']['price_id'];
-					break;
-				}
-			}
-
-		} else {
-
-			$options['price_id'] = $price_id;
-
-		}
-
+		$options['price_id'] = edd_software_licensing()->get_price_id( $license_id );
 	}
 
 	if( empty( $download_id ) ) {
@@ -520,6 +494,9 @@ function edd_sl_remove_key_on_remove_from_cart( $cart_key = 0, $item_id = 0 ) {
 		EDD()->session->set( 'edd_renewal_keys', array_values( $keys ) );
 	}
 
+	if( empty( $keys ) ) {
+		EDD()->session->set( 'edd_is_renewal', null );
+	}
 }
 add_action( 'edd_post_remove_from_cart', 'edd_sl_remove_key_on_remove_from_cart', 10, 2 );
 
@@ -768,7 +745,7 @@ function edd_sl_payment_details_inner( $payment_id = 0 ) {
 		return;
 	}
 
-	$was_renewal = get_post_meta( $payment_id, '_edd_sl_is_renewal', true );
+	$was_renewal = edd_get_payment_meta( $payment_id, '_edd_sl_is_renewal', true );
 ?>
 	<div class="edd-admin-box-inside">
 		<p>

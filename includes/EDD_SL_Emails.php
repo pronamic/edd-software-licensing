@@ -146,8 +146,9 @@ class EDD_SL_Emails {
 		$download_id  = get_post_meta( $license_id, '_edd_sl_download_id', true );
 		$product_name = get_the_title( $download_id );
 		$expiration   = edd_software_licensing()->get_license_expiration( $license_id );
-		$expiration   = date( get_option( 'date_format' ), $expiration );
+		$expiration   = date_i18n( get_option( 'date_format' ), $expiration );
 		$discount     = edd_sl_get_renewal_discount_percentage( $license_id );
+		// $renewal_link is actually just a URL. Not renamed for historical reasons.
 		$renewal_link = apply_filters( 'edd_sl_renewal_link', edd_get_checkout_uri( array(
 			'edd_license_key' => $license_key,
 			'download_id'     => $download_id
@@ -162,6 +163,7 @@ class EDD_SL_Emails {
 		};
 		$html_link = sprintf( '<a href="%s">%s</a>', $renewal_link, $renewal_link );
 		$text = str_replace( '{renewal_link}',     $html_link,   $text );
+		$text = str_replace( '{renewal_url}',     $renewal_link,   $text );
 
 		return $text;
 	}

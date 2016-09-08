@@ -1,27 +1,16 @@
 jQuery(document).ready(function ($) {
-	$('#edd-generate-download-keys').click(function() {
-		var spinner = $(this).next('.spinner');
-		spinner.css('visibility', 'visible');
 
-		var button = this,
-			data = {
-				action: 'edd_sl_generate_download_keys',
-				download: edd_sl.download
-			};
-
-		$(button).toggleClass('button-disabled');
-		$(button).toggleClass('button-primary');
-		$.post(ajaxurl, data, function(response, status) {
-			$(button).toggleClass('button-disabled');
-			$(button).toggleClass('button-primary');
-
-			spinner.css('visibility', 'hidden');
-
-			var message_wrapper = $('.edd-sl-generate-keys-message');
-			message_wrapper.html(response).show();
-			setTimeout(function(){ message_wrapper.fadeOut() }, 5000);
-		});
+	$('#sl-retro-type').change( function() {
+		var type = $(this).val();
+		var target = $('#sl-retro-single-wrapper');
+		if ( 'all' == type ) {
+			target.hide();
+		} else {
+			target.show();
+			target.find( '.edd-select-chosen' ).css( 'width', 'auto' );
+		}
 	});
+
 	$('.edd-sl-adjust-limit').click(function(e) {
 		e.preventDefault();
 		var button = $(this),

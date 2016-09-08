@@ -37,6 +37,7 @@ $updater = new EDD_Theme_Updater_Admin(
 		'unlimited'                 => __( 'unlimited', 'edd-theme-updater' ),
 		'license-key-is-active'     => __( 'License key is active.', 'edd-theme-updater' ),
 		'expires%s'                 => __( 'Expires %s.', 'edd-theme-updater' ),
+		'expires-never'             => __( 'Lifetime License.', 'edd-theme-updater' ),
 		'%1$s/%2$-sites'            => __( 'You have %1$s / %2$s sites activated.', 'edd-theme-updater' ),
 		'license-key-expired-%s'    => __( 'License key expired %s.', 'edd-theme-updater' ),
 		'license-key-expired'       => __( 'License key has expired.', 'edd-theme-updater' ),

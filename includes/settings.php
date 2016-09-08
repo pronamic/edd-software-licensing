@@ -16,55 +16,83 @@ add_filter( 'edd_settings_sections_extensions', 'edd_sl_register_license_section
  * @return      array
 */
 
-function edd_sl_license_settings( $settings ) {
-
+function edd_sl_license_settings( $settings ) {		
+	
+	//Set up some of the tooltips differently if EDD Recurring is active.
+	if ( class_exists( 'EDD_Recurring' ) ) {
+		$edd_sl_renewals_tt_desc = __( 'Checking this will give customers the ability to enter their license key on the checkout page and renew it. They\'ll also get renewal reminders to their email, and can also renew from their account page (if that page uses the [edd_license_keys] shortcode). NOTE: If the product is a Recurring product and the customer\'s subscription is still active, it will automatically renew even if this option is disabled.', 'edd_sl' );
+		
+		$edd_sl_renewal_discount_tt_desc = __( 'When the user is on the checkout page renewing their license, this discount will be automatically applied to their renewal purchase. NOTE: If the product is a Recurring product and the customer\'s subscription is still active, it will automatically renew with this discount applied.', 'edd_sl' );
+		
+		$edd_sl_send_renewal_reminders_tt_desc = __( 'Renewal Reminders are emails that are automatically sent out to the customer when their license key is about to expire. These emails will remind the customer that they need to renew. You can configure those emails below. NOTE: If the product is a Recurring product and the customer\'s subscription is still active, the Renewal Reminders on this page will not be sent. Instead, the emails on the \'Recurring Payments\' page will be used (see \'Recurring Payments\' above). However, if the customer\'s subscription is cancelled or expired, they will be sent these emails.', 'edd_sl' );
+		
+	} else {
+		$edd_sl_renewals_tt_desc = __( 'Checking this will give customers the ability to enter their license key on the checkout page and renew it. They\'ll also get renewal reminders to their email, and can also renew from their account page (if that page uses the [edd_license_keys] shortcode).', 'edd_sl' );
+		
+		$edd_sl_renewal_discount_tt_desc = __( 'When the user is on the checkout page renewing their license, this discount will be automatically applied to their renewal purchase.', 'edd_sl' );
+		
+		$edd_sl_send_renewal_reminders_tt_desc = __( 'Renewal Reminders are emails that are automatically sent out to the customer when their license key is about to expire. These emails will remind the customer that they need to renew. You can configure those emails below.', 'edd_sl' );
+	}
+	
 	$license_settings = array(
 		array(
-			'id' => 'edd_sl_header',
+			'id'   => 'edd_sl_header',
 			'name' => '<strong>' . __( 'Software Licensing', 'edd_sl' ) . '</strong>',
 			'desc' => '',
 			'type' => 'header',
 			'size' => 'regular'
 		),
 		array(
-			'id' => 'edd_sl_force_increase',
-			'name' => __( 'Disable URL Checking?', 'edd_sl' ),
-			'desc' => __( 'Check this box if your software is not tied to to URLs. If you sell desktop software, check this.', 'edd_sl' ),
-			'type' => 'checkbox'
+			'id'            => 'edd_sl_force_increase',
+			'name'          => __( 'Disable URL Checking?', 'edd_sl' ),
+			'desc'          => __( 'Check this box if your software is not tied to to URLs. If you sell desktop software, check this.', 'edd_sl' ),
+			'type'          => 'checkbox',
+			'tooltip_title' => __( 'What is URL Checking?', 'edd_sl' ),
+			'tooltip_desc'  => __( 'Software Licensing will typically require the software to pass a URL along with a license to check the license limit. Note that if you sell desktop software, you could use the URL paramater to track the ID of the computer running the license by passing the computer\'s ID in the URL paramater. For more on this please see the documentation.', 'edd_sl' )
 		),
 		array(
-			'id' => 'edd_sl_bypass_local_hosts',
-			'name' => __( 'Ignore Local Host URLs?', 'edd_sl' ),
-			'desc' => __( 'Allow local development domains and IPs to be activated without counting towards the activation limit totals. The URL will still be logged.', 'edd_sl' ),
-			'type' => 'checkbox'
+			'id'            => 'edd_sl_bypass_local_hosts',
+			'name'          => __( 'Ignore Local Host URLs?', 'edd_sl' ),
+			'desc'          => __( 'Allow local development domains and IPs to be activated without counting towards the activation limit totals. The URL will still be logged.', 'edd_sl' ),
+			'type'          => 'checkbox',
+			'tooltip_title' => __( 'What is a Local Host?', 'edd_sl' ),
+			'tooltip_desc'  => __( 'People who are in the developmental stages of their website will often build it offline using their own computer. This is called a Local Host. ', 'edd_sl' )
 		),
 		array(
-			'id' => 'edd_sl_readme_parsing',
-			'name' => __( 'Selling WordPress Plugins?', 'edd_sl' ),
-			'desc' => __( 'Check this box if you are selling WordPress plugins and wish to enable advanced ReadMe.txt file parsing.', 'edd_sl' ),
-			'type' => 'checkbox'
+			'id'            => 'edd_sl_readme_parsing',
+			'name'          => __( 'Selling WordPress Plugins?', 'edd_sl' ),
+			'desc'          => __( 'Check this box if you are selling WordPress plugins and wish to enable advanced ReadMe.txt file parsing.', 'edd_sl' ),
+			'type'          => 'checkbox',
+			'tooltip_title' => __( 'What is ReadMe.txt?', 'edd_sl' ),
+			'tooltip_desc'  => __( 'Properly built WordPress plugins will include a ReadMe.txt file which includes things like the version, license, author, description, and more. Checking this will add a metabox to each download which allows for plugin data to be auto filled based on the included ReadMe.txt file in your plugin. Note that this is optional even if you are selling WordPress plugins.', 'edd_sl' )
 		),
 		array(
-			'id' => 'edd_sl_renewals',
-			'name' => __( 'Allow Renewals', 'edd_sl' ),
-			'desc' => __( 'Check this box if you want customers to be able to renew their license keys.', 'edd_sl' ),
-			'type' => 'checkbox'
+			'id'            => 'edd_sl_renewals',
+			'name'          => __( 'Allow Renewals', 'edd_sl' ),
+			'desc'          => __( 'Check this box if you want customers to be able to renew their license keys.', 'edd_sl' ),
+			'type'          => 'checkbox',
+			'tooltip_title' => __( 'What does \'Allow Renewals\' do?', 'edd_sl' ),
+			'tooltip_desc'  => $edd_sl_renewals_tt_desc
 		),
 		array(
-			'id' => 'edd_sl_renewal_discount',
-			'name' => __( 'Renewal Discount', 'edd_sl' ),
-			'desc' => __( 'Enter a discount amount as a percentage, such as 10. Or enter 0 for no discount.', 'edd_sl' ),
-			'type' => 'text',
-			'size' => 'small'
+			'id'            => 'edd_sl_renewal_discount',
+			'name'          => __( 'Renewal Discount', 'edd_sl' ),
+			'desc'          => __( 'Enter a discount amount as a percentage, such as 10. Or enter 0 for no discount.', 'edd_sl' ),
+			'type'          => 'text',
+			'size'          => 'small',
+			'tooltip_title' => __( 'When is this renewal discount used?', 'edd_sl' ),
+			'tooltip_desc'  => $edd_sl_renewal_discount_tt_desc
 		),
 		array(
-			'id' => 'edd_sl_send_renewal_reminders',
-			'name' => __( 'Send Renewal Reminders', 'edd_sl' ),
-			'desc' => __( 'Check this box if you want customers to receive a renewal reminder when their license key is about to expire.', 'edd_sl' ),
-			'type' => 'checkbox'
+			'id'            => 'edd_sl_send_renewal_reminders',
+			'name'          => __( 'Send Renewal Reminders', 'edd_sl' ),
+			'desc'          => __( 'Check this box if you want customers to receive a renewal reminder when their license key is about to expire.', 'edd_sl' ),
+			'type'          => 'checkbox',
+			'tooltip_title' => __( 'What are Renewal Reminders?', 'edd_sl' ),
+			'tooltip_desc'  => $edd_sl_send_renewal_reminders_tt_desc
 		),
 		array(
-			'id' => 'sl_renewal_notices',
+			'id'   => 'sl_renewal_notices',
 			'name' => __( 'Renewal Notices', 'edd_sl' ),
 			'desc' => __( 'Configure the renewal notice emails', 'edd_sl' ),
 			'type' => 'hook'

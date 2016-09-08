@@ -4,7 +4,7 @@ $payment_id  = absint( $_GET['payment_id' ] );
 $license_id  = absint( $_GET['license_id' ] );
 $download_id = absint( edd_software_licensing()->get_download_id( $license_id ) );
 $upgrades    = edd_sl_get_license_upgrades( $license_id );
-$user_id     = get_post_meta( $license_id, '_edd_sl_user_id', true );
+$user_id     = edd_software_licensing()->get_user_id( $license_id );
 
 if( ! current_user_can( 'edit_shop_payments' ) && $user_id != get_current_user_id() ) {
 	return;
