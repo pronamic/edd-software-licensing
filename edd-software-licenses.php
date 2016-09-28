@@ -3,7 +3,7 @@
 Plugin Name: Easy Digital Downloads - Software Licenses
 Plugin URL: http://easydigitaldownloads.com/extension/software-licenses
 Description: Adds a software licensing system to Easy Digital Downloads
-Version: 3.4.9
+Version: 3.4.10
 Author: Pippin Williamson and Chris Klosowski
 Author URI: http://pippinsplugins.com
 Contributors: mordauk
@@ -24,7 +24,7 @@ if ( ! defined( 'EDD_SL_PLUGIN_FILE' ) ) {
 }
 
 if ( ! defined( 'EDD_SL_VERSION' ) ) {
-	define( 'EDD_SL_VERSION', '3.4.9' );
+	define( 'EDD_SL_VERSION', '3.4.10' );
 }
 
 class EDD_Software_Licensing {
