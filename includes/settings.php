@@ -16,24 +16,24 @@ add_filter( 'edd_settings_sections_extensions', 'edd_sl_register_license_section
  * @return      array
 */
 
-function edd_sl_license_settings( $settings ) {		
-	
+function edd_sl_license_settings( $settings ) {
+
 	//Set up some of the tooltips differently if EDD Recurring is active.
 	if ( class_exists( 'EDD_Recurring' ) ) {
 		$edd_sl_renewals_tt_desc = __( 'Checking this will give customers the ability to enter their license key on the checkout page and renew it. They\'ll also get renewal reminders to their email, and can also renew from their account page (if that page uses the [edd_license_keys] shortcode). NOTE: If the product is a Recurring product and the customer\'s subscription is still active, it will automatically renew even if this option is disabled.', 'edd_sl' );
-		
+
 		$edd_sl_renewal_discount_tt_desc = __( 'When the user is on the checkout page renewing their license, this discount will be automatically applied to their renewal purchase. NOTE: If the product is a Recurring product and the customer\'s subscription is still active, it will automatically renew with this discount applied.', 'edd_sl' );
-		
+
 		$edd_sl_send_renewal_reminders_tt_desc = __( 'Renewal Reminders are emails that are automatically sent out to the customer when their license key is about to expire. These emails will remind the customer that they need to renew. You can configure those emails below. NOTE: If the product is a Recurring product and the customer\'s subscription is still active, the Renewal Reminders on this page will not be sent. Instead, the emails on the \'Recurring Payments\' page will be used (see \'Recurring Payments\' above). However, if the customer\'s subscription is cancelled or expired, they will be sent these emails.', 'edd_sl' );
-		
+
 	} else {
 		$edd_sl_renewals_tt_desc = __( 'Checking this will give customers the ability to enter their license key on the checkout page and renew it. They\'ll also get renewal reminders to their email, and can also renew from their account page (if that page uses the [edd_license_keys] shortcode).', 'edd_sl' );
-		
+
 		$edd_sl_renewal_discount_tt_desc = __( 'When the user is on the checkout page renewing their license, this discount will be automatically applied to their renewal purchase.', 'edd_sl' );
-		
+
 		$edd_sl_send_renewal_reminders_tt_desc = __( 'Renewal Reminders are emails that are automatically sent out to the customer when their license key is about to expire. These emails will remind the customer that they need to renew. You can configure those emails below.', 'edd_sl' );
 	}
-	
+
 	$license_settings = array(
 		array(
 			'id'   => 'edd_sl_header',
@@ -45,7 +45,7 @@ function edd_sl_license_settings( $settings ) {
 		array(
 			'id'            => 'edd_sl_force_increase',
 			'name'          => __( 'Disable URL Checking?', 'edd_sl' ),
-			'desc'          => __( 'Check this box if your software is not tied to to URLs. If you sell desktop software, check this.', 'edd_sl' ),
+			'desc'          => __( 'Check this box if your software is not tied to URLs. If you sell desktop software, check this.', 'edd_sl' ),
 			'type'          => 'checkbox',
 			'tooltip_title' => __( 'What is URL Checking?', 'edd_sl' ),
 			'tooltip_desc'  => __( 'Software Licensing will typically require the software to pass a URL along with a license to check the license limit. Note that if you sell desktop software, you could use the URL paramater to track the ID of the computer running the license by passing the computer\'s ID in the URL paramater. For more on this please see the documentation.', 'edd_sl' )
