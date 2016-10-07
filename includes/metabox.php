@@ -323,14 +323,20 @@ function edd_sl_missing_keys_metabox( $post ) {
 
 function edd_sl_prices_header( $download_id ) {
 ?>
-	<th><?php _e( 'License Activation Limit', 'edd_sl' ); ?></th>
+	<th>
+		<?php _e( 'Activation Limit', 'edd_sl' ); ?>
+		<span alt="f223" class="edd-help-tip dashicons dashicons-editor-help" title="<?php _e( '<strong>Activation Limit</strong>: For each variable pricing option, set the number of activations allowed per license. Use 0 for unlimited. If your product is a bundle, the activation limits set here will override the activation limits set on the individual products.', 'edd_sl' ); ?>"></span>
+	</th>
 <?php
 }
 add_action( 'edd_download_price_table_head', 'edd_sl_prices_header', 800 );
 
 function edd_sl_lifetime_header( $download_id ) {
 ?>
-	<th><?php _e( 'Lifetime', 'edd_sl' ); ?></th>
+	<th>
+		<?php _e( 'Lifetime', 'edd_sl' ); ?>
+		<span alt="f223" class="edd-help-tip dashicons dashicons-editor-help" title="<?php _e( '<strong>Lifetime</strong>: Check this setting to provide licenses that never expire.', 'edd_sl' ); ?>"></span>
+	</th>
 <?php
 }
 add_action( 'edd_download_price_table_head', 'edd_sl_lifetime_header', 801 );
