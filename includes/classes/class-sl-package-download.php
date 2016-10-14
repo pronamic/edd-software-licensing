@@ -123,7 +123,7 @@ class EDD_SL_Package_Download {
 
 			$download_name = get_the_title( $download_id );
 			$hours         = '+' . absint( edd_get_option( 'download_link_expiration', 24 ) ) . ' hours';
-			$expires       = strtotime( $hours );
+			$expires       = strtotime( $hours, current_time( 'timestamp' ) );
 			$file_key      = get_post_meta( $download_id, '_edd_sl_upgrade_file_key', true );
 			$hash          = md5( $download_name . $file_key . $download_id . $license_key . $expires );
 			$url           = str_replace( ':', '@', $url );
@@ -155,7 +155,7 @@ class EDD_SL_Package_Download {
 
 			do_action( 'edd_sl_before_package_download', $id, $hash, $license, $expires );
 
-			if ( time() > $expires ) {
+			if ( current_time( 'timestamp' ) > $expires ) {
 				wp_die( __( 'Your download link has expired', 'edd_sl' ), __( 'Error', 'edd_sl' ), array( 'response' => 401 ) );
 			}
 

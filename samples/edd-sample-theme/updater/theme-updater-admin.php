@@ -487,7 +487,7 @@ class EDD_Theme_Updater_Admin {
 			// Get expire date
 			$expires = false;
 			if ( isset( $license_data->expires ) && 'lifetime' != $license_data->expires ) {
-				$expires = date_i18n( get_option( 'date_format' ), strtotime( $license_data->expires ) );
+				$expires = date_i18n( get_option( 'date_format' ), strtotime( $license_data->expires, current_time( 'timestamp' ) ) );
 				$renew_link = '<a href="' . esc_url( $this->get_renewal_link() ) . '" target="_blank">' . $strings['renew'] . '</a>';
 			} elseif ( isset( $license_data->expires ) && 'lifetime' == $license_data->expires ) {
 				$expires = 'lifetime';
