@@ -411,7 +411,7 @@ class EDD_SL_Retroactive_Licensing {
 
 					$license_length = edd_software_licensing()->get_license_length( $license_id, $payment_id, $download['id'] );
 					if ( 'lifetime' !== $license_length ) {
-						edd_software_licensing()->set_license_expiration( $license_id, strtotime( $license_length ) );
+						edd_software_licensing()->set_license_expiration( $license_id, strtotime( $license_length, current_time( 'timestamp' ) ) );
 					}
 
 					$keys_generated++;

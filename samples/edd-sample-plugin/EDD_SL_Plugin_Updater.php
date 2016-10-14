@@ -105,7 +105,7 @@ class EDD_SL_Plugin_Updater {
 
 			}
 
-			$_transient_data->last_checked           = time();
+			$_transient_data->last_checked           = current_time( 'timestamp' );
 			$_transient_data->checked[ $this->name ] = $this->version;
 
 		}
@@ -166,7 +166,7 @@ class EDD_SL_Plugin_Updater {
 
 			}
 
-			$update_cache->last_checked = time();
+			$update_cache->last_checked = current_time( 'timestamp' );
 			$update_cache->checked[ $this->name ] = $this->version;
 
 			set_site_transient( 'update_plugins', $update_cache );

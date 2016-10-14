@@ -51,6 +51,11 @@ class EDD_SL_Emails {
 		$send    = true;
 		$license = get_post( $license_id );
 
+		// Sanity check to ensure we don't send renewal notices to people with lifetime licenses
+		if( edd_software_licensing()->is_lifetime_license( $license_id ) ) {
+			$send = false;
+		}
+
 		$send = apply_filters( 'edd_sl_send_renewal_reminder', $send, $license_id, $notice_id );
 
 		if( ! $license || 'edd_license' != $license->post_type || ! $send || ! empty( $license->post_parent ) ) {
@@ -109,7 +114,7 @@ class EDD_SL_Emails {
 			$log_id = wp_insert_post(
 				array(
 					'post_title'   => __( 'LOG - Renewal Notice Sent', 'edd_sl' ),
-					'post_name'    => 'log-notice-sent-' . $license_id . '-' . md5( time() ),
+					'post_name'    => 'log-notice-sent-' . $license_id . '-' . md5( current_time( 'timestamp' ) ),
 					'post_type'	   => 'edd_license_log',
 					'post_status'  => 'publish'
 				 )
@@ -120,7 +125,7 @@ class EDD_SL_Emails {
 
 			wp_set_object_terms( $log_id, 'renewal_notice', 'edd_log_type', false );
 
-			add_post_meta( $license_id, sanitize_key( '_edd_sl_renewal_sent_' . $notice['send_period'] ), time() ); // Prevent renewal notices from being sent more than once
+			add_post_meta( $license_id, sanitize_key( '_edd_sl_renewal_sent_' . $notice['send_period'] ), current_time( 'timestamp' ) ); // Prevent renewal notices from being sent more than once
 
 		}
 

@@ -273,9 +273,9 @@ function edd_sl_admin_update_expiration() {
 	if ( ! $is_lifetime ) {
 
 		$expiration  = sanitize_text_field( $_POST['expiration'] ) . '23:59:59';
-		$expiration  = strtotime( $expiration );
+		$expiration  = strtotime( $expiration, current_time( 'timestamp' ) );
 
-		if( 'expired' == edd_software_licensing()->get_license_status( $license_id ) && $expiration > time() ) {
+		if( 'expired' == edd_software_licensing()->get_license_status( $license_id ) && $expiration > current_time( 'timestamp' ) ) {
 			edd_software_licensing()->set_license_status( $license_id, 'active' );
 		}
 
@@ -301,7 +301,6 @@ function edd_sl_admin_update_expiration() {
 
 		edd_software_licensing()->set_license_as_lifetime( $license_id );
 		edd_software_licensing()->set_license_status( $license_id, 'active' );
-		delete_post_meta( $license_id, '_edd_sl_expiration' );
 
 		// Update expiration date for child licenses.
 		$args = array(
@@ -469,10 +468,10 @@ function edd_sl_ajax_get_license_logs() {
 				if( isset( $data->HTTP_USER_AGENT ) ) {
 					$html .= esc_html( $data->HTTP_USER_AGENT ) . ' - ';
 				}
-				if( isset( $data->HTTP_USER_AGENT ) ) {
+				if( isset( $data->REMOTE_ADDR ) ) {
 					$html .= 'IP: ' . esc_html( $data->REMOTE_ADDR ) . ' - ';
 				}
-				if( isset( $data->HTTP_USER_AGENT ) ) {
+				if( isset( $data->REQUEST_TIME ) ) {
 					$html .= esc_html( date_i18n( get_option( 'date_format' ), $data->REQUEST_TIME ) . ' ' . date_i18n( get_option( 'time_format' ), $data->REQUEST_TIME ) );
 				}
 				$html .= '</li>';

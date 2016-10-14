@@ -3,7 +3,7 @@
 Plugin Name: Easy Digital Downloads - Software Licenses
 Plugin URL: http://easydigitaldownloads.com/extension/software-licenses
 Description: Adds a software licensing system to Easy Digital Downloads
-Version: 3.4.11
+Version: 3.4.12
 Author: Pippin Williamson and Chris Klosowski
 Author URI: http://pippinsplugins.com
 Contributors: mordauk
@@ -24,7 +24,7 @@ if ( ! defined( 'EDD_SL_PLUGIN_FILE' ) ) {
 }
 
 if ( ! defined( 'EDD_SL_VERSION' ) ) {
-	define( 'EDD_SL_VERSION', '3.4.11' );
+	define( 'EDD_SL_VERSION', '3.4.12' );
 }
 
 class EDD_Software_Licensing {
@@ -407,7 +407,7 @@ class EDD_Software_Licensing {
 			$payment_meta = edd_get_payment_meta( $payment_id );
 			$purchase_date = null;
 			if ( ! empty( $payment_meta['date'] ) ) {
-				$purchase_date = strtotime( $payment_meta['date'] );
+				$purchase_date = strtotime( $payment_meta['date'], current_time( 'timestamp' ) );
 			}
 
 			// Get license length
@@ -418,13 +418,13 @@ class EDD_Software_Licensing {
 				// Set license expiration date
 				$expiration = strtotime( $license_length, $purchase_date );
 
-				if( $expiration > strtotime( '+24 hours' ) ) {
+				if( $expiration > strtotime( '+24 hours', current_time( 'timestamp' ) ) ) {
 
 					// Force it to end of day if expiration is more than 24 hours in the future
 					$expiration = date( 'Y-n-d 23:59:59', $expiration );
 
 					// Convert back into timestamp
-					$expiration = strtotime( $expiration );
+					$expiration = strtotime( $expiration, current_time( 'timestamp' ) );
 
 				}
 
@@ -459,7 +459,7 @@ class EDD_Software_Licensing {
 			'key'        => '',
 			'item_name'  => '',
 			'item_id'    => 0,
-			'expiration' => time(), // right now
+			'expiration' => current_time( 'timestamp' ), // right now
 			'url'        => ''
 		);
 
@@ -671,7 +671,7 @@ class EDD_Software_Licensing {
 			'key'        => '',
 			'item_name'  => '',
 			'item_id'    => 0,
-			'expiration' => time(), // right now
+			'expiration' => current_time( 'timestamp' ), // right now
 			'url'        => ''
 		);
 
@@ -823,7 +823,7 @@ class EDD_Software_Licensing {
 			'key'        => '',
 			'item_name'  => '',
 			'item_id'    => 0,
-			'expiration' => time(), // right now
+			'expiration' => current_time( 'timestamp' ), // right now
 			'url'        => ''
 		);
 
@@ -1012,23 +1012,23 @@ class EDD_Software_Licensing {
 
 		$expiration = $this->get_license_expiration( $license_id );
 
-		// If expiration is less than today's time() then we need to renew it from time() now
+		// If expiration is less than today's current_time( 'timestamp' ) then we need to renew it from current_time( 'timestamp' ) now
 		// that way renewing won't just renew them and expire immediately.
 		// i.g. if they renew a license in 2011, it should be active now, not renew until 2012
-		if ( $expiration < time() ) {
-			$expiration = time();
+		if ( $expiration < current_time( 'timestamp' ) ) {
+			$expiration = current_time( 'timestamp' );
 		}
 
 		// Set license expiration date
 		$new_expiration = strtotime( $length, $expiration );
 
-		if( $new_expiration > strtotime( '+24 hours' ) ) {
+		if( $new_expiration > strtotime( '+24 hours', current_time( 'timestamp' ) ) ) {
 
 			// Force it to end of day if expiration is more than 24 hours in the future
 			$new_expiration = date( 'Y-n-d 23:59:59', $new_expiration );
 
 			// Convert back into timestamp
-			$new_expiration = strtotime( $new_expiration );
+			$new_expiration = strtotime( $new_expiration, current_time( 'timestamp' ) );
 
 		}
 
@@ -1324,7 +1324,7 @@ class EDD_Software_Licensing {
 		$log_id = wp_insert_post(
 			array(
 				'post_title'   => __( 'LOG - License Activated: ', 'edd_sl' ) . $license_id,
-				'post_name'    => 'log-license-activated-' . $license_id . '-' . md5( time() ),
+				'post_name'    => 'log-license-activated-' . $license_id . '-' . md5( current_time( 'timestamp' ) ),
 				'post_type'    => 'edd_license_log',
 				'post_content' => json_encode( $server_data ),
 				'post_status'  => 'publish'
@@ -1352,7 +1352,7 @@ class EDD_Software_Licensing {
 		$log_id = wp_insert_post(
 			array(
 				'post_title'   => __( 'LOG - License Deactivated: ', 'edd_sl' ) . $license_id,
-				'post_name'    => 'log-license-deactivated-' . $license_id . '-' . md5( time() ),
+				'post_name'    => 'log-license-deactivated-' . $license_id . '-' . md5( current_time( 'timestamp' ) ),
 				'post_type'    => 'edd_license_log',
 				'post_content' => json_encode( $server_data ),
 				'post_status'  => 'publish'
@@ -1919,10 +1919,10 @@ class EDD_Software_Licensing {
 		$status          = strtolower( get_post_meta( $license_id, '_edd_sl_status', true ) );
 		$license_expires = get_post_meta( $license_id, '_edd_sl_expiration', true );
 
-		if ( $license_expires && $license_expires < time() && 'expired' !== $status ) {
+		if ( $license_expires && $license_expires < current_time( 'timestamp' ) && 'expired' !== $status ) {
 			$status = 'expired';
 			$this->set_license_status( $license_id, $status );
-		} elseif( 'expired' === $status && $license_expires > time() ) {
+		} elseif( 'expired' === $status && $license_expires > current_time( 'timestamp' ) ) {
 			$status = $this->get_site_count( $license_id ) >= 1 ? 'active' : 'inactive';
 			$this->set_license_status( $license_id, $status );
 		}
@@ -2142,6 +2142,7 @@ class EDD_Software_Licensing {
 
 		do_action( 'edd_sl_pre_set_lifetime', $license_id );
 		update_post_meta( $license_id, '_edd_sl_is_lifetime', 1 );
+		delete_post_meta( $license_id, '_edd_sl_expiration' );
 		do_action( 'edd_sl_post_set_lifetime', $license_id );
 
 		// Update lifetime status for child licenses.
