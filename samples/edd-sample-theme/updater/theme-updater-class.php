@@ -163,14 +163,14 @@ class EDD_Theme_Updater {
 			if ( $failed ) {
 				$data = new stdClass;
 				$data->new_version = $this->version;
-				set_transient( $this->response_key, $data, strtotime( '+30 minutes' ) );
+				set_transient( $this->response_key, $data, strtotime( '+30 minutes', current_time( 'timestamp' ) ) );
 				return false;
 			}
 
 			// If the status is 'ok', return the update arguments
 			if ( ! $failed ) {
 				$update_data->sections = maybe_unserialize( $update_data->sections );
-				set_transient( $this->response_key, $update_data, strtotime( '+12 hours' ) );
+				set_transient( $this->response_key, $update_data, strtotime( '+12 hours', current_time( 'timestamp' ) ) );
 			}
 		}
 

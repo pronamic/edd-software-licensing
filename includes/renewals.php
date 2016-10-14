@@ -572,7 +572,7 @@ function edd_sl_scheduled_reminders() {
 
 				$expire_date = strtotime( $notice['send_period'], $sent_time );
 
-				if( time() < $expire_date ) {
+				if( current_time( 'timestamp' ) < $expire_date ) {
 
 					// The renewal period isn't expired yet so don't send again
 					continue;
@@ -607,8 +607,8 @@ function edd_sl_get_expiring_licenses( $period = '+1month' ) {
 			array(
 				'key'            => '_edd_sl_expiration',
 				'value'          => array(
-					strtotime( $period . ' midnight' ),
-					strtotime( $period . ' midnight' ) + ( DAY_IN_SECONDS - 1 ),
+					strtotime( $period . ' midnight', current_time( 'timestamp' ) ),
+					strtotime( $period . ' midnight', current_time( 'timestamp' ) ) + ( DAY_IN_SECONDS - 1 ),
 				),
 				'compare'        => 'BETWEEN'
 			)

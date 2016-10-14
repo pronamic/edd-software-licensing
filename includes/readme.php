@@ -136,11 +136,11 @@ function edd_sl_readme_modify_license_response( $response = array(), $download =
 	}
 
 	if( get_post_meta( $download->ID, '_edd_readme_plugin_added', true ) ) {
-		$response['added'] = date( 'Y-m-d', strtotime( $download->post_date_gmt ) );
+		$response['added'] = date( 'Y-m-d', strtotime( $download->post_date_gmt, current_time( 'timestamp' ) ) );
 	}
 
 	if( get_post_meta( $download->ID, '_edd_readme_plugin_last_updated', true ) ) {
-		$response['last_updated'] = apply_filters( 'edd_sl_readme_last_updated', human_time_diff( strtotime( $download->post_modified_gmt ), current_time( 'timestamp', 1)).' ago', $download );
+		$response['last_updated'] = apply_filters( 'edd_sl_readme_last_updated', human_time_diff( strtotime( $download->post_modified_gmt, current_time( 'timestamp' ) ), current_time( 'timestamp', 1)).' ago', $download );
 	}
 
 	// Remove empty items
