@@ -49,9 +49,9 @@ function edd_sl_get_meta_backcompat( $value, $object_id, $meta_key, $single ) {
 	switch( $meta_key ) {
 
 		case '_edd_sl_site_count':
-			$value = edd_software_licensing()->get_site_count( $object_id );
-
-			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			$value           = edd_software_licensing()->get_site_count( $object_id );
+			$edd_is_checkout = function_exists( 'edd_is_checkout' ) ? edd_is_checkout() : false;
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG && ! $edd_is_checkout ) {
 				// Throw deprecated notice if WP_DEBUG is defined and on
 				trigger_error( __( 'The _edd_sl_site_count postmeta is <strong>deprecated</strong> since EDD Software Licensing 2.4.8! Use edd_software_licensing->get_site_count( $license_id ) instead.', 'edd_sl' ) );
 

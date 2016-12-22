@@ -1,11 +1,11 @@
 <?php
 /*
 Plugin Name: Easy Digital Downloads - Software Licenses
-Plugin URL: http://easydigitaldownloads.com/extension/software-licenses
+Plugin URL: https://easydigitaldownloads.com/downloads/software-licensing/
 Description: Adds a software licensing system to Easy Digital Downloads
-Version: 3.4.12
-Author: Pippin Williamson and Chris Klosowski
-Author URI: http://pippinsplugins.com
+Version: 3.4.14
+Author: Easy Digital Downloads
+Author URI: https://easydigitaldownloads.com
 Contributors: mordauk
 Text Domain: edd_sl
 Domain Path: languages
@@ -24,7 +24,7 @@ if ( ! defined( 'EDD_SL_PLUGIN_FILE' ) ) {
 }
 
 if ( ! defined( 'EDD_SL_VERSION' ) ) {
-	define( 'EDD_SL_VERSION', '3.4.12' );
+	define( 'EDD_SL_VERSION', '3.4.14' );
 }
 
 class EDD_Software_Licensing {

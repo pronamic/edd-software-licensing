@@ -314,15 +314,6 @@ function edd_sl_add_upgrade_to_cart( $data ) {
 	$cart_contents = edd_get_cart_contents();
 	$allow_upgrade = true;
 
-	if ( is_array( $cart_contents ) ) {
-		foreach ( $cart_contents as $item ) {
-			if ( $item['id'] == $download_id && ! empty( $item['options']['is_renewal'] ) ) {
-				$allow_upgrade = false;
-				break;
-			}
-		}
-	}
-
 	if( 'expired' === edd_software_licensing()->get_license_status( $data['license_id'] ) ) {
 
 		$is_expired    = true;
@@ -334,7 +325,10 @@ function edd_sl_add_upgrade_to_cart( $data ) {
 
 		// If this license ID is already in the cart, remove it to add the new choice
 		foreach ( $cart_contents as $key => $item ) {
+
 			if ( isset( $item['options']['license_id'] ) && $item['options']['license_id'] == $data['license_id'] ) {
+
+				// Replace any existing upgrades and/or renewals for this license
 				edd_remove_from_cart( $key );
 				break;
 			}
