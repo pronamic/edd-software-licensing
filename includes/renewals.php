@@ -323,7 +323,7 @@ function edd_sl_add_renewal_to_cart( $license_id = 0, $by_key = false ) {
 
 	}
 
-	$options = array( 'is_renewal' => true );
+	$options = array( 'is_renewal' => true, 'license_id' => $license_id, 'license_key' => $license_key );
 
 	// if product has variable prices, find previous used price id and add it to cart
 	if ( edd_has_variable_prices( $download_id ) ) {
@@ -399,25 +399,12 @@ function edd_sl_cart_details_item_discount( $discount, $item ) {
 		return $discount;
 	}
 
-	if( ! EDD()->session->get( 'edd_is_renewal' ) ) {
-		return $discount;
+	if( ! empty( $item['options']['is_renewal'] ) && isset( $item['options']['license_key'] ) ) {
+
+		$discount += edd_sl_get_renewal_discount_amount( $item, $item['options']['license_key'] );
+
 	}
 
-	$renewal_keys = edd_sl_get_renewal_keys();
-
-	$key      = false;
-	$options  = isset( $item['options'] ) ? $item['options'] : array();
-	$cart_key = edd_get_item_position_in_cart( $item['id'], $options );
-
-	if ( isset( $renewal_keys[ $cart_key ] ) ) {
-		$key = $renewal_keys[ $cart_key ];
-	}
-
-	if( ! $key ) {
-		return $discount;
-	}
-
-	$discount += edd_sl_get_renewal_discount_amount( $item, $key );
 
 	return $discount;
 }
@@ -431,37 +418,41 @@ add_filter( 'edd_get_cart_content_details_item_discount_amount', 'edd_sl_cart_de
 function edd_sl_get_renewal_discount_amount( $item = array(), $license_key = '' ) {
 
 	$discount   = 0.00;
-	$license_id = edd_software_licensing()->get_license_by_key( $license_key );
+	$license_id = ! empty( $item['options']['license_id'] ) ? absint( $item['options']['license_id'] ) : false;
 
-	if( edd_has_variable_prices( $item['id'] ) ) {
+	if( $license_id && ! empty( $item['options']['is_renewal'] ) ) {
 
-		$price_id = (int) edd_software_licensing()->get_price_id( $license_id );
-		$prices   = edd_get_variable_prices( $item['id'] );
+		if( edd_has_variable_prices( $item['id'] ) ) {
 
-		if( false !== $price_id && '' !== $price_id && isset( $prices[ $price_id ] ) ) {
+			$price_id = (int) edd_software_licensing()->get_price_id( $license_id );
+			$prices   = edd_get_variable_prices( $item['id'] );
 
-			$price = edd_get_price_option_amount( $item['id'], $price_id );
+			if( false !== $price_id && '' !== $price_id && isset( $prices[ $price_id ] ) ) {
+
+				$price = edd_get_price_option_amount( $item['id'], $price_id );
+
+			} else {
+
+				$price = edd_get_lowest_price_option( $item['id'] );
+
+			}
 
 		} else {
 
-			$price = edd_get_lowest_price_option( $item['id'] );
+			$price = edd_get_download_price( $item['id'] );
 
 		}
 
-	} else {
+		$renewal_discount_percentage = edd_sl_get_renewal_discount_percentage( $license_id );
 
-		$price = edd_get_download_price( $item['id'] );
+		if( $renewal_discount_percentage ) {
+			$renewal_discount = ( $price * ( $renewal_discount_percentage / 100 ) );
 
-	}
+			// todo: fix this. number_format returns a string. we should not perform math on strings.
+			$renewal_discount = number_format( $renewal_discount, 2, '.', '' );
+			$discount += $renewal_discount;
+		}
 
-	$renewal_discount_percentage = edd_sl_get_renewal_discount_percentage( $license_id );
-
-	if( $renewal_discount_percentage ) {
-		$renewal_discount = ( $price * ( $renewal_discount_percentage / 100 ) );
-
-		// todo: fix this. number_format returns a string. we should not perform math on strings.
-		$renewal_discount = number_format( $renewal_discount, 2, '.', '' );
-		$discount += $renewal_discount;
 	}
 
 	return apply_filters( 'edd_sl_get_renewal_discount_amount', $discount, $license_key, $item );
@@ -473,6 +464,32 @@ function edd_sl_cancel_license_renewal() {
 		return;
 	}
 
+	$cart_items = edd_get_cart_contents();
+
+	foreach ( $cart_items as $key => $item ) {
+
+		if( isset( $cart_items[ $key ]['options']['license_id'] ) ) {
+
+			unset( $cart_items[ $key ]['options']['license_id'] );
+
+		}
+
+		if( isset( $cart_items[ $key ]['options']['license_key'] ) ) {
+
+			unset( $cart_items[ $key ]['options']['license_key'] );
+
+		}
+
+		if( isset( $cart_items[ $key ]['options']['is_renewal'] ) ) {
+
+			unset( $cart_items[ $key ]['options']['is_renewal'] );
+
+		}
+
+	}
+
+	// We've removed renewal flags, update cart and session flags
+	EDD()->session->set( 'edd_cart', $cart_items );
 	EDD()->session->set( 'edd_is_renewal', null );
 	EDD()->session->set( 'edd_renewal_keys', null );
 
@@ -488,11 +505,19 @@ add_action( 'edd_cancel_license_renewal', 'edd_sl_cancel_license_renewal' );
  */
 function edd_sl_remove_key_on_remove_from_cart( $cart_key = 0, $item_id = 0 ) {
 
-	$keys = edd_sl_get_renewal_keys();
-	if( isset( $keys[ $cart_key ] ) ) {
-		unset( $keys[ $cart_key ] );
-		EDD()->session->set( 'edd_renewal_keys', array_values( $keys ) );
+	$cart_items = edd_get_cart_contents();
+
+	$keys = array();
+
+	foreach( $cart_items as $key => $item ) {
+
+		if( ! empty( $item['options']['license_key'] ) && ! empty( $item['options']['is_renewal'] ) ) {
+			$keys[ $key ] = $item['options']['license_key'];
+		}
+
 	}
+
+	EDD()->session->set( 'edd_renewal_keys', array_values( $keys ) );
 
 	if( empty( $keys ) ) {
 		EDD()->session->set( 'edd_is_renewal', null );
@@ -533,7 +558,9 @@ add_action( 'edd_insert_payment', 'edd_sl_set_renewal_flag', 10, 2 );
  */
 function edd_sl_get_renewal_keys() {
 	$keys = (array) EDD()->session->get( 'edd_renewal_keys' );
-	return (array) array_unique( array_filter( $keys ) );
+	$keys = array_unique( array_filter( $keys ) );
+
+	return (array) $keys;
 }
 
 function edd_sl_scheduled_reminders() {
@@ -712,18 +739,18 @@ function edd_sl_cart_items_renewal_row() {
 		return;
 	}
 
-	$cart_items      = edd_get_cart_content_details();
-	$renewals        = edd_sl_get_renewal_keys();
+	$cart_items      = edd_get_cart_contents();
 	$discount_amount = 0;
 
 	foreach ( $cart_items as $key => $item ) {
 
-		if( ! isset( $renewals[ $key ] ) ) {
+		if( empty( $item['options']['license_key'] ) || empty( $item['options']['license_key'] ) ) {
 			continue;
 		}
 
-		$discount_amount += edd_sl_get_renewal_discount_amount( $item, $renewals[ $key ] );
+		$discount_amount += edd_sl_get_renewal_discount_amount( $item, $item['options']['license_key'] );
 	}
+
 	$discount_amount = edd_currency_filter( edd_format_amount( $discount_amount ) );
 ?>
 	<tr class="edd_cart_footer_row edd_sl_renewal_row">
