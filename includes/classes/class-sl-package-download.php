@@ -221,7 +221,8 @@ class EDD_SL_Package_Download {
 				case 'direct' :
 				default:
 
-					$direct = false;
+					$direct    = false;
+					$file_path = $requested_file;
 
 					if ( ( ! isset( $file_details['scheme'] ) || ! in_array( $file_details['scheme'], $schemes ) ) && isset( $file_details['path'] ) && file_exists( $requested_file ) ) {
 
@@ -247,30 +248,40 @@ class EDD_SL_Package_Download {
 						$file_path  = realpath( $file_path );
 						$direct     = true;
 
+					} else if( strpos( $requested_file, set_url_scheme( content_url(), 'https' ) ) !== false ) {
+
+						/** This is a local file given by an HTTPS URL so we need to figure out the path */
+						$file_path  = str_replace( set_url_scheme( content_url(), 'https' ), WP_CONTENT_DIR, $requested_file );
+						$file_path  = realpath( $file_path );
+						$direct     = true;
+
 					}
 
+					// Set the file size header
+					header( "Content-Length: " . @filesize( $file_path ) );
+
 					// Now deliver the file based on the kind of software the server is running / has enabled
-					if ( function_exists( 'apache_get_modules' ) && in_array( 'mod_xsendfile', apache_get_modules() ) ) {
-
-						header("X-Sendfile: $file_path");
-
-					} elseif ( stristr( getenv( 'SERVER_SOFTWARE' ), 'lighttpd' ) ) {
+					if ( stristr( getenv( 'SERVER_SOFTWARE' ), 'lighttpd' ) ) {
 
 						header( "X-LIGHTTPD-send-file: $file_path" );
 
-					} elseif ( stristr( getenv( 'SERVER_SOFTWARE' ), 'nginx' ) || stristr( getenv( 'SERVER_SOFTWARE' ), 'cherokee' ) ) {
+					} elseif ( $direct && ( stristr( getenv( 'SERVER_SOFTWARE' ), 'nginx' ) || stristr( getenv( 'SERVER_SOFTWARE' ), 'cherokee' ) ) ) {
 
 						// We need a path relative to the domain
-						$file_path = str_ireplace( $_SERVER[ 'DOCUMENT_ROOT' ], '', $file_path );
+						$file_path = str_ireplace( realpath( $_SERVER['DOCUMENT_ROOT'] ), '', $file_path );
 						header( "X-Accel-Redirect: /$file_path" );
 
 					}
 
 					if( $direct ) {
+
 						edd_deliver_download( $file_path );
+
 					} else {
+
 						// The file supplied does not have a discoverable absolute path
-						header( "Location: " . $requested_file );
+						edd_deliver_download( $requested_file, true );
+
 					}
 
 					break;

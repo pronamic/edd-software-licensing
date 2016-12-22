@@ -50,36 +50,45 @@ function edd_sl_render_licenses_meta_box() {
 		$display_is_bundle = ( $enabled && $is_bundle )   ? ' class="edd_sl_toggled_row"' : ' style="display: none;"';
 		$display_length    = ( $enabled && $is_limited )  ? '' : ' style="display: none;"';
 
+		do_action( 'edd_sl_license_metabox_before', $post->ID );
+
 		echo '<tr>';
 			echo '<td class="edd_field_type_text" colspan="2">';
+				do_action( 'edd_sl_license_metabox_before_license_enabled', $post->ID );
 				echo '<input type="checkbox" name="edd_license_enabled" id="edd_license_enabled" value="1" ' . checked( true, $enabled, false ) . '/>&nbsp;';
 				echo '<label for="edd_license_enabled">' . __( 'Check to enable license creation', 'edd_sl' ) . '</label>';
 				echo '<p' . $display_is_bundle . '>';
 				echo __( 'A license key will be generated for each product in this bundle, upon purchase.', 'edd_sl' );
 				echo '</p>';
+				do_action( 'edd_sl_license_metabox_after_license_enabled', $post->ID );
 			echo '</td>';
 		echo '</tr>';
 
 		echo '<tr' . $display . ' class="edd_sl_toggled_row">';
 			echo '<td class="edd_field_type_text" colspan="2">';
+				do_action( 'edd_sl_license_metabox_before_activation_limit', $post->ID );
 				echo '<input type="number" class="small-text" name="edd_sl_limit" id="edd_sl_limit" value="' . esc_attr( $limit ) . '"/>&nbsp;';
 				echo __( 'Limit number of times this license can be activated. Use 0 for unlimited. If using variable prices, set the limit for each price option.', 'edd_sl' );
 				printf(
 					'<span alt="f223" class="edd-help-tip dashicons dashicons-editor-help" title="' . esc_attr__( '%s' ) . '"></span>',
 					__( '<strong>Activation Limit</strong>: Set the number of activations allowed per license. If individual activation limits are set for variable pricing, they take precedence. If your product is a bundle, the activation limit set here will override the activation limits set on the individual products.', 'edd_sl' )
 				);
+				do_action( 'edd_sl_license_metabox_after_activation_limit', $post->ID );
 			echo '</td>';
 		echo '</tr>';
 
 		echo '<tr' . $display_no_bundle . ' class="edd_sl_toggled_row edd_sl_nobundle_row">';
 			echo '<td class="edd_field_type_text" colspan="2">';
+				do_action( 'edd_sl_license_metabox_before_version', $post->ID );
 				echo '<input type="text" size="13" name="edd_sl_version" id="edd_sl_version" value="' . esc_attr( $version ) . '"/>&nbsp;';
 				echo __( 'Enter the current version number.', 'edd_sl' );
+				do_action( 'edd_sl_license_metabox_after_version', $post->ID );
 			echo '</td>';
 		echo '</tr>';
 
 		echo '<tr' . $display . ' class="edd_sl_toggled_row">';
 			echo '<td class="edd_field_type_select">';
+				do_action( 'edd_sl_license_metabox_before_license_length', $post->ID );
 				echo '<p>' . __( 'How long are license keys valid for?', 'edd_sl' ) . '</p>';
 				echo '<input ' . checked( false, $is_limited, false ) . ' type="radio" id="edd_license_is_lifetime" name="edd_sl_is_lifetime" value="1" /><label for="edd_license_is_lifetime">' . __( 'Lifetime', 'edd_sl' ) . '</label>';
 				echo '<br/ >';
@@ -93,11 +102,13 @@ function edd_sl_render_licenses_meta_box() {
 						echo '<option value="years"' . selected( 'years', $exp_unit, false ) . '>' . __( 'Years', 'edd_sl' ) . '</option>';
 					echo '</select>';
 				echo '</p>';
+				do_action( 'edd_sl_license_metabox_after_license_length', $post->ID );
 			echo '</td>';
 		echo '</tr>';
 
 		echo '<tr' . $display_no_bundle . ' class="edd_sl_toggled_row edd_sl_nobundle_row">';
 			echo '<td class="edd_field_type_select" colspan="2">';
+				do_action( 'edd_sl_license_metabox_before_upgrade_file', $post->ID );
 				echo '<select name="edd_sl_upgrade_file" id="edd_sl_upgrade_file">';
 					$files = get_post_meta( $post->ID, 'edd_download_files', true );
 					if ( is_array( $files ) ) {
@@ -108,12 +119,14 @@ function edd_sl_render_licenses_meta_box() {
 					}
 				echo '</select>&nbsp;';
 				echo '<label for="edd_sl_upgrade_file">' . __( 'Choose the source file to be used for automatic updates.', 'edd_sl' ) . '</label>';
+				do_action( 'edd_sl_license_metabox_after_upgrade_file', $post->ID );
 			echo '</td>';
 		echo '</tr>';
 
 
 		echo '<tr' . $display_no_bundle . ' class="edd_sl_toggled_row edd_sl_nobundle_row">';
 			echo '<td class="edd_field_type_textarea" colspan="2">';
+				do_action( 'edd_sl_license_metabox_before_changelog', $post->ID );
 				echo '<label for="edd_sl_changelog">' . __( 'Change Log', 'edd_sl' ) . '</label><br/>';
 				wp_editor(
 					stripslashes( $changelog ),
@@ -125,16 +138,22 @@ function edd_sl_render_licenses_meta_box() {
 					)
 				);
 				echo '<div class="description">' . __( 'Enter details about what changed.', 'edd_sl' ) . '</div>';
+				do_action( 'edd_sl_license_metabox_after_changelog', $post->ID );
 			echo '</td>';
 		echo '</tr>';
 
 		echo '<tr' . $display_no_bundle . ' class="edd_sl_toggled_row edd_sl_nobundle_row">';
 			echo '<td class="edd_field_type_textarea" colspan="2">';
+				do_action( 'edd_sl_license_metabox_before_license_keys', $post->ID );
 				echo '<label for="edd_sl_keys">' . __( 'License Keys', 'edd_sl' ) . '</label><br/>';
 				echo '<textarea name="edd_sl_keys" class="edd-sl-keys-input" id="edd_sl_keys" rows="20">' . esc_textarea( stripslashes( $keys ) ) . '</textarea>';
 				echo '<div class="description">' . __( 'Enter available license keys, one per line. If empty, keys will be automatically generated. ', 'edd_sl' ) . '</div>';
+				do_action( 'edd_sl_license_metabox_after_license_keys', $post->ID );
 			echo '</td>';
 		echo '</tr>';
+
+		do_action( 'edd_sl_license_metabox_after', $post->ID );
+
 	echo '</table>';
 
 }
