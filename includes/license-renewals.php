@@ -159,30 +159,13 @@ function edd_sl_renewal_form() {
 
 			<?php if( ! empty( $renewal ) && ! empty( $renewal_keys ) ) : ?>
 				<p id="edd-license-key-container-wrap" class="edd-cart-adjustment">
-					<label class="edd-label" for="edd-license-key">
-						<?php _e( 'License keys being renewed:', 'edd_sl' ); ?>
-					</label>
-					<?php foreach( $renewal_keys as $key ) :
-
-					$license_id  = edd_software_licensing()->get_license_by_key( $key );
-					$download_id = edd_software_licensing()->get_download_id( $license_id );
-					$price_id    = edd_software_licensing()->get_price_id( $license_id );
-					?>
-						<span class="edd-renewing-key-title"><?php echo get_the_title( $download_id ); ?></span>
-						<span class="edd-renewing-key-sep">&nbsp;&ndash;&nbsp;</span>
-						<?php if( '' !== $price_id ) : ?>
-							<span class="edd-renewing-key-price-option"><?php echo edd_get_price_option_name( $download_id, $price_id ); ?></span>
-							<span class="edd-renewing-key-sep">&nbsp;&ndash;&nbsp;</span>
-						<?php endif; ?>
-						<span class="edd-renewing-key"><?php echo $key; ?></span><br/>
-					<?php endforeach; ?>
 					<span class="edd-description"><?php _e( 'You may renew multiple license keys at once.', 'edd_sl' ); ?></span>
 				</p>
 			<?php endif; ?>
 		</fieldset>
 		<?php if( ! empty( $error ) ) : ?>
 			<div class="edd_errors">
-				<p class="edd_error"><?php echo urldecode( $_GET['message'] ); ?></p>
+					<p class="edd_error"><?php echo urldecode( sanitize_text_field( $_GET['message'] ) ); ?></p>
 			</div>
 		<?php endif; ?>
 	</form>
@@ -229,6 +212,36 @@ function edd_sl_listen_for_renewal_checkout() {
 }
 add_action( 'template_redirect', 'edd_sl_listen_for_renewal_checkout' );
 
+/**
+ * Prevent unmatched emails from checkout out
+ *
+ * @since 3.5
+ * @param array $valid_data
+ * @param array $posted
+ * @return void
+ */
+function edd_sl_match_renewal_email( $valid_data, $posted ) {
+	if( ! edd_get_option( 'edd_sl_email_matching', false ) ) {
+		return;
+	}
+
+	$keys = EDD()->session->get( 'edd_renewal_keys' );
+
+	if( ! $keys || count( $keys ) == 0 ) {
+		return;
+	}
+
+	foreach( $keys as $key ) {
+		$license_id = edd_software_licensing()->get_license_by_key( $key );
+		$emails     = edd_software_licensing()->get_emails_for_license( $license_id );
+
+		if( ! in_array( $posted['edd_email'], $emails ) ) {
+			edd_set_error( 'email_match', sprintf( __( 'The specified email is not authorized to renew license %s.', 'edd_sl' ), $key ) );
+		}
+	}
+}
+add_action( 'edd_checkout_error_checks', 'edd_sl_match_renewal_email', 10, 2 );
+
 function edd_sl_apply_license_renewal( $data ) {
 
 	if( ! edd_sl_renewals_allowed() ) {
@@ -264,105 +277,82 @@ add_action( 'edd_apply_license_renewal', 'edd_sl_apply_license_renewal' );
  */
 function edd_sl_add_renewal_to_cart( $license_id = 0, $by_key = false ) {
 
-	if( $by_key ) {
+	$license = edd_software_licensing()->get_license( $license_id, $by_key );
 
-		$license_key = $license_id;
-		$license_id  = edd_software_licensing()->get_license_by_key( $license_id );
-
-	} else {
-
-		$license_key = edd_software_licensing()->get_license_key( $license_id );
-
-	}
-
-	if( empty( $license_id ) ) {
-		return new WP_Error( 'missing_license', __( 'No license ID supplied or invalid key provided', 'edd_sl' ) );
-	}
-
-	$license_post = get_post( $license_id );
-
-	if ( ! $license_post ) {
+	if( false === $license ) {
 		return new WP_Error( 'missing_license', __( 'No license ID supplied or invalid key provided', 'edd_sl' ) );
 	}
 
 	$success     = false;
-	$payment_id  = get_post_meta( $license_id, '_edd_sl_payment_id', true );
-	$payment     = get_post( $payment_id );
-	$download_id = edd_software_licensing()->get_download_id( $license_id );
-	$download    = get_post( $download_id );
+	$payment     = new EDD_Payment( $license->payment_id );
 
-	if ( 'publish' !== $payment->post_status && 'complete' !== $payment->post_status ) {
+	if ( 'publish' !== $payment->status && 'complete' !== $payment->status ) {
 		return new WP_Error( 'payment_not_complete', __( 'The purchase record for this license is not marked as complete', 'edd_sl' ) );
 	}
 
-	if ( 'publish' !== $license_post->post_status ) {
+	if ( 'publish' !== $license->post_status ) {
 		return new WP_Error( 'license_disabled', __( 'The supplied license has been disabled and cannot be renewed', 'edd_sl' ) );
 	}
 
-	if ( 'publish' !== $download->post_status ) {
+	if ( 'publish' !== $license->download->post_status ) {
 		return new WP_Error( 'license_disabled', __( 'The download for this license is not published', 'edd_sl' ) );
 	}
 
-	$license_parent = ! empty( $license_post->post_parent ) ? get_post( $license_post->post_parent ) : false ;
+	$parent_license = ! empty( $license->parent ) ? edd_software_licensing()->get_license( $license->parent ) : false ;
 
 	// This license key is part of a bundle, setup the parent
-	if ( $license_post->post_parent && ! empty( $license_parent ) ) {
+	if ( $license->parent && false !== $parent_license ) {
 
-		$parent_license_id  = $license_parent->ID;
-		$parent_download_id = edd_software_licensing()->get_download_id( $parent_license_id );
-		$parent_license_key = edd_software_licensing()->get_license_key( $parent_license_id );
-
-		if ( ! edd_item_in_cart( $parent_download_id ) && ! edd_has_variable_prices( $download_id ) ) {
-			edd_add_to_cart( $parent_download_id );
-		}
-
-		$license_id  = $parent_license_id;
-		$license_key = edd_software_licensing()->get_license_key( $parent_license_id );
-		$license     = $parent_license_key;
-		$download_id = $parent_download_id;
+		$license = $parent_license;
 
 	}
 
-	$options = array( 'is_renewal' => true, 'license_id' => $license_id, 'license_key' => $license_key );
+	$options = array( 'is_renewal' => true, 'license_id' => $license->ID, 'license_key' => $license->key );
 
 	// if product has variable prices, find previous used price id and add it to cart
-	if ( edd_has_variable_prices( $download_id ) ) {
-		$options['price_id'] = edd_software_licensing()->get_price_id( $license_id );
+	if ( $license->download->has_variable_prices() ) {
+		$options['price_id'] = $license->price_id;
 	}
 
-	if( empty( $download_id ) ) {
+	if( empty( $license->download_id ) ) {
 		return new WP_Error( 'no_download_id', __( 'There does not appear to be a download ID attached to this license key', 'edd_sl' ) );
 	}
 
 	// Make sure it's not already in the cart
-	$cart_key = edd_get_item_position_in_cart( $download_id, $options );
+	$cart_key = edd_get_item_position_in_cart( $license->download_id, $options );
 
-	if ( edd_item_in_cart( $download_id, $options ) && false !== $cart_key ) {
+	if ( edd_item_in_cart( $license->download_id, $options ) && false !== $cart_key ) {
 
 		edd_remove_from_cart( $cart_key );
 
 	}
 
-	edd_add_to_cart( $download_id, $options );
+	edd_add_to_cart( $license->download_id, $options );
 
 	$success = true;
 
 	// Confirm item was added to cart successfully
-	if( ! edd_item_in_cart( $download_id, $options ) ) {
+	if( ! edd_item_in_cart( $license->download_id, $options ) ) {
 		return new WP_Error( 'not_in_cart', __( 'The download for this license is not in the cart or could not be added', 'edd_sl' ) );
 	}
 
 	// Get updated cart key
-	$cart_key = edd_get_item_position_in_cart( $download_id, $options );
+	$cart_key = edd_get_item_position_in_cart( $license->download_id, $options );
 
 	if( true === $success ) {
 
 		$keys = edd_sl_get_renewal_keys();
-		$keys[ $cart_key ] = $license_key;
+		$keys[ $cart_key ] = $license->key;
 
 		EDD()->session->set( 'edd_is_renewal', '1' );
-		EDD()->session->set( 'edd_renewal_keys', $keys );
 
+		$session_keys = EDD()->session->get( 'edd_renewal_keys' );
+
+		if ( ! $session_keys || ( is_array( $session_keys ) && ! in_array( $license->key, $session_keys ) ) ) {
+			EDD()->session->set( 'edd_renewal_keys', $keys );
+		}
+
+		do_action( 'edd_sl_renewals_added_to_cart', $keys );
 		return true;
 
 	}
@@ -370,6 +360,29 @@ function edd_sl_add_renewal_to_cart( $license_id = 0, $by_key = false ) {
 	return new WP_Error( 'renewal_error', __( 'Something went wrong while attempting to apply the renewal', 'edd_sl' ) );
 
 }
+
+/**
+ * Display renewal details inline in cart
+ *
+ * @since 3.5
+ * @param array $item The cart line item
+ * @return void
+ */
+function edd_sl_renewal_details_cart_item( $item ) {
+	global $edd_sl_cart_item_quantity_removed;
+	if( empty( $item['options']['is_renewal'] ) || empty( $item['options']['license_key'] ) ) {
+		return;
+	}
+	?>
+		<div class="edd-sl-renewal-details edd-sl-renewal-details-cart">
+				<span class="edd-sl-renewal-label"><?php _e( 'Renewing', 'edd_sl' ); ?>:</span>
+				<span class="edd-sl-renewal-key"><?php echo $item['options']['license_key']; ?></span>
+		</div>
+	<?php
+	$edd_sl_cart_item_quantity_removed = true;
+	add_filter( 'edd_item_quantities_enabled', '__return_false' );
+}
+add_action( 'edd_checkout_cart_item_title_after', 'edd_sl_renewal_details_cart_item' );
 
 /**
  * Given an error status for applying a renewal, redirect accordingly
@@ -386,6 +399,46 @@ function edd_sl_redirect_on_renewal_error( $error_id ) {
 	wp_safe_redirect( $redirect ); exit;
 
 }
+
+/**
+ * Disable core discounts on renewals, if enabled
+ *
+ * @since  3.5
+ * @return void
+ */
+function edd_sl_remove_discounts_field() {
+	if( edd_get_option( 'edd_sl_disable_discounts', false ) && EDD()->session->get( 'edd_is_renewal' ) == '1' ) {
+		remove_action( 'edd_checkout_form_top', 'edd_discount_field', -1 );
+	}
+}
+add_action( 'edd_before_purchase_form', 'edd_sl_remove_discounts_field' );
+
+/**
+ * Prevent adding discounts through direct linking, if enabled
+ *
+ * @since  3.5
+ * @return void
+ */
+function edd_sl_disable_url_discounts() {
+	if( edd_get_option( 'edd_sl_disable_discounts', false ) && EDD()->session->get( 'edd_is_renewal' ) == '1' ) {
+		remove_action( 'init', 'edd_listen_for_cart_discount', 0 );
+	}
+}
+add_action( 'plugins_loaded', 'edd_sl_disable_url_discounts' );
+
+/**
+ * Remove existing discounts if renewal is set
+ *
+ * @since  3.5
+ * @return void
+ */
+function edd_sl_remove_discounts() {
+	if( edd_get_option( 'edd_sl_disable_discounts', false ) && EDD()->session->get( 'edd_is_renewal' ) == '1' ) {
+		add_filter( 'edd_cart_has_discounts', '__return_false' );
+		edd_unset_all_cart_discounts();
+	}
+}
+add_action( 'init', 'edd_sl_remove_discounts', 100 );
 
 /**
  * @since 3.0.2
@@ -417,19 +470,17 @@ add_filter( 'edd_get_cart_content_details_item_discount_amount', 'edd_sl_cart_de
  */
 function edd_sl_get_renewal_discount_amount( $item = array(), $license_key = '' ) {
 
-	$discount   = 0.00;
-	$license_id = ! empty( $item['options']['license_id'] ) ? absint( $item['options']['license_id'] ) : false;
+	$discount = 0.00;
+	$license  = edd_software_licensing()->get_license( $license_key, true );
 
-	if( $license_id && ! empty( $item['options']['is_renewal'] ) ) {
+	if( false !== $license && ! empty( $item['options']['is_renewal'] ) ) {
 
-		if( edd_has_variable_prices( $item['id'] ) ) {
+		if( $license->download->has_variable_prices() ) {
 
-			$price_id = (int) edd_software_licensing()->get_price_id( $license_id );
 			$prices   = edd_get_variable_prices( $item['id'] );
+			if( false !== $license->price_id && '' !== $license->price_id && isset( $prices[ $license->price_id ] ) ) {
 
-			if( false !== $price_id && '' !== $price_id && isset( $prices[ $price_id ] ) ) {
-
-				$price = edd_get_price_option_amount( $item['id'], $price_id );
+				$price = edd_get_price_option_amount( $item['id'], $license->price_id );
 
 			} else {
 
@@ -443,7 +494,7 @@ function edd_sl_get_renewal_discount_amount( $item = array(), $license_key = '' 
 
 		}
 
-		$renewal_discount_percentage = edd_sl_get_renewal_discount_percentage( $license_id );
+		$renewal_discount_percentage = edd_sl_get_renewal_discount_percentage( $license->ID );
 
 		if( $renewal_discount_percentage ) {
 			$renewal_discount = ( $price * ( $renewal_discount_percentage / 100 ) );
@@ -455,7 +506,7 @@ function edd_sl_get_renewal_discount_amount( $item = array(), $license_key = '' 
 
 	}
 
-	return apply_filters( 'edd_sl_get_renewal_discount_amount', $discount, $license_key, $item );
+	return apply_filters( 'edd_sl_get_renewal_discount_amount', $discount, $license->key, $item );
 }
 
 function edd_sl_cancel_license_renewal() {
@@ -493,6 +544,8 @@ function edd_sl_cancel_license_renewal() {
 	EDD()->session->set( 'edd_is_renewal', null );
 	EDD()->session->set( 'edd_renewal_keys', null );
 
+	do_action( 'edd_sl_renewals_removed_from_cart' );
+
 	wp_redirect( edd_get_checkout_uri() ); exit;
 }
 add_action( 'edd_cancel_license_renewal', 'edd_sl_cancel_license_renewal' );
@@ -521,6 +574,21 @@ function edd_sl_remove_key_on_remove_from_cart( $cart_key = 0, $item_id = 0 ) {
 
 	if( empty( $keys ) ) {
 		EDD()->session->set( 'edd_is_renewal', null );
+	} else {
+		$cart_items = edd_get_cart_content_details();
+
+		foreach ( $keys as $id => $key ) {
+			$download_id = edd_software_licensing()->get_download_id_by_license( $key );
+			unset( $keys[ $id ] );
+
+			foreach ( $cart_items as $cart_key => $item ) {
+				if ( $download_id == $item['id'] ) {
+					$keys[ $cart_key ] = $key;
+				}
+			}
+		}
+
+		EDD()->session->set( 'edd_renewal_keys', $keys );
 	}
 }
 add_action( 'edd_post_remove_from_cart', 'edd_sl_remove_key_on_remove_from_cart', 10, 2 );
@@ -531,16 +599,30 @@ function edd_sl_set_renewal_flag( $payment_id, $payment_data ) {
 		return;
 	}
 
-	$renewal      = EDD()->session->get( 'edd_is_renewal' );
-	$renewal_keys = edd_sl_get_renewal_keys();
+	$payment      = function_exists( 'edd_get_payment' ) ? edd_get_payment( $payment_id ) : new EDD_Payment( $payment_id );
+	$is_renewal   = false;
+	$renewal_keys = array();
 
-	if( ! empty( $renewal ) && ! empty( $renewal_keys ) ) {
+	foreach ( $payment->cart_details as $cart_item ) {
 
-		add_post_meta( $payment_id, '_edd_sl_is_renewal', '1', true );
+		if ( ! empty( $cart_item['item_number']['options']['is_renewal'] ) && ! empty( $cart_item['item_number']['options']['license_key'] ) ) {
+			$renewal_keys[] = sanitize_text_field( $cart_item['item_number']['options']['license_key'] );
 
-		foreach( $renewal_keys as $id => $key ) {
+			// The payment was not originally flagged as a renewal, but we now have a renewal identified, so let's set the payment as a renewal
+			if ( false === $is_renewal ) {
+				$is_renewal = true;
+			}
+		}
 
-			add_post_meta( $payment_id, '_edd_sl_renewal_key', $key );
+	}
+
+	if( $is_renewal && ! empty( $renewal_keys ) ) {
+
+		add_post_meta( $payment->ID, '_edd_sl_is_renewal', '1', true );
+
+		foreach( $renewal_keys as $key ) {
+
+			add_post_meta( $payment->ID, '_edd_sl_renewal_key', $key );
 
 		}
 
@@ -593,8 +675,14 @@ function edd_sl_scheduled_reminders() {
 				continue;
 			}
 
-			$sent_time = get_post_meta( $license_id, sanitize_key( '_edd_sl_renewal_sent_' . $notice['send_period'] ), true );
+			$license = edd_software_licensing()->get_license( $license_id );
 
+			// Sanity check to ensure we don't send renewal notices to people with lifetime licenses
+			if( $license->is_lifetime ) {
+				continue;
+			}
+
+			$sent_time = get_post_meta( $license->ID, sanitize_key( '_edd_sl_renewal_sent_' . $notice['send_period'] ), true );
 			if( $sent_time ) {
 
 				$expire_date = strtotime( $notice['send_period'], $sent_time );
@@ -606,11 +694,11 @@ function edd_sl_scheduled_reminders() {
 
 				}
 
-				delete_post_meta( $license_id, sanitize_key( '_edd_sl_renewal_sent_' . $notice['send_period'] ) );
+				delete_post_meta( $license->ID, sanitize_key( '_edd_sl_renewal_sent_' . $notice['send_period'] ) );
 
 			}
 
-			$edd_sl_emails->send_renewal_reminder( $license_id, $notice_id );
+			$edd_sl_emails->send_renewal_reminder( $license->ID, $notice_id );
 
 		}
 
@@ -646,8 +734,9 @@ function edd_sl_get_expiring_licenses( $period = '+1month' ) {
 
 	$query = new WP_Query;
 	$keys  = $query->query( $args );
-	if( ! $keys )
+	if( ! $keys ) {
 		return false; // no expiring keys found
+	}
 
 	return $keys;
 }
@@ -656,16 +745,20 @@ function edd_sl_check_for_expired_licenses() {
 
 	$args = array(
 		'post_type'              => 'edd_license',
-		'nopaging'               => true,
+		'posts_per_page'         => 99999,
 		'fields'                 => 'ids',
-		'post_parent'            => 0, // Child keys get expired during set_license_Status()
+		'post_parent'            => 0, // Child keys get expired during set_license_status()
 		'update_post_meta_cache' => false,
 		'update_post_term_cache' => false,
 		'meta_query'             => array(
+			'relation'           => 'AND',
 			array(
 				'key'            => '_edd_sl_expiration',
-				'value'          => current_time( 'timestamp' ),
-				'compare'        => '<'
+				'value'          => array(
+					current_time( 'timestamp' ),
+					strtotime( '-1 month' )
+				),
+				'compare'        => 'BETWEEN'
 			)
 		)
 	);
@@ -677,7 +770,8 @@ function edd_sl_check_for_expired_licenses() {
 	}
 
 	foreach( $keys as $license_id ) {
-		edd_software_licensing()->set_license_status( $license_id, 'expired' );
+		$license = edd_software_licensing()->get_license( $license_id );
+		$license->status = 'expired';
 	}
 }
 add_action( 'edd_daily_scheduled_events', 'edd_sl_check_for_expired_licenses' );
@@ -734,27 +828,16 @@ function edd_sl_cart_items_renewal_row() {
 	}
 
 	// bail early if a renewal discount is not set (or set at 0)
-	$renewal_discount = edd_sl_get_renewal_discount_percentage();
-	if( empty( $renewal_discount ) ) {
+	$discount_amount = edd_sl_get_renewal_cart_item_discount_amount();
+	if( ! $discount_amount ) {
 		return;
 	}
 
-	$cart_items      = edd_get_cart_contents();
-	$discount_amount = 0;
+	$formatted_discount_amount = edd_currency_filter( edd_format_amount( $discount_amount ) );
 
-	foreach ( $cart_items as $key => $item ) {
-
-		if( empty( $item['options']['license_key'] ) || empty( $item['options']['license_key'] ) ) {
-			continue;
-		}
-
-		$discount_amount += edd_sl_get_renewal_discount_amount( $item, $item['options']['license_key'] );
-	}
-
-	$discount_amount = edd_currency_filter( edd_format_amount( $discount_amount ) );
 ?>
 	<tr class="edd_cart_footer_row edd_sl_renewal_row">
-		<td colspan="3"><?php printf( __( 'License renewal discount: %s - %s', 'edd_sl' ), $renewal_discount . '%', $discount_amount ); ?></td>
+		<td colspan="3"><?php printf( __( 'License renewal discount: %s', 'edd_sl' ), $formatted_discount_amount ); ?></td>
 	</tr>
 <?php
 }
@@ -792,8 +875,8 @@ add_action( 'edd_view_order_details_update_inner', 'edd_sl_payment_details_inner
  */
 function edd_sl_exclude_non_published_download_renewals( $send = true, $license_id = 0, $notice_id = 0 ) {
 
-	$download_id = edd_software_licensing()->get_download_id( $license_id );
-	$status      = get_post_field( 'post_status', $download_id );
+	$license = edd_software_licensing()->get_license( $license_id );
+	$status      = get_post_field( 'post_status', $license->download_id );
 
 	if( $status && 'publish' !== $status ) {
 		$send = false;
@@ -809,8 +892,18 @@ add_filter( 'edd_sl_send_scheduled_reminder_for_license', 'edd_sl_exclude_non_pu
  * @since 3.4
  * @return int
  */
-function edd_sl_get_renewal_discount_percentage( $license_id = null ) {
-	$renewal_discount = edd_get_option( 'edd_sl_renewal_discount', false );
+function edd_sl_get_renewal_discount_percentage( $license_id = 0, $download_id = 0 ) {
+
+	// Check if the product has an individual discount amount
+	if( $download_id == 0 ) {
+		$download_id = edd_software_licensing()->get_download_id( $license_id );
+	}
+
+	$renewal_discount = edd_sanitize_amount( get_post_meta( $download_id, '_edd_sl_renewal_discount', true ) );
+
+	if( $renewal_discount == 0 ) {
+		$renewal_discount = edd_get_option( 'edd_sl_renewal_discount', false );
+	}
 
 	// make sure this is a percentage, like 40%
 	if( $renewal_discount < 1 ) {
@@ -819,3 +912,100 @@ function edd_sl_get_renewal_discount_percentage( $license_id = null ) {
 
 	return (int) apply_filters( 'edd_sl_renewal_discount_percentage', $renewal_discount, $license_id );
 }
+
+/**
+ * Default array of dynamic email strings
+ *
+ * @return array
+ * @since 3.5
+ */
+function edd_sl_dynamic_email_strings() {
+	$strings = array(
+		'{name}'         => __( 'The customer\'s name', 'edd_sl' ),
+		'{license_key}'  => __( 'The license key that needs renewed', 'edd_sl' ),
+		'{product_name}' => __( 'The name of the product the license key belongs to', 'edd_sl' ),
+		'{expiration}'   => __( 'The expiration date for the license key', 'edd_sl' ),
+		'{renewal_link}' => __( 'URL to the renewal checkout page', 'edd_sl' ),
+		'{renewal_url}'  => __( 'Raw URL of the renewal checkout page', 'edd_sl' ),
+		'{unsubscribe_url}'  => __( 'Raw URL to unsubscribe from email notifications for the license', 'edd_sl' ),
+	);
+	$discount = edd_get_option( 'edd_sl_renewal_discount', false );
+	if ( ! empty( $discount ) ) {
+		$strings['{renewal_discount}'] = __( 'The renewal discount, including the `%` symbol.', 'edd_sl' );
+	}
+	return apply_filters( 'edd_sl_dynamic_email_strings', $strings );
+}
+
+/**
+ * Controls display of dynamic strings on renewal notice form
+ *
+ * @since 3.5
+ */
+function edd_sl_output_dynamic_email_strings() {
+	echo '<ul>';
+	foreach ( edd_sl_dynamic_email_strings() as $string => $label ) {
+		echo '<li>' . esc_html( $string ) . ' ' . esc_html( $label ) . '</li>';
+	}
+	echo '</ul>';
+}
+add_action( 'edd_sl_after_renewal_notice_form', 'edd_sl_output_dynamic_email_strings' );
+
+/**
+ * Get the total cart discount from license renewals.
+ *
+ * @since 3.5
+ * @return int $discount_amount The total discount from all license renewals for the current cart.
+ */
+function edd_sl_get_renewal_cart_item_discount_amount() {
+
+	$cart_items      = edd_get_cart_contents();
+	$discount_amount = 0;
+
+	foreach ( $cart_items as $key => $item ) {
+
+		if( empty( $item['options']['license_key'] ) || empty( $item['options']['license_key'] ) ) {
+			continue;
+		}
+
+		$discount_amount += edd_sl_get_renewal_discount_amount( $item, $item['options']['license_key'] );
+	}
+
+	return $discount_amount;
+}
+
+
+/**
+ * Process an opt-out of license renewal emails for a license
+ *
+ * @since 3.5.11
+ */
+function edd_sl_process_renewal_email_unsubscribe() {
+
+	if( empty( $_GET['license_id'] ) ) {
+		return;
+	}
+
+	if( empty( $_GET['license_key'] ) ) {
+		return;
+	}
+
+	$license_id  = absint( $_GET['license_id'] );
+	$license_key = sanitize_text_field( $_GET['license_key'] );
+	$license     = edd_software_licensing()->get_license( $license_id );
+
+	if( ! $license || ! $license->ID > 0 ) {
+		return;
+	}
+
+	if( strtolower( $license->key ) !== strtolower( $license_key ) ) {
+		return;
+	}
+
+	$license->update_meta( 'edd_sl_unsubscribed', current_time( 'timestamp' ) );
+
+	do_action( 'edd_sl_license_unsubscribed', $license );
+
+	wp_die( __( 'You have been successfully unsubscribed from renewal notification emails for this license key.', 'edd_sl' ), __( 'Unsubscribed', 'edd_sl' ), 200 );
+
+}
+add_action( 'edd_license_unsubscribe', 'edd_sl_process_renewal_email_unsubscribe' );

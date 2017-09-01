@@ -145,8 +145,8 @@ function edd_sl_show_renewals_graph() {
 								$i = $dates['m_start'];
 								while ( $i <= $dates['m_end'] ) :
 									if ( $day_by_day ) :
-										$num_of_days = cal_days_in_month( CAL_GREGORIAN, $i, $y );
-										$d           = 1;
+										$num_of_days = $i == $dates['m_end'] ? $dates['day_end'] : cal_days_in_month( CAL_GREGORIAN, $i, $y );
+										$d           = $i == $dates['m_start'] && $dates['day'] ? $dates['day'] : 1;
 										while ( $d <= $num_of_days ) :
 											$date     = mktime( 0, 0, 0, $i, $d, $y );
 											$renewals = edd_sl_get_renewals_by_date( $d, $i, $y );
@@ -189,7 +189,10 @@ function edd_sl_show_renewals_graph() {
 				xaxis: {
 					mode: "time",
 					timeFormat: "<?php echo $time_format; ?>",
-					minTickSize: [1, "<?php echo $tick_size; ?>"]
+					minTickSize: [1, "<?php echo $tick_size; ?>"],
+				},
+				yaxis: {
+					min: 0
 				}
 			});
 
@@ -331,8 +334,8 @@ function edd_sl_show_upgrades_graph() {
 
 				if ( $day_by_day ) :
 
-					$num_of_days = cal_days_in_month( CAL_GREGORIAN, $i, $y );
-					$d           = 1;
+					$num_of_days = $i == $dates['m_end'] ? $dates['day_end'] : cal_days_in_month( CAL_GREGORIAN, $i, $y );
+					$d           = $i == $dates['m_start'] && $dates['day'] ? $dates['day'] : 1;
 
 					while ( $d <= $num_of_days ) :
 
@@ -388,7 +391,7 @@ function edd_sl_show_upgrades_graph() {
 add_action( 'edd_reports_view_upgrades', 'edd_sl_show_upgrades_graph' );
 
 function edd_sl_show_renewal_notices_table() {
-	include( dirname( __FILE__ ) . '/EDD_SL_Renewal_Notice_Logs.php' );
+	include EDD_SL_PLUGIN_DIR . 'includes/admin/classes/class-sl-renewal-notice-logs.php';
 
 	$logs_table = new EDD_SL_Renewal_Notice_Logs();
 	$logs_table->prepare_items();

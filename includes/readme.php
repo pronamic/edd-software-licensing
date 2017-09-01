@@ -1,5 +1,8 @@
 <?php
 
+// Exit if accessed directly
+if ( ! defined( 'ABSPATH' ) ) exit;
+
 /**
  * Parse the ReadMe URL
  *
@@ -66,12 +69,14 @@ function _edd_sl_get_readme_data( $readme_url = '', $post_id = NULL ) {
  * Tap into the filter to use data from a readme.txt file
  *
  * @since  2.4
- * @see  EDD_Software_Licensing::get_latest_version_remote()
+ * @since  3.5 Added $download_beta parameter
+ * @see    EDD_Software_Licensing::get_latest_version_remote()
  * @param  array  $original_response License response array
- * @param  WP_Post $download          Post object of the Download item
+ * @param  WP_Post $download        Post object of the Download item
+ * @param  bool $download_beta      If true, the current request is asking for a beta version
  * @return array                    Modified array, if readme exists. Otherwise, original array is returned.
  */
-function edd_sl_readme_modify_license_response( $response = array(), $download = NULL ) {
+function edd_sl_readme_modify_license_response( $original_response = array(), $download = NULL, $download_beta = false ) {
 
 	if( is_admin() || defined( 'DOING_AJAX' ) ) {
 		// Prevent errors and send headers
@@ -87,8 +92,8 @@ function edd_sl_readme_modify_license_response( $response = array(), $download =
 	$readme_url = get_post_meta( $download->ID, '_edd_readme_location', true );
 
 	// If the URL doesn't exist, get outta here.
-	if( empty( $readme_url) ) { 
-		return $response;
+	if( empty( $readme_url) ) {
+		return $original_response;
 	}
 
 	// Fetch the cached/fresh readme data
@@ -96,20 +101,36 @@ function edd_sl_readme_modify_license_response( $response = array(), $download =
 
 	// The readme didn't exist or process. Return existing response.
 	if( empty( $readme ) ) {
-		return $response;
+		return $original_response;
 	}
+
+	$response = $original_response;
 
 	// Modify the homepage linked to in the Update Notice
 	$response['homepage'] = edd_sl_readme_get_download_homepage( $download->ID );
 
-	// Set the slug
+	// Get download banner image
+	$response['banners'] = edd_sl_readme_get_download_banners( $download->ID );
+
+	// Set the new version
 	$response['new_version'] = edd_software_licensing()->get_latest_version( $download->ID );
+	if( get_post_meta( $download->ID, '_edd_sl_beta_enabled', true ) && $download_beta ) {
+		$beta_version = edd_software_licensing()->get_beta_download_version( $download->ID );
+		if ( version_compare( $beta_version, $response['new_version'], '>') ) {
+			$response['new_version'] = $beta_version;
+		}
+	}
 
 	// The original response sections
 	$response['sections'] = maybe_unserialize( @$response['sections'] );
 
 	// Get the override readme sections settings
 	if( $readme_sections = get_post_meta( $download->ID, '_edd_readme_sections', true ) ) {
+
+		// The beta version has its own changelog that should be used
+		if( $download_beta ) {
+			unset( $readme_sections['changelog'] );
+		}
 
 		// We loop through the settings sections and make overwrite the
 		// existing sections with the custom readme.txt sections.
@@ -118,12 +139,12 @@ function edd_sl_readme_modify_license_response( $response = array(), $download =
 		}
 	}
 
+	// Reserialize it
+	$response['sections'] = serialize( $response['sections'] );
+
 	if ( ! empty( $readme['tested_up_to'] ) ) {
 		$response['tested'] = $readme['tested_up_to'];
 	}
-
-	// Reserialize it
-	$response['sections'] = serialize( $response['sections'] );
 
 	// Get the override readme meta settings
 	if( $readme_meta = get_post_meta( $download->ID, '_edd_readme_meta', true ) ) {
@@ -147,10 +168,10 @@ function edd_sl_readme_modify_license_response( $response = array(), $download =
 	$response = array_filter( $response );
 
 	// Filter this if you want to.
-	return apply_filters( 'edd_sl_license_readme_response', $response, $download, $readme );
+	return apply_filters( 'edd_sl_license_readme_response', $response, $download, $readme, $download_beta );
 
 }
-add_filter( 'edd_sl_license_response', 'edd_sl_readme_modify_license_response', 10, 2);
+add_filter( 'edd_sl_license_response', 'edd_sl_readme_modify_license_response', 10, 3 );
 
 /**
  * Get the custom homepage for the download. If not set, return download item URL.
@@ -164,6 +185,29 @@ function edd_sl_readme_get_download_homepage( $download_id  ) {
 
 	return empty( $custom_homepage) ? get_permalink( $download_id ) : $custom_homepage;
 
+}
+
+/**
+ * Get an array of banner images.
+ *
+ * The array can be empty; WordPress will check whether it is set in wp-admin/includes/plugin-install.php
+ * The banner image URLs are sanitized on WordPress' end
+ *
+ * @param int $download_id Download ID
+ * @param boolean $serialize Whether to serialize the banner array, which is required for backward compatibility with earlier EDDSL versions
+ * @return array Banners array with `high` and `low` keys with banner image URLs for the download, if set
+ */
+function edd_sl_readme_get_download_banners( $download_id, $serialize = true ) {
+
+	$plugin_banner_high = get_post_meta( $download_id, '_edd_readme_plugin_banner_high', true );
+	$plugin_banner_low  = get_post_meta( $download_id, '_edd_readme_plugin_banner_low', true );
+
+	$banners = array(
+		'high' => $plugin_banner_high,
+		'low'  => $plugin_banner_low
+	);
+
+	return $serialize ? serialize( $banners ) : $banners;
 }
 
 /**

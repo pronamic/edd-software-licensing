@@ -57,14 +57,15 @@ class EDD_SL_Package_Download {
 		$token  = end( $paths );
 		$values = explode( ':', base64_decode( $token ) );
 
-		if ( count( $values ) !== 5 ) {
+		if ( count( $values ) !== 6 ) {
 			wp_die( __( 'Invalid token supplied', 'edd_sl' ), __( 'Error', 'edd_sl' ), array( 'response' => 401 ) );
 		}
 
-		$expires     = $values[0];
-		$license_key = $values[1];
-		$download_id = (int) $values[2];
-		$url         = str_replace( '@', ':', $values[4] );
+		$expires        = $values[0];
+		$license_key    = $values[1];
+		$download_id    = (int) $values[2];
+		$url            = str_replace( '@', ':', $values[4] );
+		$download_beta  = (bool) $values[5];
 
 
 		if (  ! edd_software_licensing()->is_download_id_valid_for_license( $download_id, $license_key ) ) {
@@ -97,7 +98,11 @@ class EDD_SL_Package_Download {
 		}
 
 		$download_name  = get_the_title( $download_id );
-		$file_key       = get_post_meta( $download_id, '_edd_sl_upgrade_file_key', true );
+		if ( $download_beta ) {
+			$file_key = get_post_meta( $download_id, '_edd_sl_beta_upgrade_file_key', true );
+		} else {
+			$file_key = get_post_meta( $download_id, '_edd_sl_upgrade_file_key', true );
+		}
 
 		$hash = md5( $download_name . $file_key . $download_id . $license_key . $expires );
 		if ( ! hash_equals( $hash, $values[3] ) ) {
@@ -109,13 +114,14 @@ class EDD_SL_Package_Download {
 			'license'       => $license_key,
 			'id'            => $download_id,
 			'key'           => $hash,
+			'beta'          => $download_beta
 		);
 
 		return $data;
 
 	}
 
-	public function get_encoded_download_package_url( $download_id = 0, $license_key = '', $url = '' ) {
+	public function get_encoded_download_package_url( $download_id = 0, $license_key = '', $url = '', $download_beta = false ) {
 
 		$package_url = '';
 
@@ -124,11 +130,17 @@ class EDD_SL_Package_Download {
 			$download_name = get_the_title( $download_id );
 			$hours         = '+' . absint( edd_get_option( 'download_link_expiration', 24 ) ) . ' hours';
 			$expires       = strtotime( $hours, current_time( 'timestamp' ) );
-			$file_key      = get_post_meta( $download_id, '_edd_sl_upgrade_file_key', true );
+
+			if ( $download_beta ) {
+				$file_key      = get_post_meta( $download_id, '_edd_sl_beta_upgrade_file_key', true );
+			} else {
+				$file_key      = get_post_meta( $download_id, '_edd_sl_upgrade_file_key', true );
+			}
+
 			$hash          = md5( $download_name . $file_key . $download_id . $license_key . $expires );
 			$url           = str_replace( ':', '@', $url );
 
-			$token = base64_encode( sprintf( '%s:%s:%d:%s:%s', $expires, $license_key, $download_id, $hash, $url ) );
+			$token = base64_encode( sprintf( '%s:%s:%d:%s:%s:%d', $expires, $license_key, $download_id, $hash, $url, $download_beta ) );
 
 			$package_url = trailingslashit( home_url() ) . 'edd-sl/package_download/' . $token;
 
@@ -148,10 +160,11 @@ class EDD_SL_Package_Download {
 
 		if ( isset( $_GET['key'] ) && isset( $_GET['id'] ) && isset( $_GET['license'] ) && isset( $_GET['expires'] ) ) {
 
-			$id      = absint( urldecode( $_GET['id'] ) );
-			$hash    = urldecode( $_GET['key'] );
-			$license = sanitize_text_field( urldecode( $_GET['license'] ) );
-			$expires = is_numeric( $_GET['expires'] ) ? $_GET['expires'] : urldecode( base64_decode( $_GET['expires'] ) );
+			$id            = absint( urldecode( $_GET['id'] ) );
+			$hash          = urldecode( $_GET['key'] );
+			$license       = sanitize_text_field( urldecode( $_GET['license'] ) );
+			$expires       = is_numeric( $_GET['expires'] ) ? $_GET['expires'] : urldecode( base64_decode( $_GET['expires'] ) );
+			$download_beta = (bool) $_GET['beta'];
 
 			do_action( 'edd_sl_before_package_download', $id, $hash, $license, $expires );
 
@@ -167,17 +180,13 @@ class EDD_SL_Package_Download {
 				wp_die( __( 'Invalid license supplied', 'edd_sl' ), __( 'Error', 'edd_sl' ), array( 'response' => 401 ) );
 			}
 
-			$requested_file = $this->get_download_package( $id, $license, $hash, $expires );
+			$requested_file = $this->get_download_package( $id, $license, $hash, $expires, $download_beta );
 
 			$file_extension = edd_get_file_extension( $requested_file );
 			$ctype          = edd_get_file_ctype( $file_extension );
 
-			if ( !edd_is_func_disabled( 'set_time_limit' ) && !ini_get('safe_mode') ) {
+			if ( !edd_is_func_disabled( 'set_time_limit' ) ) {
 				set_time_limit(0);
-			}
-
-			if ( function_exists( 'get_magic_quotes_runtime' ) && get_magic_quotes_runtime() ) {
-				set_magic_quotes_runtime(0);
 			}
 
 			@session_write_close();
@@ -268,8 +277,9 @@ class EDD_SL_Package_Download {
 					} elseif ( $direct && ( stristr( getenv( 'SERVER_SOFTWARE' ), 'nginx' ) || stristr( getenv( 'SERVER_SOFTWARE' ), 'cherokee' ) ) ) {
 
 						// We need a path relative to the domain
-						$file_path = str_ireplace( realpath( $_SERVER['DOCUMENT_ROOT'] ), '', $file_path );
-						header( "X-Accel-Redirect: /$file_path" );
+						$redirect_path = '/' . str_ireplace( realpath( $_SERVER['DOCUMENT_ROOT'] ), '', $file_path );
+						$redirect_path = apply_filters( 'edd_sl_accel_redirect_path', $redirect_path, $file_path );
+						header( "X-Accel-Redirect: $redirect_path" );
 
 					}
 
@@ -309,10 +319,15 @@ class EDD_SL_Package_Download {
 	 * @param  int $expires         The TTL for this link
 	 * @return string               The URL for the download package
 	 */
-	public function get_download_package( $download_id = 0, $license_key = '', $hash, $expires = 0 ) {
+	public function get_download_package( $download_id = 0, $license_key = '', $hash, $expires = 0, $download_beta = false ) {
 
-		$file_key  = get_post_meta( $download_id, '_edd_sl_upgrade_file_key', true );
-		$all_files = get_post_meta( $download_id, 'edd_download_files', true );
+		if ( $download_beta ) {
+			$file_key  = get_post_meta( $download_id, '_edd_sl_beta_upgrade_file_key', true );
+			$all_files = get_post_meta( $download_id, '_edd_sl_beta_files', true );
+		} else {
+			$file_key  = get_post_meta( $download_id, '_edd_sl_upgrade_file_key', true );
+			$all_files = get_post_meta( $download_id, 'edd_download_files', true );
+		}
 
 		if ( $all_files && is_array( $all_files ) ) {
 			$file_url = $all_files[ $file_key ]['file'];

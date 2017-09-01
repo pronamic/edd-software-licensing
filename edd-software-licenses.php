@@ -3,10 +3,10 @@
 Plugin Name: Easy Digital Downloads - Software Licenses
 Plugin URL: https://easydigitaldownloads.com/downloads/software-licensing/
 Description: Adds a software licensing system to Easy Digital Downloads
-Version: 3.4.14
+Version: 3.5.18
 Author: Easy Digital Downloads
 Author URI: https://easydigitaldownloads.com
-Contributors: mordauk
+Contributors: easydigitaldownloads, mordauk, cklosows
 Text Domain: edd_sl
 Domain Path: languages
 */
@@ -24,7 +24,7 @@ if ( ! defined( 'EDD_SL_PLUGIN_FILE' ) ) {
 }
 
 if ( ! defined( 'EDD_SL_VERSION' ) ) {
-	define( 'EDD_SL_VERSION', '3.4.14' );
+	define( 'EDD_SL_VERSION', '3.5.18' );
 }
 
 class EDD_Software_Licensing {
@@ -87,31 +87,39 @@ class EDD_Software_Licensing {
 				$edd_sl_license = new EDD_License( __FILE__, 'Software Licensing', EDD_SL_VERSION, 'Pippin Williamson', 'edd_sl_license_key' );
 			}
 
-			include_once( EDD_SL_PLUGIN_DIR . 'includes/customers.php' );
-			include_once( EDD_SL_PLUGIN_DIR . 'includes/metabox.php' );
-			include_once( EDD_SL_PLUGIN_DIR . 'includes/settings.php' );
-			include_once( EDD_SL_PLUGIN_DIR . 'includes/export.php' );
-			include_once( EDD_SL_PLUGIN_DIR . 'includes/reports.php' );
-			include_once( EDD_SL_PLUGIN_DIR . 'includes/upgrades.php' );
-			include_once( EDD_SL_PLUGIN_DIR . 'includes/EDD_SL_Retroactive_Licensing.php' );
+			include_once( EDD_SL_PLUGIN_DIR . 'includes/admin/customers.php' );
+			include_once( EDD_SL_PLUGIN_DIR . 'includes/admin/metabox.php' );
+			include_once( EDD_SL_PLUGIN_DIR . 'includes/admin/settings.php' );
+			include_once( EDD_SL_PLUGIN_DIR . 'includes/admin/export.php' );
+			include_once( EDD_SL_PLUGIN_DIR . 'includes/admin/reports.php' );
+			include_once( EDD_SL_PLUGIN_DIR . 'includes/admin/upgrades.php' );
+			include_once( EDD_SL_PLUGIN_DIR . 'includes/admin/licenses.php' );
+			include_once( EDD_SL_PLUGIN_DIR . 'includes/admin/license-actions.php' );
+			include_once( EDD_SL_PLUGIN_DIR . 'includes/admin/license-functions.php' );
+			include_once( EDD_SL_PLUGIN_DIR . 'includes/admin/payment-filters.php' );
+			include_once( EDD_SL_PLUGIN_DIR . 'includes/admin/classes/class-sl-retroactive-licensing.php' );
+			include_once( EDD_SL_PLUGIN_DIR . 'includes/admin/classes/class-sl-list-table.php' );
+			include_once( EDD_SL_PLUGIN_DIR . 'includes/admin/classes/class-sl-admin-notices.php' );
 			$EDD_SL_Retroactive_Licensing = new EDD_SL_Retroactive_Licensing();
 		}
 
 		include_once( EDD_SL_PLUGIN_DIR . 'includes/scripts.php' );
-		include_once( EDD_SL_PLUGIN_DIR . 'includes/admin.php' );
 		include_once( EDD_SL_PLUGIN_DIR . 'includes/errors.php' );
-		include_once( EDD_SL_PLUGIN_DIR . 'includes/filters.php' );
 		include_once( EDD_SL_PLUGIN_DIR . 'includes/post-types.php' );
 		include_once( EDD_SL_PLUGIN_DIR . 'includes/widgets.php' );
-		include_once( EDD_SL_PLUGIN_DIR . 'includes/history.php' );
+		include_once( EDD_SL_PLUGIN_DIR . 'includes/templates.php' );
 		include_once( EDD_SL_PLUGIN_DIR . 'includes/license-upgrades.php' );
-		include_once( EDD_SL_PLUGIN_DIR . 'includes/receipt.php' );
-		include_once( EDD_SL_PLUGIN_DIR . 'includes/renewals.php' );
+		include_once( EDD_SL_PLUGIN_DIR . 'includes/license-actions.php' );
+		include_once( EDD_SL_PLUGIN_DIR . 'includes/license-renewals.php' );
 		include_once( EDD_SL_PLUGIN_DIR . 'includes/readme.php' );
-		include_once( EDD_SL_PLUGIN_DIR . 'includes/EDD_SL_Emails.php' );
-		include_once( EDD_SL_PLUGIN_DIR . 'includes/EDD_SL_List_Table.php' );
-		include_once( EDD_SL_PLUGIN_DIR . 'includes/EDD_SL_Changelog_Widget.php' );
+		include_once( EDD_SL_PLUGIN_DIR . 'includes/shortcodes.php' );
+		include_once( EDD_SL_PLUGIN_DIR . 'includes/rest-api.php' );
+		include_once( EDD_SL_PLUGIN_DIR . 'includes/misc-functions.php' );
+		include_once( EDD_SL_PLUGIN_DIR . 'includes/classes/class-sl-emails.php' );
+		include_once( EDD_SL_PLUGIN_DIR . 'includes/classes/class-sl-changelog-widget.php' );
 		include_once( EDD_SL_PLUGIN_DIR . 'includes/classes/class-sl-package-download.php' );
+		include_once( EDD_SL_PLUGIN_DIR . 'includes/classes/class-sl-license.php' );
+		include_once( EDD_SL_PLUGIN_DIR . 'includes/classes/class-sl-download.php' );
 
 	}
 
@@ -164,6 +172,7 @@ class EDD_Software_Licensing {
 
 		add_action( 'user_register', array( $this, 'add_past_license_keys_to_new_user' ) );
 
+		add_action( 'edd_customer_post_update', array( $this, 'update_license_email_on_customer_update' ), 10, 3 );
 	}
 
 	/**
@@ -277,6 +286,45 @@ class EDD_Software_Licensing {
 		return $endpoint;
 	}
 
+	/**
+	 * Retrieve a EDD_SL_License object by ID or key
+	 *
+	 * @since  3.5
+	 * @param  $id_or_key string|int License key or license ID
+	 * @param  $by_key    bool       True if retrieving with a key instead of ID
+	 * @return EDD_SL_License|bool  License object if found. False if not found.
+	 */
+	public function get_license( $id_or_key, $by_key = false ) {
+		global $wpdb;
+
+		if ( $by_key ) {
+			$sql       = $wpdb->prepare( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key = '_edd_sl_key' AND meta_value = '%s' LIMIT 1", $id_or_key );
+			$result    = $wpdb->get_var( $sql );
+			$id_or_key = $result ? $result : false;
+		}
+
+		if ( empty( $id_or_key ) ) {
+			return false;
+		}
+
+		$id = $id_or_key;
+
+		$last_changed = wp_cache_get( 'last_changed', 'licenses' );
+		if ( ! $last_changed ) {
+			$last_changed = microtime();
+			wp_cache_set( 'last_changed', $last_changed, 'licenses' );
+		}
+
+		$cache_key = $id . '_' . $last_changed;
+		$license   = wp_cache_get( $cache_key, 'licenses' );
+		if( false === $license ) {
+			$license = new EDD_SL_License( $id );
+		}
+
+		wp_cache_add( $cache_key, $license, 'licenses', HOUR_IN_SECONDS );
+
+		return $license;
+	}
 
 	/*
 	|--------------------------------------------------------------------------
@@ -316,124 +364,23 @@ class EDD_Software_Licensing {
 			return $keys;
 		}
 
-		$payment           = new EDD_Payment( $payment_id );
-		$bundle_licensing  = ( 'bundle' == $type && (bool) get_post_meta( $download_id, '_edd_sl_enabled', true ) );
-		$parent_license_id = 0;
-		$activation_limit  = false;
-
-		if( $type == 'bundle' ) {
-
-			$downloads = array();
-
-			if ( $bundle_licensing ) {
-				$downloads[] = $download_id;
-			}
-
-			$downloads = array_merge( $downloads, edd_get_bundled_products( $download_id ) );
-
-			if ( edd_has_variable_prices( $download_id ) ) {
-				$activation_limit = $this->get_price_activation_limit( $download_id, $cart_item['item_number']['options']['price_id'] );
-				$is_lifetime      = $this->get_price_is_lifetime( $download_id, $cart_item['item_number']['options']['price_id'] );
-			}
-
-
-		} else {
-
-			if ( edd_has_variable_prices( $download_id ) ) {
-				$is_lifetime = $this->get_price_is_lifetime( $download_id, $cart_item['item_number']['options']['price_id'] );
-			}
-
-			$downloads = array();
-			$downloads[] = $download_id;
-
-		}
-
-		if( ! is_array( $downloads ) ) {
+		$purchased_download = new EDD_SL_Download( $download_id );
+		if ( ! $purchased_download->is_bundled_download() && ! $purchased_download->licensing_enabled() ) {
 			return $keys;
 		}
 
-		foreach ( $downloads as $d_id ) {
+		$license  = new EDD_SL_License();
+		$price_id = isset( $cart_item['item_number']['options']['price_id'] ) ? $cart_item['item_number']['options']['price_id'] : false;
+		$license->create( $download_id, $payment_id, $price_id, $cart_index, array() );
 
-			if ( ! get_post_meta( $d_id, '_edd_sl_enabled', true ) )
-				continue;
+		if ( ! empty( $license->ID ) ) {
+			$keys[] = $license->ID;
 
-			$license_title = get_the_title( $d_id ) . ' - ' . $payment->email;
-
-			$license_args = array(
-				'post_type'   => 'edd_license',
-				'post_title'  => $license_title,
-				'post_status' => 'publish',
-				'post_date'   => get_post_field( 'post_date', $payment_id, 'raw' )
-			);
-
-			if ( $parent_license_id ) {
-				$license_args['post_parent'] = $parent_license_id;
+			$child_licenses = $license->get_child_licenses();
+			if ( ! empty( $child_licenses ) ) {
+				$child_ids = wp_list_pluck( $child_licenses, 'ID' );
+				$keys = array_merge( $keys, $child_ids );
 			}
-
-			$license_id  = wp_insert_post( apply_filters( 'edd_sl_insert_license_args', $license_args ) );
-
-			if ( $bundle_licensing && $download_id == $d_id && ! $parent_license_id ) {
-				$parent_license_id = $license_id;
-			}
-
-			$keys[] = $license_id;
-
-			$license_key = $this->get_new_download_license_key( $d_id );
-
-			if( ! $license_key ) {
-				// No predefined license key available, generate a random one
-				$license_key = $this->generate_license_key( $license_id, $d_id, $payment_id, $cart_index );
-			}
-
-			$price_id = isset( $cart_item['item_number']['options']['price_id'] ) ? (int) $cart_item['item_number']['options']['price_id'] : false;
-
-			add_post_meta( $license_id, '_edd_sl_download_id', $d_id );
-
-			if( false !== $price_id ) {
-				add_post_meta( $license_id, '_edd_sl_download_price_id', $price_id );
-			}
-
-			add_post_meta( $license_id, '_edd_sl_cart_index', $cart_index );
-			add_post_meta( $license_id, '_edd_sl_payment_id', $payment_id );
-			add_post_meta( $license_id, '_edd_sl_key', $license_key );
-			add_post_meta( $license_id, '_edd_sl_user_id', $payment->user_id );
-			add_post_meta( $license_id, '_edd_sl_status', 'inactive' );
-
-			if ( $parent_license_id && ! empty( $activation_limit ) ) {
-				add_post_meta( $license_id, '_edd_sl_limit', $activation_limit );
-			}
-
-			// Get the purchase date so we can set the correct license expiration date
-			$payment_meta = edd_get_payment_meta( $payment_id );
-			$purchase_date = null;
-			if ( ! empty( $payment_meta['date'] ) ) {
-				$purchase_date = strtotime( $payment_meta['date'], current_time( 'timestamp' ) );
-			}
-
-			// Get license length
-			$license_length = $this->get_license_length( $license_id, $payment_id, $d_id );
-
-			if ( empty( $is_lifetime ) && 'lifetime' !== $license_length ) {
-
-				// Set license expiration date
-				$expiration = strtotime( $license_length, $purchase_date );
-
-				if( $expiration > strtotime( '+24 hours', current_time( 'timestamp' ) ) ) {
-
-					// Force it to end of day if expiration is more than 24 hours in the future
-					$expiration = date( 'Y-n-d 23:59:59', $expiration );
-
-					// Convert back into timestamp
-					$expiration = strtotime( $expiration, current_time( 'timestamp' ) );
-
-				}
-
-				$this->set_license_expiration( $license_id, $expiration );
-			} else {
-				$this->set_license_as_lifetime( $license_id );
-			}
-
-			do_action( 'edd_sl_store_license', $license_id, $d_id, $payment_id, $type );
 		}
 
 		return $keys;
@@ -467,11 +414,8 @@ class EDD_Software_Licensing {
 
 		extract( $args, EXTR_SKIP );
 
-		$license_id  = $this->get_license_by_key( $key );
-		$download_id = $this->get_download_id_by_license( $key );
-
-		$license         = get_post( $license_id );
-		$item_name       = html_entity_decode( $item_name );
+		$license   = $this->get_license( $key, true );
+		$item_name = html_entity_decode( $item_name );
 
 		if( empty( $url ) ) {
 
@@ -484,116 +428,118 @@ class EDD_Software_Licensing {
 		$bypass_local = isset( $edd_options['edd_sl_bypass_local_hosts'] );
 		$is_local_url = empty( $bypass_local ) ? false : $this->is_local_url( $url );
 
+		$license_id  = false !== $license ? $license->ID : 0;
+		$download_id = false !== $license ? $license->download_id : 0;
 		do_action( 'edd_sl_pre_activate_license', $license_id, $download_id );
-
-		// grab info about the license
-		$license_expires = $this->get_license_expiration( $license_id );
-		$license_key     = $this->get_license_key( $license_id );
 
 		$result = array();
 		$result['success'] = true;
 
 		// this license does not even exist
-		if ( false === $license_id || null == $license ) {
+		if ( empty( $license ) ) {
 
 			$result['success'] = false;
 			$result['error']   = 'missing';
 
-		}
-
-		// Trying to activate bundle license
-		if ( edd_is_bundled_product( $download_id  ) ) {
-
-			$result['success'] = false;
-			$result['error'] = 'license_not_activable';
-
-		}
-
-		// License key revoked
-		if ( $result['success'] && 'publish' != $license->post_status ) {
-
-			$result['success'] = false;
-			$result['error']   = 'revoked';
-
-		}
-
-		// no activations left
-		if( $result['success'] && ( $this->is_at_limit( $license_id, $download_id ) && ! $is_local_url ) && ( $this->force_increase() || ! $this->is_site_active( $license_id, $url ) ) ) {
-
-			$result['success']   = false;
-			$result['error']     = 'no_activations_left';
-			$result['max_sites'] = $this->get_site_count( $license_id );
-
-		}
-
-		// this license has expired'
-		$is_lifetime_license = $this->is_lifetime_license( $license_id );
-		if ( $result['success'] && ( ! $is_lifetime_license &&  $license_expires < $expiration ) ) {
-
-			$result['success'] = false;
-			$result['error']   = 'expired';
-			$result['expires'] = $license_expires;
-
-		}
-
-		// keys don't match
-		if ( $result['success'] && $key != $license_key ) {
-
-			$result['success'] = false;
-			$result['error']   = 'key_mismatch';
-
-		}
-
-		if( ! empty( $args['item_id'] ) && $result['success'] ) {
-
-			if( ! $this->is_download_id_valid_for_license( $args['item_id'], $key ) ) {
-				$result['success']   = false;
-				$result['error']     = 'invalid_item_id';
-			}
-
 		} else {
 
-			// Item names don't match
-			if( $result['success'] && ( ! defined( 'EDD_BYPASS_NAME_CHECK' ) || ! EDD_BYPASS_NAME_CHECK ) && ! $this->check_item_name( $download_id, $item_name ) ) {
+			$allow_bundle_activation = apply_filters( 'edd_sl_allow_bundle_activation', false, $license );
+
+			// Trying to activate bundle license
+			if ( $license->download->is_bundled_download() && ! $allow_bundle_activation ) {
+
+				$result['success'] = false;
+				$result['error'] = 'license_not_activable';
+
+			}
+
+			// License key revoked
+			if ( $result['success'] && 'publish' != $license->post_status ) {
+
+				$result['success'] = false;
+				$result['error']   = 'revoked';
+
+			}
+
+			// no activations left
+			if( $result['success'] && ( $license->is_at_limit() && ! $is_local_url ) && ( $this->force_increase() || ! $license->is_site_active( $url ) ) ) {
+
 				$result['success']   = false;
-				$result['error']     = 'item_name_mismatch';
+				$result['error']     = 'no_activations_left';
+				$result['max_sites'] = $license->activation_count;
+
+			}
+
+			// this license has expired'
+			if ( $result['success'] && ( ! $license->is_lifetime &&  $license->expiration < $expiration ) ) {
+
+				$result['success'] = false;
+				$result['error']   = 'expired';
+				$result['expires'] = $license->expiration;
+
+			}
+
+			// keys don't match
+			if ( $result['success'] && $key != $license->key ) {
+
+				$result['success'] = false;
+				$result['error']   = 'key_mismatch';
+
+			}
+
+			if( ! empty( $args['item_id'] ) && $result['success'] ) {
+
+				if( ! $this->is_download_id_valid_for_license( $args['item_id'], $key ) ) {
+					$result['success']   = false;
+					$result['error']     = 'invalid_item_id';
+				}
+
+			} else {
+
+				// Item names don't match
+				if( $result['success'] && ( ! defined( 'EDD_BYPASS_NAME_CHECK' ) || ! EDD_BYPASS_NAME_CHECK ) && ! $this->check_item_name( $license->download_id, $item_name, $license ) ) {
+					$result['success']   = false;
+					$result['error']     = 'item_name_mismatch';
+				}
+
 			}
 
 		}
+
+		$result = apply_filters( 'edd_sl_activate_license_response', $result, $license );
 
 		if( $result['success'] ) {
 
 			// activate the site for the license
-			$this->insert_site( $license_id, $url );
+			$license->add_site( $url );
 
 			// activate the license
-			$this->set_license_status( $license_id, 'active' );
+			$license->status = 'active';
 
 			if ( $is_local_url ) {
 				$result['is_local'] = true;
 			}
 
 			// enter this activation in the log
-			$this->log_license_activation( $license_id, $_SERVER );
+			$this->log_license_activation( $license->ID, $_SERVER );
 
-			do_action( 'edd_sl_activate_license', $license_id, $download_id );
+			do_action( 'edd_sl_activate_license', $license->ID, $license->download_id );
 
 
 		}
 
-		// All good, give some additional info about the activation
-		$license_limit = $this->get_license_limit( $download_id, $license_id );
-		$site_count    = $this->get_site_count( $license_id );
+		if ( false !== $license ) {
+			// All good, give some additional info about the activation
+			$result['license_limit'] = $license->activation_limit;
+			$result['site_count']    = $license->activation_count;
+			$result['expires']       = $license->expiration;
 
-		$result['license_limit'] = $license_limit;
-		$result['site_count']    = $site_count;
-		$result['expires']       = $this->get_license_expiration( $license_id );
-
-		// just leaving this in here in case others are using it
-		if( $license_limit > 0 ) {
-			$result['activations_left'] = $license_limit - $site_count;
-		} else {
-			$result['activations_left'] = 'unlimited';
+			// just leaving this in here in case others are using it
+			if( $license->activation_limit > 0 ) {
+				$result['activations_left'] = $license->activation_limit - $license->activation_count;
+			} else {
+				$result['activations_left'] = 'unlimited';
+			}
 		}
 
 		return $result; // license is valid and activated
@@ -609,12 +555,6 @@ class EDD_Software_Licensing {
 		$item_name   = ! empty( $data['item_name'] ) ? rawurldecode( $data['item_name'] ) : false;
 		$license     = ! empty( $data['license'] ) ? urldecode( $data['license'] ) : false;
 		$url         = isset( $data['url'] ) ? urldecode( $data['url'] ) : '';
-		$license_id  = $this->get_license_by_key( $license );
-		$expires     = $this->get_license_expiration( $license_id );
-		$payment_id  = get_post_meta( $license_id, '_edd_sl_payment_id', true );
-		$customer_id = edd_get_payment_customer_id( $payment_id );
-
-		$customer = new EDD_Customer( $customer_id );
 
 		$args = array(
 			'item_name' => $item_name,
@@ -623,7 +563,9 @@ class EDD_Software_Licensing {
 			'item_id'   => $item_id
 		);
 
-		$result = $this->activate_license( $args );
+		$result   = $this->activate_license( $args );
+		$checksum = $this->get_request_checksum( $args );
+		$result['checksum'] = $checksum;
 
 		if ( $result['success'] ) {
 			$license_check = 'valid';
@@ -631,22 +573,28 @@ class EDD_Software_Licensing {
 			$license_check = 'invalid';
 		}
 
+		$license  = $this->get_license( $license, true );
+		if ( false !== $license ) {
+			$customer                 = new EDD_Customer( $license->customer_id );
+			$result['expires']        = false === $license->is_lifetime ? date( 'Y-m-d H:i:s', $license->expiration ) : 'lifetime';
+			$result['payment_id']     = $license->payment_id;
+			$result['customer_name']  = $customer->name;
+			$result['customer_email'] = $customer->email;
+			$result['price_id']       = $license->price_id;
+		}
+
 		if( empty( $item_name ) ) {
 			$item_name = get_the_title( $item_id );
 		}
 
-		$result = array_merge( $result, array(
+		$result = array_merge(  array(
 				'success'        => (bool) $result['success'],
 				'license'        => $license_check,
 				'item_name'      => $item_name,
-				'expires'        => is_numeric( $expires ) ? date( 'Y-m-d H:i:s', $expires ) : $expires,
-				'payment_id'     => $payment_id,
-				'customer_name'  => $customer->name,
-				'customer_email' => $customer->email,
-			)
+			), $result
 		);
 
-
+		$license_id = false !== $license ? $license->ID : 0;
 		header( 'Content-Type: application/json' );
 		echo json_encode( apply_filters( 'edd_remote_license_activation_response', $result, $args, $license_id ) );
 		exit;
@@ -679,9 +627,13 @@ class EDD_Software_Licensing {
 
 		extract( $args, EXTR_SKIP );
 
-		$license_id      = $this->get_license_by_key( $key );
-		$download_id     = $this->get_download_id_by_license( $key );
-		$item_name       = html_entity_decode( $item_name );
+		$license = $this->get_license( $key, true );
+
+		if ( false === $license ) {
+			return false;
+		}
+
+		$item_name = html_entity_decode( $item_name );
 
 		if( empty( $url ) ) {
 
@@ -694,36 +646,32 @@ class EDD_Software_Licensing {
 		$bypass_local = isset( $edd_options['edd_sl_bypass_local_hosts'] );
 		$is_local_url = empty( $bypass_local ) ? false : $this->is_local_url( $url );
 
-		do_action( 'edd_sl_pre_deactivate_license', $license_id, $download_id );
-
-		// grab info about the license
-		$license_expires = $this->get_license_expiration( $license_id );
-		$license_key     = $this->get_license_key( $license_id );
-		$license_status  = $this->get_license_status( $license_id );
+		do_action( 'edd_sl_pre_deactivate_license', $license->ID, $license->download_id );
 
 		// make sure license is active
-		if( $license_status != 'active' && ! $bypass_local ) {
+		if( $license->status != 'active' && ! $bypass_local ) {
 			return false;
 		}
 
-		// Trying to activate bundle license
-		if ( edd_is_bundled_product( $download_id  ) ) {
+		$allow_bundle_activation = apply_filters( 'edd_sl_allow_bundle_activation', false, $license );
+
+		// Trying to deactivate bundle license
+		if ( $license->download->is_bundled_download() && ! $allow_bundle_activation ) {
 			return false;
 		}
 
 		// don't deactivate if expired
-		$is_lifetime_license = $this->is_lifetime_license( $license_id );
-		if ( ! $is_lifetime_license && $license_expires < $expiration ) {
+		if ( ! $license->is_lifetime && $license->expiration < $expiration ) {
 			return false; // this license has expired
 		}
 
-		if ( $key != $license_key ) {
+		if ( $key != $license->key ) {
 			return false; // keys don't match
 		}
 
 		if( ! empty( $args['item_id'] ) ) {
 
-			if( ! $this->is_download_id_valid_for_license( $download_id, $args['key'] ) ) {
+			if( ! $this->is_download_id_valid_for_license( $license->download_id, $args['key'] ) ) {
 
 				return false;
 			}
@@ -731,21 +679,21 @@ class EDD_Software_Licensing {
 		} else {
 
 			// Item names don't match
-			if( ( ! defined( 'EDD_BYPASS_NAME_CHECK' ) || ! EDD_BYPASS_NAME_CHECK ) && ! $this->check_item_name( $download_id, $item_name ) ) {
+			if( ( ! defined( 'EDD_BYPASS_NAME_CHECK' ) || ! EDD_BYPASS_NAME_CHECK ) && ! $this->check_item_name( $license->download_id, $item_name, $license ) ) {
 				return false; // Item names don't match
 			}
 
 		}
 
 		// deactivate the site for the license
-		$this->delete_site( $license_id, $url );
+		$license->remove_site( $url );
 
 		if ( ! $is_local_url ) {
 
 			// enter this deactivation in the log
-			$this->log_license_deactivation( $license_id, $_SERVER );
+			$this->log_license_deactivation( $license->ID, $_SERVER );
 
-			do_action( 'edd_sl_deactivate_license', $license_id, $download_id );
+			do_action( 'edd_sl_deactivate_license', $license->ID, $license->download_id );
 		}
 		return true; // license has been deactivated
 
@@ -762,12 +710,6 @@ class EDD_Software_Licensing {
 		$item_name   = ! empty( $data['item_name'] ) ? rawurldecode( $data['item_name'] ) : false;
 		$license     = urldecode( $data['license'] );
 		$url         = isset( $data['url'] ) ? urldecode( $data['url'] ) : '';
-		$license_id  = $this->get_license_by_key( $license );
-		$expires     = $this->get_license_expiration( $license_id );
-		$payment_id  = get_post_meta( $license_id, '_edd_sl_payment_id', true );
-		$customer_id = edd_get_payment_customer_id( $payment_id );
-
-		$customer = new EDD_Customer( $customer_id );
 
 		$args = array(
 			'item_id'   => $item_id,
@@ -776,12 +718,24 @@ class EDD_Software_Licensing {
 			'url'       => $url,
 		);
 
-		$result = $this->deactivate_license( $args );
+		$result   = $this->deactivate_license( $args );
+		$checksum = $this->get_request_checksum( $args );
 
 		if ( $result ) {
 			$status = 'deactivated';
 		} else {
 			$status = 'failed';
+		}
+
+		$license  = $this->get_license( $license, true );
+		$response = array();
+		if ( false !== $license ) {
+			$customer                 = new EDD_Customer( $license->customer_id );
+			$response['expires']        = $license->expiration;
+			$response['payment_id']     = $license->payment_id;
+			$response['customer_name']  = $customer->name;
+			$response['customer_email'] = $customer->email;
+			$response['price_id']       = $license->price_id;
 		}
 
 		if( empty( $item_name ) ) {
@@ -790,16 +744,14 @@ class EDD_Software_Licensing {
 
 		header( 'Content-Type: application/json' );
 
-		echo json_encode( apply_filters( 'edd_remote_license_deactivation_response', array(
-				'success'        => (bool) $result,
-				'license'        => $status,
-				'item_name'      => $item_name,
-				'expires'        => is_numeric( $expires ) ? date( 'Y-m-d H:i:s', $expires ) : $expires,
-				'payment_id'     => $payment_id,
-				'customer_name'  => $customer->name,
-				'customer_email' => $customer->email,
-			), $args, $license_id )
-		);
+		$response = array_merge( array(
+			'success'        => (bool) $result,
+			'license'        => $status,
+			'item_name'      => $item_name,
+			'checksum'       => $checksum,
+		), $response );
+
+		echo json_encode( apply_filters( 'edd_remote_license_deactivation_response', $response, $args, $license->ID ) );
 
 		exit;
 
@@ -829,18 +781,12 @@ class EDD_Software_Licensing {
 
 		$args = wp_parse_args( $args, $defaults );
 
-		$license_id = $this->get_license_by_key( $args['key'] );
+		$license = $this->get_license( $args['key'], true );
 
-		if ( ! $license_id ) {
+		if ( false === $license ) {
 			return 'invalid';
 		}
 
-		// grab info about the license
-		$license            = get_post( $license_id );
-		$license_expires    = $this->get_license_expiration( $license_id );
-		$license_key        = get_post_meta( $license_id, '_edd_sl_key', true );
-		$license_status     = get_post_meta( $license_id, '_edd_sl_status', true );
-		$download_id        = get_post_meta( $license_id, '_edd_sl_download_id', true );
 		$item_name          = html_entity_decode( $args['item_name'] );
 		$url                = ! empty( $args['url'] ) ? $args['url'] : '';
 
@@ -854,7 +800,7 @@ class EDD_Software_Licensing {
 
 		$is_local_url = $this->is_local_url( $url );
 
-		if ( $args['key'] != $license_key ) {
+		if ( $args['key'] != $license->key ) {
 			return 'invalid'; // keys don't match
 		}
 
@@ -866,34 +812,26 @@ class EDD_Software_Licensing {
 
 		} else {
 
-			if( ( ! defined( 'EDD_BYPASS_NAME_CHECK' ) || ! EDD_BYPASS_NAME_CHECK ) && ! $this->check_item_name( $download_id, $item_name ) ) {
+			if( ( ! defined( 'EDD_BYPASS_NAME_CHECK' ) || ! EDD_BYPASS_NAME_CHECK ) && ! $this->check_item_name( $license->download_id, $item_name, $license ) ) {
 				return 'item_name_mismatch'; // Item names don't match
 			}
 
 		}
 
-		$is_lifetime_license = $this->is_lifetime_license( $license_id );
-		if ( ! $is_lifetime_license && $args['expiration'] > $license_expires ) {
-			return 'expired'; // this license has expired
+		if ( ! $license->is_lifetime && $args['expiration'] > $license->expiration ) {
+			$status = 'expired'; // this license has expired
+		} elseif ( 'active' != $license->status ) {
+			$status = 'inactive'; // this license is not active.
+		} elseif ( 'publish' != $license->post_status ) {
+			$status = 'disabled'; // License key disabled
+		} elseif( ! $is_local_url && ! $license->is_site_active( $url ) ) {
+			$status = 'site_inactive';
+		} else {
+			do_action( 'edd_sl_check_license', $license->ID, $license->download_id );
+			$status = 'valid'; // license still active
 		}
 
-		if ( 'active' != $license_status ) {
-			return 'inactive'; // this license is not active.
-		}
-
-		if ( 'publish' != $license->post_status ) {
-			return 'disabled'; // License key disabled
-		}
-
-		if( ! $is_local_url && ! $this->is_site_active( $license_id, $url ) ) {
-			return 'site_inactive';
-		}
-
-
-		do_action( 'edd_sl_check_license', $license_id, $download_id );
-
-		return 'valid'; // license still active
-
+		return apply_filters( 'edd_sl_check_license_status', $status, $license );
 	}
 
 	/**
@@ -902,17 +840,10 @@ class EDD_Software_Licensing {
 	 */
 	function remote_license_check( $data ) {
 
-		$item_id     = ! empty( $data['item_id'] )   ? absint( $data['item_id'] ) : false;
+		$item_id     = ! empty( $data['item_id'] )   ? absint( $data['item_id'] )         : false;
 		$item_name   = ! empty( $data['item_name'] ) ? rawurldecode( $data['item_name'] ) : false;
-		$license     = urldecode( $data['license'] );
-		$url         = isset( $data['url'] ) ? urldecode( $data['url'] ) : '';
-		$license_id  = $this->get_license_by_key( $license );
-		$expires     = $this->get_license_expiration( $license_id );
-		$payment_id  = get_post_meta( $license_id, '_edd_sl_payment_id', true );
-		$download_id = get_post_meta( $license_id, '_edd_sl_download_id', true );
-		$customer_id = edd_get_payment_customer_id( $payment_id );
-
-		$customer = new EDD_Customer( $customer_id );
+		$license     = isset( $data['license'] )     ? urldecode( $data['license'] )      : false;
+		$url         = isset( $data['url'] )         ? urldecode( $data['url'] )          : '';
 
 		$args = array(
 			'item_id'   => $item_id,
@@ -921,29 +852,42 @@ class EDD_Software_Licensing {
 			'url'       => $url,
 		);
 
-		$result = $this->check_license( $args );
+		$result   =  $message = $this->check_license( $args );
+		$checksum = $this->get_request_checksum( $args );
 
-		$license_limit = $this->get_license_limit( $download_id, $license_id );
-		$site_count    = $this->get_site_count( $license_id );
+		if ( 'invalid' === $result ) {
+			$result = false;
+		}
+
+		$response = array();
+		if ( false !== $result ) {
+			$license  = $this->get_license( $license, true );
+			$customer = new EDD_Customer( $license->customer_id );
+
+			$response['expires']          = is_numeric( $license->expiration ) ? date( 'Y-m-d H:i:s', $license->expiration ) : $license->expiration;
+			$response['payment_id']       = $license->payment_id;
+			$response['customer_name']    = $customer->name;
+			$response['customer_email']   = $customer->email;
+			$response['license_limit']    = $license->activation_limit;
+			$response['site_count']       = $license->activation_count;
+			$response['activations_left'] = $license->activation_limit > 0 ? $license->activation_limit - $license->activation_count : 'unlimited';
+			$response['price_id']         = $license->price_id;
+		}
 
 		if( empty( $item_name ) ) {
 			$item_name = get_the_title( $item_id );
 		}
 
+		$response = array_merge( array(
+			'success'          => (bool) $result,
+			'license'          => $message,
+			'item_name'        => $item_name,
+			'checksum'         => $checksum,
+		), $response );
+
+		$license_id = ! empty( $license->ID ) ? $license->ID : false;
 		header( 'Content-Type: application/json' );
-		echo json_encode( apply_filters( 'edd_remote_license_check_response', array(
-				'success'          => (bool) $result,
-				'license'          => $result,
-				'item_name'        => $item_name,
-				'expires'          => is_numeric( $expires ) ? date( 'Y-m-d H:i:s', $expires ) : $expires,
-				'payment_id'       => $payment_id,
-				'customer_name'    => ! empty( $customer->name ) ? $customer->name : '',
-				'customer_email'   => ! empty( $customer->email ) ? $customer->email : '',
-				'license_limit'    => $license_limit,
-				'site_count'       => $site_count,
-				'activations_left' => $license_limit > 0 ? $license_limit - $site_count : 'unlimited'
-			), $args, $license_id )
-		);
+		echo json_encode( apply_filters( 'edd_remote_license_check_response', $response, $args, $license_id ) );
 
 		exit;
 
@@ -970,26 +914,17 @@ class EDD_Software_Licensing {
 			return;
 		}
 
-		$license_keys = edd_get_payment_meta( $payment_id, '_edd_sl_renewal_key', false );
+		$license_id = ! empty( $cart_item['item_number']['options']['license_id'] ) ? absint( $cart_item['item_number']['options']['license_id'] ) : false;
 
-		if( is_array( $license_keys ) ) {
+		if( $license_id ) {
 
-			foreach( $license_keys as $key ) {
+			$license = $this->get_license( $license_id );
 
-				$license_id  = $this->get_license_by_key( $key );
-				$item_id     = $this->get_download_id( $license_id );
-
-				if( (int) $download_id !== (int) $item_id ) {
-					continue;
-				}
-
-				if( empty( $license_id ) ) {
-					continue;
-				}
-
-				$this->renew_license( $license_id, $payment_id, $download_id );
-
+			if( empty( $license->ID ) ) {
+				return;
 			}
+
+			$license->renew( $payment_id );
 
 		}
 	}
@@ -1001,51 +936,13 @@ class EDD_Software_Licensing {
 	 * @return void
 	 */
 	function renew_license( $license_id = 0, $payment_id = 0, $download_id = 0 ) {
+		$license = $this->get_license( $license_id );
 
-		$is_lifetime_license = $this->is_lifetime_license( $license_id );
-		if ( $is_lifetime_license ) {
-			return;
+		if ( false === $license ) {
+			return false;
 		}
 
-		// License renewal length. Default is 1 year
-		$length = $this->get_license_length( $license_id, $payment_id, $download_id );
-
-		$expiration = $this->get_license_expiration( $license_id );
-
-		// If expiration is less than today's current_time( 'timestamp' ) then we need to renew it from current_time( 'timestamp' ) now
-		// that way renewing won't just renew them and expire immediately.
-		// i.g. if they renew a license in 2011, it should be active now, not renew until 2012
-		if ( $expiration < current_time( 'timestamp' ) ) {
-			$expiration = current_time( 'timestamp' );
-		}
-
-		// Set license expiration date
-		$new_expiration = strtotime( $length, $expiration );
-
-		if( $new_expiration > strtotime( '+24 hours', current_time( 'timestamp' ) ) ) {
-
-			// Force it to end of day if expiration is more than 24 hours in the future
-			$new_expiration = date( 'Y-n-d 23:59:59', $new_expiration );
-
-			// Convert back into timestamp
-			$new_expiration = strtotime( $new_expiration, current_time( 'timestamp' ) );
-
-		}
-
-		do_action( 'edd_sl_pre_license_renewal', $license_id );
-
-		$this->set_license_expiration( $license_id, $new_expiration );
-		$this->set_license_status( $license_id, 'active' );
-
-		// Store payment ID for license
-		add_post_meta( $license_id, '_edd_sl_payment_id', $payment_id );
-
-		// Allow the renewal reminder notice to be sent again
-		delete_post_meta( $license_id, '_edd_sl_renewal_sent' );
-
-		// Allow other plugins to hook into the renewal process (perhaps renewal emails)
-		do_action( 'edd_sl_post_license_renewal', $license_id, $new_expiration );
-
+		return $license->renew( $payment_id );
 	}
 
 	/**
@@ -1056,15 +953,13 @@ class EDD_Software_Licensing {
 	 * @return string The renewal URL
 	 */
 	function get_renewal_url( $license_id = 0 ) {
+		$license = $this->get_license( $license_id );
 
-		$args = array(
-			'edd_license_key' => $this->get_license_key( $license_id ),
-			'download_id'     => $this->get_download_id( $license_id )
-		);
+		if ( false === $license ) {
+			return '';
+		}
 
-		$url = add_query_arg( $args, edd_get_checkout_uri() );
-		return apply_filters( 'edd_sl_get_renewal_url', $url, $license_id );
-
+		return $license->get_renewal_url();
 	}
 
 	/**
@@ -1090,6 +985,29 @@ class EDD_Software_Licensing {
 		return apply_filters( 'edd_sl_can_extend_license', $ret, $license_id );
 	}
 
+	/**
+	 * Determine if a license is allowed to be renewed after it's expiration
+	 *
+	 * @since  3.5.4
+	 * @param int $license_id
+	 * @return bool
+	 */
+	function can_renew( $license_id = 0 ) {
+		$ret = edd_sl_renewals_allowed() && 'expired' === $this->get_license_status( $license_id );
+
+		if( $this->is_lifetime_license( $license_id ) ) {
+			$ret = false;
+		}
+
+		// Verify the initial payment is at least completed
+		$payment_id = $this->get_payment_id( $license_id );
+		$payment    = new EDD_Payment( $payment_id );
+		if ( 'publish' !== $payment->status ) {
+			$ret = false;
+		}
+		return apply_filters( 'edd_sl_can_renew_license', $ret, $license_id );
+	}
+
 
 	/*
 	|--------------------------------------------------------------------------
@@ -1104,6 +1022,8 @@ class EDD_Software_Licensing {
 	 */
 	function revoke_license( $payment_id, $new_status, $old_status ) {
 
+		$payment = new EDD_Payment( $payment_id );
+
 		if ( $old_status != 'publish' && $old_status != 'complete' )
 			return; // Make sure that licenses are only generated once
 
@@ -1112,25 +1032,63 @@ class EDD_Software_Licensing {
 			return;
 		}
 
-		$licenses = $this->get_licenses_of_purchase( $payment_id );
+		$licenses = $this->get_licenses_of_purchase( $payment->ID );
 
 		if( ! $licenses ) {
 			return;
 		}
 
-		$renewal = $this->is_renewal( $payment_id );
+		$renewal = $this->is_renewal( $payment->ID );
 
 		foreach( $licenses as $license ) {
 
 			// Don't revoke license keys when a renewal is refunded if the license is not expired
-			if( 'expired' !== $this->get_license_status( $license->ID ) && $renewal ) {
+			if( 'expired' !== $license->status && $renewal ) {
 				continue;
 			}
 
-			do_action( 'edd_sl_pre_revoke_license', $license->ID, $payment_id );
-			wp_update_post( array( 'ID' => $license->ID, 'post_status' => 'draft' ) );
-			$this->set_license_status( $license->ID, 'inactive' );
-			do_action( 'edd_sl_post_revoke_license', $license->ID, $payment_id );
+			$cart_item = $payment->cart_details[ $license->cart_index ];
+			$upgrade   = ! empty( $cart_item['item_number']['options']['is_upgrade'] ) ? true : false;
+
+			if ( $upgrade ) {
+				$payment_index    = array_search( $payment_id, $license->payment_ids );
+				$previous_payment = false;
+
+				// Work our way backwards through the payment IDs until we find the first completed payment, ignoring others
+				$key = $payment_index - 1;
+				while ( $key >= 0 ) {
+					$previous_payment = new EDD_Payment( $license->payment_ids[ $key ] );
+
+					if ( 'publish' === $previous_payment->status ) {
+						break;
+					}
+
+					$key--;
+
+				}
+
+				if ( false === $previous_payment ) {
+					continue;
+				}
+
+				// Set the download ID to the initial download ID (since it could change).
+				$license->download_id = $previous_payment->cart_details[ $license->cart_index ]['id'];
+
+				// Reset the price ID.
+				if ( isset( $previous_payment->cart_details[ $license->cart_index ]['item_number']['options']['price_id'] ) ) {
+					$license->price_id = $previous_payment->cart_details[ $license->cart_index ]['item_number']['options']['price_id'];
+				} else {
+					$license->price_id = null;
+				}
+
+				// Reset the activation limits.
+				$license->reset_activation_limit();
+			} else {
+				do_action( 'edd_sl_pre_revoke_license', $license->ID, $payment_id );
+				$license->disable();
+				do_action( 'edd_sl_post_revoke_license', $license->ID, $payment_id );
+			}
+
 		}
 
 	}
@@ -1148,28 +1106,32 @@ class EDD_Software_Licensing {
 	 */
 	function delete_license( $payment_id, $download_id = 0 ) {
 
-		$status   = get_post_field( 'post_status', $payment_id );
-		$licenses = $this->get_licenses_of_purchase( $payment_id );
+		$payment = new EDD_Payment( $payment_id );
+
+		if( 'publish' !== $payment->status && 'revoked' !== $payment->status ) {
+			return;
+		}
+
+		$licenses = $this->get_licenses_of_purchase( $payment->ID );
 
 		if( ! $licenses ) {
 			return;
 		}
 
-		if( $status !== 'publish' && 'revoked' !== $status ) {
-			return;
-		}
-
 		foreach( $licenses as $license ) {
 
-			$license_key = $this->get_license_key( $license->ID );
-
-			if ( ! empty( $download_id ) && ! $this->is_download_id_valid_for_license( $download_id, $license_key, true ) ) {
+			if ( ! empty( $download_id ) && ! $this->is_download_id_valid_for_license( $download_id, $license->key, true ) ) {
 				continue;
 			}
 
-			do_action( 'edd_sl_pre_delete_license', $license->ID, $payment_id );
+			// If this payment isn't the initial payment, don't delete the license.
+			if ( (int) $payment_id !== (int) $license->payment_id ) {
+				continue;
+			}
+
+			do_action( 'edd_sl_pre_delete_license', $license->ID, $payment->ID );
 			wp_delete_post( $license->ID, true );
-			do_action( 'edd_sl_post_delete_license', $license->ID, $payment_id );
+			do_action( 'edd_sl_post_delete_license', $license->ID, $payment->ID );
 
 			if ( ! empty( $download_id ) ) {
 				break;
@@ -1208,15 +1170,18 @@ class EDD_Software_Licensing {
 		$slug      = isset( $data['slug'] )      ? sanitize_text_field( urldecode( $data['slug'] ) )         : false;
 		$item_id   = isset( $data['item_id'] )   ? absint( $data['item_id'] )                                : false;
 		$item_name = isset( $data['item_name'] ) ? sanitize_text_field( rawurldecode( $data['item_name'] ) ) : false;
+		$beta      = isset( $data['beta'] )      ? (bool) $data['beta']                                      : false;
 		if( empty( $item_name ) && empty( $item_id ) ) {
 			$item_name = isset( $data['name'] )  ? sanitize_text_field( rawurldecode( $data['name'] ) )      : false;
 		}
 
+
 		$response  = array(
-			'new_version'   => '',
-			'sections'      => '',
-			'license_check' => '',
-			'msg'           => ''
+			'new_version'    => '',
+			'stable_version' => '',
+			'sections'       => '',
+			'license_check'  => '',
+			'msg'            => '',
 		);
 
 		// set content type of response
@@ -1234,7 +1199,9 @@ class EDD_Software_Licensing {
 				echo json_encode( $response ); exit;
 			}
 
-			if( empty( $license ) ) {
+			$check_by_name_first = apply_filters( 'edd_sl_force_check_by_name', false );
+
+			if( empty( $license ) || $check_by_name_first ) {
 
 				$item_id = $this->get_download_id_by_name( $item_name );
 
@@ -1246,41 +1213,102 @@ class EDD_Software_Licensing {
 
 		}
 
-		$download = get_post( $item_id );
+		$download = new EDD_SL_Download( $item_id );
 
 		if( ! $download ) {
-			$response['msg'] = sprintf( __( 'License key provided does not match a valid %s', 'edd_sl' ), edd_get_label_singular() );
+
+			if( empty( $license ) || $check_by_name_first ) {
+				$response['msg'] = sprintf( __( 'Item name provided does not match a valid %s', 'edd_sl' ), edd_get_label_singular() );
+			} else {
+				$response['msg'] = sprintf( __( 'License key provided does not match a valid %s', 'edd_sl' ), edd_get_label_singular() );
+			}
+
 			echo json_encode( $response ); exit;
+
 		}
 
-		$version     = $this->get_latest_version( $item_id );
-		$slug        = ! empty( $slug ) ? $slug : $download->post_name;
-		$description = ! empty( $download->post_excerpt ) ? $download->post_excerpt : $download->post_content;
-		$changelog   = get_post_meta( $item_id, '_edd_sl_changelog', true );
+		$is_valid_for_download = $this->is_download_id_valid_for_license( $download->ID, $license );
+		if ( ! empty( $license ) && ( ! defined( 'EDD_BYPASS_NAME_CHECK' ) || ! EDD_BYPASS_NAME_CHECK ) && ( ! $is_valid_for_download || ( ! empty( $item_name ) && ! $this->check_item_name( $download->ID, $item_name, $license ) ) ) ) {
+
+			$download_name   = ! empty( $item_name ) ? $item_name : $download->get_name();
+			$response['msg'] = sprintf( __( 'License key is not valid for %s', 'edd_sl' ), $download_name );
+
+			echo json_encode( $response ); exit;
+
+		}
+
+		$stable_version = $version = $this->get_latest_version( $item_id );
+		$slug           = ! empty( $slug ) ? $slug : $download->post_name;
+		$description    = ! empty( $download->post_excerpt ) ? $download->post_excerpt : $download->post_content;
+		$changelog      = get_post_meta( $item_id, '_edd_sl_changelog', true );
+
+		$download_beta = false;
+		if ( $beta && (bool) get_post_meta( $item_id, '_edd_sl_beta_enabled', true ) ) {
+			$version_beta = $this->get_beta_download_version( $item_id );
+			if ( version_compare( $version_beta, $stable_version, '>') ) {
+				$changelog     = get_post_meta( $item_id, '_edd_sl_beta_changelog', true );
+				$version       = $version_beta;
+				$download_beta = true;
+			}
+		}
 
 		$response = array(
-			'new_version'   => $version,
-			'name'          => $download->post_title,
-			'slug'          => $slug,
-			'url'           => esc_url( add_query_arg( 'changelog', '1', get_permalink( $item_id ) ) ),
-			'last_updated'  => $download->post_modified,
-			'homepage'      => get_permalink( $item_id ),
-			'package'       => $this->get_encoded_download_package_url( $item_id, $license, $url ),
-			'download_link' => $this->get_encoded_download_package_url( $item_id, $license, $url ),
-			'sections'      => serialize(
+			'new_version'    => $version,
+			'stable_version' => $stable_version,
+			'name'           => $download->post_title,
+			'slug'           => $slug,
+			'url'            => esc_url( add_query_arg( 'changelog', '1', get_permalink( $item_id ) ) ),
+			'last_updated'   => $download->post_modified,
+			'homepage'       => get_permalink( $item_id ),
+			'package'        => $this->get_encoded_download_package_url( $item_id, $license, $url, $download_beta ),
+			'download_link'  => $this->get_encoded_download_package_url( $item_id, $license, $url, $download_beta ),
+			'sections'       => serialize(
 				array(
 					'description' => wpautop( strip_tags( $description, '<p><li><ul><ol><strong><a><em><span><br>' ) ),
 					'changelog'   => wpautop( strip_tags( stripslashes( $changelog ), '<p><li><ul><ol><strong><a><em><span><br>' ) ),
 				)
 			),
+			'banners' => serialize(
+				array(
+					'high' => get_post_meta( $item_id, '_edd_readme_plugin_banner_high', true ),
+					'low'  => get_post_meta( $item_id, '_edd_readme_plugin_banner_low', true )
+				)
+			)
 		);
 
-		$response = apply_filters( 'edd_sl_license_response', $response, $download );
+		$response = apply_filters( 'edd_sl_license_response', $response, $download, $download_beta );
 
 		echo json_encode( $response );
 		exit;
 	}
 
+	/**
+	 * Given an array of arguments, sort them by length, and then md5 them to generate a checksum.
+	 *
+	 * @since 3.5
+	 * @param array $args
+	 *
+	 * @return string
+	 */
+	private function get_request_checksum( $args = array() ) {
+		usort( $args, array( $this, 'sort_args_by_length' ) );
+		$string_args = json_encode( $args );
+
+		return md5( $string_args );
+	}
+
+	/**
+	 * Used by get_request_checksum to sort the array by size.
+	 *
+	 * @since 3.5
+	 * @param $a The first item to compare for length.
+	 * @param $b The second item to compare for length.
+	 *
+	 * @return int The difference in length.
+	 */
+	private function sort_args_by_length( $a,$b ) {
+		return strlen( $b ) - strlen( $a );
+	}
 
 	/*
 	|--------------------------------------------------------------------------
@@ -1333,14 +1361,6 @@ class EDD_Software_Licensing {
 
 		add_post_meta( $log_id, '_edd_sl_log_license_id', $license_id );
 
-		if( $this->force_increase() ) {
-
-			$activation_count = $this->get_site_count( $license_id );
-			$activation_count++;
-			update_post_meta( $license_id, '_edd_sl_activation_count', $activation_count );
-
-		}
-
 	}
 
 	/**
@@ -1361,16 +1381,6 @@ class EDD_Software_Licensing {
 
 		add_post_meta( $log_id, '_edd_sl_log_license_id', $license_id );
 
-		if( $this->force_increase() ) {
-
-			$activation_count = $this->get_site_count( $license_id );
-			if( $activation_count >= 1 ) {
-				$activation_count--;
-				update_post_meta( $license_id, '_edd_sl_activation_count', $activation_count );
-			}
-
-		}
-
 	}
 
 
@@ -1386,15 +1396,13 @@ class EDD_Software_Licensing {
 	 * @return array
 	 */
 	function get_sites( $license_id = 0 ) {
-		$sites = get_post_meta( $license_id, '_edd_sl_sites', true );
-		if( empty( $sites ) ) {
-			$sites = array();
+		$license = $this->get_license( $license_id );
+
+		if ( false === $license ) {
+			return false;
 		}
 
-		$sites = array_map( array( self::$instance, 'clean_site_url' ), $sites );
-
-		return array_unique( apply_filters( 'edd_sl_get_sites', $sites, $license_id ) );
-
+		return $license->sites;
 	}
 
 	/**
@@ -1403,26 +1411,12 @@ class EDD_Software_Licensing {
 	 * @return mixed|void
 	 */
 	public function get_site_count( $license_id = 0 ) {
-		$count = 0;
+		$license = $this->get_license( $license_id );
 
-		if( $this->force_increase() ) {
-			$count = absint( get_post_meta( $license_id, '_edd_sl_activation_count', true ) );
-		} else {
-			$sites = $this->get_sites( $license_id );
-			$bypass_local = edd_get_option( 'edd_sl_bypass_local_hosts', false );
-
-			if ( $bypass_local ) {
-				foreach ( $sites as $site ) {
-					if ( ! $this->is_local_url( $site ) ) {
-						$count++;
-					}
-				}
-			} else {
-				$count = count( $sites );
-			}
-
+		if ( false === $license ) {
+			return false;
 		}
-		return apply_filters( 'edd_sl_get_site_count', $count, $license_id );
+		return $license->activation_count;
 	}
 
 	/**
@@ -1432,17 +1426,13 @@ class EDD_Software_Licensing {
 	 * @return bool|mixed|void
 	 */
 	function is_site_active( $license_id = 0, $site_url = '' ) {
+		$license = $this->get_license( $license_id );
 
-		if( $this->force_increase() ) {
-			return true; // Licenses are not tied to URLs
+		if ( false === $license ) {
+			return false;
 		}
 
-		$site_url = trailingslashit( $this->clean_site_url( $site_url ) );
-
-		$sites = array_map( array( self::$instance, 'clean_site_url' ), $this->get_sites( $license_id ) );
-
-		$ret   = in_array( $site_url, $sites );
-		return apply_filters( 'edd_sl_is_site_active', $ret, $license_id, $site_url );
+		return $license->is_site_active( $site_url );
 	}
 
 	/**
@@ -1486,33 +1476,13 @@ class EDD_Software_Licensing {
 	 * @return bool|int
 	 */
 	function delete_site( $license_id = 0, $site_url = '' ) {
+		$license = $this->get_license( $license_id );
 
-		if( empty( $license_id ) ) {
+		if ( false === $license ) {
 			return false;
 		}
 
-		if( empty( $site_url ) ) {
-			return false;
-		}
-
-		if( $this->force_increase() ) {
-			return false; // Licenses are not tied to URLs
-		}
-
-		$sites = $this->get_sites( $license_id );
-
-		$site_url = trailingslashit( $this->clean_site_url( $site_url ) );
-
-		if( ! in_array( $site_url, $sites ) ) {
-			return false; // Site doesn't exist
-		}
-
-		$key = array_search( $site_url, $sites );
-
-		unset( $sites[ $key ] );
-
-		return update_post_meta( $license_id, '_edd_sl_sites', $sites );
-
+		return $license->remove_site( $site_url );
 	}
 
 
@@ -1528,18 +1498,8 @@ class EDD_Software_Licensing {
 	 * @return mixed
 	 */
 	function get_new_download_license_key( $download_id = 0 ) {
-		$keys = get_post_meta( $download_id, '_edd_sl_keys', true );
-
-		if( ! $keys ) {
-			return false; // no available keys
-		}
-
-		$keys = array_map( 'trim', explode( "\n", $keys ) );
-		$key  = $keys[0];
-		unset( $keys[0] );
-		update_post_meta( $download_id, '_edd_sl_keys', implode( "\n", $keys ) );
-		return $key;
-
+		$download = new EDD_SL_Download( $download_id );
+		return $download->get_new_license_key();
 	}
 
 	/**
@@ -1561,23 +1521,13 @@ class EDD_Software_Licensing {
 	 * @return bool|null|string
 	 */
 	function get_license_by_key( $license_key ) {
+		$license = $this->get_license( $license_key, true );
 
-		global $wpdb;
-
-		static $cache = array();
-		if( isset( $cache[ $license_key ] ) ) {
-			return $cache[ $license_key ];
+		if ( false === $license ) {
+			return false;
 		}
 
-		$license_id = $wpdb->get_var( $wpdb->prepare( "SELECT post_id, SLEEP(RAND()*0.20) AS junk FROM $wpdb->postmeta WHERE meta_key = '_edd_sl_key' AND meta_value = '%s' LIMIT 1", $license_key ) );
-
-		if ( $license_id != NULL ) {
-			$cache[ $license_key ] = $license_id;
-			return $license_id;
-		}
-
-		return false;
-
+		return $license->ID;
 	}
 
 	/**
@@ -1586,7 +1536,13 @@ class EDD_Software_Licensing {
 	 * @return bool|mixed
 	 */
 	function get_license_key( $license_id ) {
-		return get_post_meta( $license_id, '_edd_sl_key', true );
+		$license = $this->get_license( $license_id );
+
+		if ( ! $license ) {
+			return false;
+		}
+
+		return $license->key;
 	}
 
 	/**
@@ -1595,15 +1551,15 @@ class EDD_Software_Licensing {
 	 * @return mixed|void
 	 */
 	function get_download_id_by_license( $license_key ) {
+		$license     = $this->get_license( $license_key, true );
 
-		$download_id = false;
-		$license_id  = $this->get_license_by_key( $license_key );
-
-		if ( $license_id !== false ) {
-			$download_id = $this->get_download_id( $license_id );
+		if ( ! $license ) {
+			return false;
 		}
 
-		return apply_filters( 'edd_sl_get_download_id_by_license', $download_id, $license_key, $license_id );
+		$download_id = $license->download_id;
+
+		return apply_filters( 'edd_sl_get_download_id_by_license', $download_id, $license_key, $license->ID );
 	}
 	/**
 	 * @param string $license_key
@@ -1631,7 +1587,7 @@ class EDD_Software_Licensing {
 	function get_download_id_by_name( $name = '' ) {
 
 		$download_id = false;
-		$download    = get_page_by_title( $name, OBJECT, 'download' );
+		$download    = get_page_by_title( urldecode( $name ), OBJECT, 'download' );
 
 		if( $download ) {
 			$download_id = $download->ID;
@@ -1671,7 +1627,14 @@ class EDD_Software_Licensing {
 	 * @return int
 	 */
 	function get_download_name( $license_id = 0 ) {
-		return get_the_title( $this->get_download_id( $license_id ) );
+		$license = $this->get_license( $license_id );
+
+
+		if ( ! $license ) {
+			return false;
+		}
+
+		return $license->download->get_name();
 	}
 
 	/**
@@ -1681,9 +1644,13 @@ class EDD_Software_Licensing {
 	 * @return int
 	 */
 	function get_download_id( $license_id = 0 ) {
+		$license = $this->get_license( $license_id );
 
-		return get_post_meta( $license_id, '_edd_sl_download_id', true );
+		if ( ! $license ) {
+			return false;
+		}
 
+		return $license->download_id;
 	}
 
 	/**
@@ -1696,23 +1663,13 @@ class EDD_Software_Licensing {
 	 * @return int
 	 */
 	public function get_user_id( $license_id = 0 ) {
+		$license = $this->get_license( $license_id );
 
-		$user_id = get_post_meta( $license_id, '_edd_sl_user_id', true );
-
-		if( empty( $user_id ) ) {
-
-			$payment_id = $this->get_payment_id( $license_id );
-			$payment    = new EDD_Payment( $payment_id );
-			$user_id    = $payment->user_id;
-
-			if( ! empty( $user_id ) ) {
-				update_post_meta( $license_id, '_edd_sl_user_id', $user_id );
-			}
-
+		if ( ! $license ) {
+			return false;
 		}
 
-		return $user_id;
-
+		return $license->user_id;
 	}
 
 	/**
@@ -1773,7 +1730,13 @@ class EDD_Software_Licensing {
 	 * @return int
 	 */
 	function get_payment_id( $license_id = 0 ) {
-		return get_post_meta( $license_id, '_edd_sl_payment_id', true );
+		$license = $this->get_license( $license_id );
+
+		if ( ! $license ) {
+			return false;
+		}
+
+		return $license->payment_id;
 	}
 
 	/**
@@ -1789,30 +1752,29 @@ class EDD_Software_Licensing {
 			'meta_value'     => $payment_id,
 			'post_type'      => 'edd_license',
 			'post_status'    => 'any',
-			'post_parent'    => 0
+			'post_parent'    => 0,
 		);
 
 		$licenses = get_posts( $args );
 
+
 		if ( $licenses ) {
+			$licenses = wp_list_pluck( $licenses, 'ID' );
 
-			// Now see if there are child keys
-			$args = array(
-				'posts_per_page'  => 1000,
-				'post_parent__in' => wp_list_pluck( $licenses, 'ID' ),
-				'post_type'       => 'edd_license',
-				'post_status'     => 'any'
-			);
+			$license_objects = array();
+			foreach ( $licenses as $license_id ) {
+				$license = $this->get_license( $license_id );
+				$license_objects[] = $license;
 
-			$child_keys = get_posts( $args );
-
-			if( $child_keys ) {
-
-				$licenses = array_merge( $licenses, $child_keys );
-
+				$child_licenses = $license->get_child_licenses();
+				if ( ! empty( $child_licenses ) ) {
+					foreach ( $child_licenses as $child_license ) {
+						$license_objects[] = $child_license;
+					}
+				}
 			}
 
-			return $licenses;
+			return $license_objects;
 		}
 
 		return false;
@@ -1861,7 +1823,8 @@ class EDD_Software_Licensing {
 		$licenses = get_posts( $args );
 
 		if ( $licenses ) {
-			return $licenses[0];
+			$license = $this->get_license( $licenses[0]->ID );
+			return apply_filters( 'edd_sl_licenses_by_purchase', $license, $purchase_id, $download_id, $cart_index );
 		}
 
 		return false;
@@ -1871,13 +1834,17 @@ class EDD_Software_Licensing {
 	/**
 	 * Retrieve all license keys for a user
 	 *
-	 * @param int $user_id
+	 * @param int  $user_id The user ID to get licenses for
+	 * @param bool $include_child_licenses If true (default) we will get all licenses including children of a bundle
+	 *                                     when false, the method will only return licenses without a post_parent
 	 *
 	 * @since 3.4
-	 *
+	 * @param  $user_id     int The ID of the user to filter by
+	 * @param  $download_id int The ID of a download to filter by
+	 * @param  $status      string The license status to filter by, or all
 	 * @return array
 	 */
-	function get_license_keys_of_user( $user_id = 0 ) {
+	function get_license_keys_of_user( $user_id = 0, $download_id = 0, $status = 'any', $include_child_licenses = true ) {
 
 		if( empty( $user_id ) ) {
 			$user_id = get_current_user_id();
@@ -1894,12 +1861,39 @@ class EDD_Software_Licensing {
 			)
 		);
 
+		if( $download_id ) {
+			$meta_query[] = array(
+				'key'   => '_edd_sl_download_id',
+				'value' => absint( $download_id )
+			);
+		}
+
+		$status = strtolower( $status );
+		if( $status !== 'all' && $status !== 'any' ) {
+			$meta_query[] = array(
+				'key'   => '_edd_sl_status',
+				'value' => $status
+			);
+		}
+
 		$args = array(
 			'posts_per_page' => 100,
 			'meta_query'     => $meta_query,
 			'post_type'      => 'edd_license',
 			'post_status'    => 'any'
 		);
+
+		if ( false === $include_child_licenses ) {
+			$args['post_parent'] = 0;
+		}
+
+		/**
+		 * Filters the arguments for the query to get the license keys of a user.
+		 *
+		 * @param array $args The arguments for get_posts
+		 * @param int   $user_id The user this query is for.
+		 */
+		$args = apply_filters( 'edd_sl_get_license_keys_of_user_args', $args, $user_id );
 
 		$license_keys = get_posts( $args );
 
@@ -1910,25 +1904,26 @@ class EDD_Software_Licensing {
 	}
 
 	/**
+	 * Given a license ID, return any child licenses it may have
+	 *
+	 * @since 3.4.8
+	 * @param int $parent_license_id The parent license ID to look up
+	 *
+	 * @return array Array of child license objects.
+	 */
+	function get_child_licenses( $parent_license_id = 0 ) {
+		$license = $this->get_license( $parent_license_id );
+		return $license->get_child_licenses();
+	}
+
+	/**
 	 * @param int $license_id
 	 *
 	 * @return string
 	 */
 	function get_license_status( $license_id ) {
-
-		$status          = strtolower( get_post_meta( $license_id, '_edd_sl_status', true ) );
-		$license_expires = get_post_meta( $license_id, '_edd_sl_expiration', true );
-
-		if ( $license_expires && $license_expires < current_time( 'timestamp' ) && 'expired' !== $status ) {
-			$status = 'expired';
-			$this->set_license_status( $license_id, $status );
-		} elseif( 'expired' === $status && $license_expires > current_time( 'timestamp' ) ) {
-			$status = $this->get_site_count( $license_id ) >= 1 ? 'active' : 'inactive';
-			$this->set_license_status( $license_id, $status );
-		}
-
-		return $status;
-
+		$license = $this->get_license( $license_id );
+		return $license->status;
 	}
 
 	/**
@@ -1940,35 +1935,8 @@ class EDD_Software_Licensing {
 	 * @return string
 	 */
 	function license_status( $license_id ) {
-
-		$status = $this->get_license_status( $license_id );
-
-		switch( $status ) {
-
-			case 'active' :
-				$status = __( 'Active', 'edd_sl' );
-				break;
-
-			case 'inactive' :
-				$status = __( 'Inactive', 'edd_sl' );
-				break;
-
-			case 'expired' :
-				$status = __( 'Expired', 'edd_sl' );
-
-				if( edd_sl_renewals_allowed() ) {
-					$renewal_link = edd_get_checkout_uri( array(
-						'edd_license_key' => $this->get_license_key( $license_id ),
-						'download_id'     => $this->get_download_id( $license_id )
-					) );
-					$status .= ', <a href="' . esc_url( $renewal_link ) . '" title="' . __( 'Renew this license', 'edd_sl' ) . '">' . __( 'renew now', 'edd_sl' ) . '</a>';
-				}
-				break;
-
-		}
-
-		return $status;
-
+		$license = $this->get_license( $license_id );
+		return $license->get_display_status();
 	}
 
 	/**
@@ -1981,49 +1949,10 @@ class EDD_Software_Licensing {
 			return;
 		}
 
-		$current_status = get_post_meta( $license_id, '_edd_sl_status', true );
+		$license = $this->get_license( $license_id );
+		$updated = $license->status = $status;
 
-		if( strtolower( $current_status ) === strtolower( $status ) ) {
-			return; // Statuses are the same
-		}
-
-		do_action( 'edd_sl_pre_set_status', $license_id, $status );
-
-		update_post_meta( $license_id, '_edd_sl_status', $status );
-
-		if( 'expired' == $status ) {
-
-			// Determine if we should send an email when a license key is marked as expired
-			$notice_on_expired = false;
-			$notices = edd_sl_get_renewal_notices();
-
-			foreach( $notices as $key => $notice ) {
-
-				if( 'expired' == $notice['send_period'] ) {
-					$edd_sl_emails = new EDD_SL_Emails;
-					$edd_sl_emails->send_renewal_reminder( $license_id, $key );
-				}
-
-			}
-
-		}
-
-		// Update status for child licenses.
-		$args = array(
-			'post_type'      => 'edd_license',
-			'post_parent'    => $license_id,
-			'posts_per_page' => 1000,
-			'post_status'    => 'any',
-			'fields'         => 'ids'
-		);
-
-		$child_licenses = get_posts( $args );
-
-		foreach ( $child_licenses as $child_id ) {
-			$this->set_license_status( $child_id, $status );
-		}
-
-		do_action( 'edd_sl_post_set_status', $license_id, $status );
+		return $updated;
 	}
 
 	/**
@@ -2034,39 +1963,8 @@ class EDD_Software_Licensing {
 	 * @return string
 	 */
 	function get_license_length( $license_id = 0, $payment_id = 0, $download_id = 0 ) {
-
-		if( empty( $download_id ) ) {
-			$download_id = $this->get_download_id( $license_id );
-		}
-
-		$license_post = get_post( $license_id );
-		if ( $license_post && $license_post->post_parent && get_post_status( $license_post->post_parent ) ) {
-			$download_id = get_post_meta( $license_post->post_parent, '_edd_sl_download_id', true );
-		}
-
-		$download_is_lifeitme = get_post_meta( $download_id, 'edd_sl_download_lifetime', true );
-
-		if ( ! empty( $download_is_lifeitme ) ) {
-			$expiration = 'lifetime';
-		} else {
-			$exp_unit   = get_post_meta( $download_id, '_edd_sl_exp_unit', true );
-			$exp_length = get_post_meta( $download_id, '_edd_sl_exp_length', true );
-
-			if( empty( $exp_unit ) ) {
-				$exp_unit = 'years';
-			}
-
-			if( empty( $exp_length ) ) {
-				$exp_length = '1';
-			}
-
-			$expiration = '+' . $exp_length . ' ' . $exp_unit;
-		}
-
-		$expiration = apply_filters( 'edd_sl_license_exp_lengh', $expiration, $payment_id, $download_id, $license_id ); // for backward compatibility
-		$expiration = apply_filters( 'edd_sl_license_exp_length', $expiration, $payment_id, $download_id, $license_id );
-
-		return $expiration;
+		$license = $this->get_license( $license_id );
+		return $license->license_length();
 	}
 
 	/**
@@ -2075,9 +1973,8 @@ class EDD_Software_Licensing {
 	 * @return bool
 	 */
 	function is_lifetime_license( $license_id ) {
-		$is_lifetime = get_post_meta( $license_id, '_edd_sl_is_lifetime', true );
-
-		return empty( $is_lifetime ) ? false : true;
+		$license = $this->get_license( $license_id );
+		return $license->is_lifetime;
 	}
 
 	/**
@@ -2086,15 +1983,8 @@ class EDD_Software_Licensing {
 	 * @return bool|mixed|string
 	 */
 	function get_license_expiration( $license_id ) {
-
-		$is_lifetime_license = $this->is_lifetime_license( $license_id );
-		if ( $is_lifetime_license ) {
-			$expiration = 'lifetime';
-		} else {
-			$expiration = get_post_meta( $license_id, '_edd_sl_expiration', true );
-		}
-
-		return $expiration;
+		$license = $this->get_license( $license_id );
+		return $license->expiration;
 	}
 
 	/**
@@ -2109,25 +1999,15 @@ class EDD_Software_Licensing {
 			return;
 		}
 
-		// $expiration should be a valid timestamp
-		do_action( 'edd_sl_pre_set_expiration', $license_id, $expiration );
-		update_post_meta( $license_id, '_edd_sl_expiration', $expiration );
-		do_action( 'edd_sl_post_set_expiration', $license_id, $expiration );
+		$license = $this->get_license( $license_id );
 
-		// Update expiration date for child licenses.
-		$args = array(
-			'post_type'      => 'edd_license',
-			'post_parent'    => $license_id,
-			'posts_per_page' => 1000,
-			'post_status'    => 'any',
-			'fields'         => 'ids'
-		);
-
-		$child_licenses = get_posts( $args );
-
-		foreach ( $child_licenses as $child_id ) {
-			$this->set_license_expiration( $child_id, $expiration );
+		if ( false == $license ) {
+			return false;
 		}
+
+		// $expiration should be a valid timestamp
+		$license->expiration = $expiration;
+
 	}
 
 	/**
@@ -2140,25 +2020,13 @@ class EDD_Software_Licensing {
 			return;
 		}
 
-		do_action( 'edd_sl_pre_set_lifetime', $license_id );
-		update_post_meta( $license_id, '_edd_sl_is_lifetime', 1 );
-		delete_post_meta( $license_id, '_edd_sl_expiration' );
-		do_action( 'edd_sl_post_set_lifetime', $license_id );
+		$license = $this->get_license( $license_id );
 
-		// Update lifetime status for child licenses.
-		$args = array(
-			'post_type'      => 'edd_license',
-			'post_parent'    => $license_id,
-			'posts_per_page' => 1000,
-			'post_status'    => 'any',
-			'fields'         => 'ids'
-		);
-
-		$child_licenses = get_posts( $args );
-
-		foreach ( $child_licenses as $child_id ) {
-			$this->set_license_as_lifetime( $child_id );
+		if ( false === $license ) {
+			return false;
 		}
+
+		$license->is_lifetime = true;
 
 	}
 
@@ -2169,42 +2037,10 @@ class EDD_Software_Licensing {
 	 * @return mixed|void
 	 */
 	function get_license_limit( $download_id = 0, $license_id = 0 ) {
-		$license = get_post( $license_id );
+		// TODO: Set a deprecated notice when download_id isn't empty
 
-		if ( $license && $license->post_parent && get_post_status( $license->post_parent ) ) {
-			$license_id  = $license->post_parent;
-			$download_id = get_post_meta( $license->post_parent, '_edd_sl_download_id', true );
-
-			return $this->get_license_limit( $download_id, $license_id );
-		}
-
-		$limit    = get_post_meta( $download_id, '_edd_sl_limit', true );
-		$price_id = false;
-
-		// Check to see if this license key has a manual override
-		$l_limit  = get_post_meta( $license_id, '_edd_sl_limit', true );
-
-		if( '' != $l_limit ) {
-
-			$limit = $l_limit;
-
-		} else {
-
-			if( edd_has_variable_prices( $download_id ) ) {
-
-				$price_id = (int) $this->get_price_id( $license_id );
-				if( false !== $price_id ) {
-					$price_limit = $this->get_price_activation_limit( $download_id, $price_id );
-
-					if( false !== $price_limit ) {
-						$limit = $price_limit;
-					}
-				}
-			}
-		}
-
-		return apply_filters( 'edd_get_license_limit', $limit, $download_id, $license_id, $price_id );
-
+		$license = $this->get_license( $license_id );
+		return $license->activation_limit;
 	}
 
 	/**
@@ -2215,16 +2051,8 @@ class EDD_Software_Licensing {
 	 * @return string|int
 	 */
 	function license_limit( $license_id = 0 ) {
-
-		$download_id = $this->get_download_id( $license_id );
-		$limit       = $this->get_license_limit( $download_id, $license_id );
-
-		if( $limit <= 0 ) {
-			$limit = __( 'Unlimited', 'edd_sl' );
-		}
-
-		return $limit;
-
+		$license = $this->get_license( $license_id );
+		return $license->license_limit();
 	}
 
 	/**
@@ -2234,14 +2062,8 @@ class EDD_Software_Licensing {
 	 * @return bool|int
 	 */
 	function get_price_activation_limit( $download_id = 0, $price_id = null ) {
-
-		$prices = edd_get_variable_prices( $download_id );
-
-		if ( isset( $prices[ $price_id ][ 'license_limit' ] ) ) {
-			return absint( $prices[ $price_id ][ 'license_limit' ] );
-		}
-
-		return false;
+		$download = new EDD_SL_Download( $download_id );
+		return $download->get_price_activation_limit( $price_id );
 	}
 
 	/**
@@ -2251,14 +2073,8 @@ class EDD_Software_Licensing {
 	 * @return bool
 	 */
 	function get_price_is_lifetime( $download_id = 0, $price_id = null ) {
-
-		$prices = edd_get_variable_prices( $download_id );
-
-		if ( ! empty( $prices[ $price_id ][ 'is_lifetime' ] ) ) {
-			return true;
-		}
-
-		return false;
+		$download = new EDD_SL_Download( $download_id );
+		return $download->is_price_lifetime( $price_id );
 	}
 
 	/**
@@ -2268,20 +2084,8 @@ class EDD_Software_Licensing {
 	 * @return bool
 	 */
 	function is_at_limit( $license_id = 0, $download_id = 0 ) {
-
-		$ret = false;
-		$site_count = $this->get_site_count( $license_id );
-		$limit      = $this->get_license_limit( $download_id, $license_id );
-
-		if( $limit > 0 ) {
-
-			if( $site_count >= absint( $limit ) ) {
-				$ret = true; // license is at limit
-			}
-		}
-
-		return (bool) apply_filters( 'edd_sl_license_at_limit', $ret, $license_id, $limit, $download_id );
-
+		$license = $this->get_license( $license_id );
+		return $license->is_at_limit();
 	}
 
 	/**
@@ -2309,12 +2113,12 @@ class EDD_Software_Licensing {
 	 * @return boolean
 	 * @since 2.5
 	 */
-	function check_item_name( $download_id = 0, $item_name = 0 ) {
+	function check_item_name( $download_id = 0, $item_name = 0, $license = null ) {
 		$post      = get_post( $download_id );
 		$tmp_name  = sanitize_title( urldecode( $item_name ) );
 		$tmp_title = sanitize_title( $post->post_title );
 
-		return apply_filters( 'edd_sl_check_item_name', $tmp_title == $tmp_name, $download_id, $item_name );
+		return apply_filters( 'edd_sl_check_item_name', $tmp_title == $tmp_name, $download_id, $item_name, $license );
 	}
 
 	/**
@@ -2323,8 +2127,17 @@ class EDD_Software_Licensing {
 	 * @return bool|mixed
 	 */
 	function get_download_version( $download_id ) {
-
 		return get_post_meta( $download_id, '_edd_sl_version', true );
+	}
+
+	/**
+	 * @param int $download_id Download (Post) ID
+	 *
+	 * @return bool|mixed
+	 */
+	function get_beta_download_version( $download_id ) {
+
+		return get_post_meta( $download_id, '_edd_sl_beta_version', true );
 
 	}
 
@@ -2332,13 +2145,14 @@ class EDD_Software_Licensing {
 	 * @param int    $download_id
 	 * @param string $license_key
 	 * @param string $url
+	 * @param bool   $download_beta
 	 *
 	 * @return mixed|void
 	 */
-	function get_encoded_download_package_url( $download_id = 0, $license_key = '', $url = '' ) {
+	function get_encoded_download_package_url( $download_id = 0, $license_key = '', $url = '', $download_beta = false ) {
 
 		$package_download = new EDD_SL_Package_Download;
-		return $package_download->get_encoded_download_package_url( $download_id, $license_key, $url );
+		return $package_download->get_encoded_download_package_url( $download_id, $license_key, $url, $download_beta );
 	}
 
 	/**
@@ -2663,6 +2477,66 @@ class EDD_Software_Licensing {
 		return apply_filters( 'edd_sl_is_local_url', $is_local_url, $url );
 	}
 
+	/**
+	 * Update customer email on profile update
+	 *
+	 * @since 3.5
+	 * @param bool $updated whether or not the customer was updated
+	 * @param int $customer_id The ID of the customer
+	 * @param array $data The updated data for the customer
+	 * @return void
+	 */
+	function update_license_email_on_customer_update( $updated = false, $customer_id = 0, $data = array() ) {
+		if( $updated && array_key_exists( 'email', $data ) ) {
+			$customer = new EDD_Customer( $customer_id );
+			$payments = $customer->get_payment_ids();
+
+			foreach( $payments as $payment_id ) {
+				$licenses = $this->get_licenses_of_purchase( $payment_id );
+
+				if( ! empty( $licenses ) ) {
+					foreach( $licenses as $license ) {
+						$post_title = $license->post_title;
+						$post_title = substr( $post_title, 0, strrpos( $post_title, ' - ' ) );
+						$post_title = $post_title . ' - ' . $data['email'];
+
+						$args = array(
+							'ID' => $license->ID,
+							'post_title' => $post_title,
+							'post_name' => sanitize_title( $post_title )
+						);
+
+						wp_update_post( $args );
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Get emails for a license
+	 *
+	 * This is currently only used for matching
+	 * on renewals with the Enforced Matching setting enabled.
+	 *
+	 * @since 3.5
+	 * @access public
+	 * @param int $license_id The ID to get emails for
+	 * @return array $emails The emails for this license
+	 */
+	function get_emails_for_license( $license_id = 0 ) {
+		$payment_id  = $this->get_payment_id( $license_id );
+		$payment     = new EDD_Payment( $payment_id );
+		$customer_id = $payment->customer_id;
+		$customer    = new EDD_Customer( $customer_id );
+
+		$emails   = $customer->emails;
+		$emails[] = $customer->email;
+		$emails[] = $payment->email;
+		$emails   = array_unique( $emails );
+
+		return apply_filters( 'edd_sl_get_emails_for_license', $emails, $license_id );
+	}
 }
 
 /**
@@ -2689,17 +2563,23 @@ function edd_sl_install() {
 	$current_version = get_option( 'edd_sl_version' );
 
 	if ( ! $current_version ) {
-		require_once EDD_PLUGIN_DIR . 'includes/admin/upgrades/upgrade-functions.php';
 
-		// When new upgrade routines are added, mark them as complete on fresh install
-		$upgrade_routines = array(
-			'sl_add_bundle_licenses',
-			'sl_deprecate_site_count_meta',
-		);
+		if( defined( 'EDD_PLUGIN_DIR' ) ) {
 
-		foreach ( $upgrade_routines as $upgrade ) {
-			edd_set_upgrade_complete( $upgrade );
+			require_once EDD_PLUGIN_DIR . 'includes/admin/upgrades/upgrade-functions.php';
+
+			// When new upgrade routines are added, mark them as complete on fresh install
+			$upgrade_routines = array(
+				'sl_add_bundle_licenses',
+				'sl_deprecate_site_count_meta',
+			);
+
+			foreach ( $upgrade_routines as $upgrade ) {
+				edd_set_upgrade_complete( $upgrade );
+			}
+
 		}
+
 	}
 
 	add_option( 'edd_sl_version', EDD_SL_VERSION, '', false );

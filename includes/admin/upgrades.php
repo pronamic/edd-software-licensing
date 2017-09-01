@@ -18,6 +18,9 @@ function edd_sl_upgrades_screen() {
 		$total += $count;
 	}
 	$total_steps = round( ( $total / 100 ), 0 );
+	if ( ( $total_steps * 100 ) < $total ) {
+		$total_steps++;
+	}
 ?>
 	<div class="wrap">
 		<h2><?php _e( 'Software Licensing - Upgrades', 'edd_sl' ); ?></h2>
@@ -122,8 +125,9 @@ function edd_sl_v22_upgrades() {
 
 	ignore_user_abort( true );
 
-	if ( ! edd_is_func_disabled( 'set_time_limit' ) && ! ini_get( 'safe_mode' ) )
+	if ( ! edd_is_func_disabled( 'set_time_limit' ) ) {
 		set_time_limit( 0 );
+	}
 
 	// Select all payments that had a renewal discount and update their post meta
 	$payments = $wpdb->get_col( "SELECT post_id FROM $wpdb->postmeta WHERE meta_value LIKE '%edd_sl_renewal%';" );
@@ -169,8 +173,9 @@ function edd_sl_24_upgrade_site_urls() {
 
 	ignore_user_abort( true );
 
-	if ( ! edd_is_func_disabled( 'set_time_limit' ) && ! ini_get( 'safe_mode' ) )
+	if ( ! edd_is_func_disabled( 'set_time_limit' ) ) {
 		set_time_limit( 0 );
+	}
 
 	$step   = isset( $_GET['step'] ) ? absint( $_GET['step'] ) : 1;
 	$offset = $step == 1 ? 0 : $step * 100;
@@ -241,8 +246,9 @@ function edd_sl_25_upgrade_license_ids() {
 
 	ignore_user_abort( true );
 
-	if ( ! edd_is_func_disabled( 'set_time_limit' ) && ! ini_get( 'safe_mode' ) )
+	if ( ! edd_is_func_disabled( 'set_time_limit' ) ) {
 		set_time_limit( 0 );
+	}
 
 	$step   = isset( $_GET['step'] ) ? absint( $_GET['step'] ) : 1;
 	$offset = $step == 1 ? 0 : $step * 100;
@@ -315,7 +321,7 @@ function edd_sl_30_upgrade_renewal_notices() {
 
 	@ignore_user_abort( true );
 
-	if ( ! edd_is_func_disabled( 'set_time_limit' ) && ! ini_get( 'safe_mode' ) ) {
+	if ( ! edd_is_func_disabled( 'set_time_limit' ) ) {
 		@set_time_limit( 0 );
 	}
 
@@ -411,7 +417,7 @@ function edd_sl_v32_add_bundle_licenses() {
 
 	ignore_user_abort( true );
 
-	if ( ! edd_is_func_disabled( 'set_time_limit' ) && ! ini_get( 'safe_mode' ) ) {
+	if ( ! edd_is_func_disabled( 'set_time_limit' ) ) {
 		@set_time_limit(0);
 	}
 
@@ -595,7 +601,7 @@ function edd_sl_348_remove_site_count_meta() {
 
 	ignore_user_abort( true );
 
-	if ( ! edd_is_func_disabled( 'set_time_limit' ) && ! ini_get( 'safe_mode' ) ) {
+	if ( ! edd_is_func_disabled( 'set_time_limit' ) ) {
 		@set_time_limit(0);
 	}
 

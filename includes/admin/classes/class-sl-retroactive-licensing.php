@@ -324,10 +324,10 @@ class EDD_SL_Retroactive_Licensing {
 		$number_generated = self::generate_license_keys( $payment_id, $download );
 
 		if ( ! empty( $number_generated ) ) {
-			$message = _n( '%1$s License key for Payment ID <a href="%2$s" target="_blank">%3$s</a> was successfully generated.', '%1$s License keys for Payment ID <a href="%2$s" target="_blank">%3$s</a> were successfully generated.', $number_generated, 'edd_sl' );
+			$message = _n( '%1$s License key for Payment ID <a href="%2$s" target="_blank">%3$s</a> was successfully processed.', '%1$s License keys for Payment ID <a href="%2$s" target="_blank">%3$s</a> were successfully processed.', $number_generated, 'edd_sl' );
 			die( json_encode( array( 'success' => sprintf( $message, $number_generated, self::get_order_url( $payment_id ), $payment_id ) ) ) );
 		} else if ( 0 === $number_generated ) {
-			die( json_encode( array( 'success' => sprintf( __( 'Payment ID <a href="%1$s" target="_blank">%2$s</a> processed. No licenses needed to be generated.', 'edd_sl' ), self::get_order_url( $payment_id ), $payment_id ) ) ) );
+			die( json_encode( array( 'success' => sprintf( __( 'Payment ID <a href="%1$s" target="_blank">%2$s</a> processed. No licenses needed to be processed.', 'edd_sl' ), self::get_order_url( $payment_id ), $payment_id ) ) ) );
 		} else {
 			die( json_encode( array( 'error' => sprintf( __( 'Payment ID <a href="%1$s" target="_blank">%2$s</a> was NOT licensed because "%4$".', 'edd_sl' ), self::get_order_url( $payment_id ), $payment_id, $number_generated ) ) ) );
 		}
@@ -366,59 +366,23 @@ class EDD_SL_Retroactive_Licensing {
 			$license = edd_software_licensing()->get_license_by_purchase( $payment_id, $download['id'], $cart_key, false );
 
 			if( $license ) {
+
 				if ( 'bundle' === $type ) {
-					$parent_license_id = $license->ID;
 
-					// Get any licenses that have a parent with this license ID
-					$child_licenses             = get_children( array( 'post_parent' => $parent_license_id, 'post_type' => 'edd_license' ) );
-					$existing_download_licenses = array();
-
-					// Collect the download IDs of these existing child licenses so we can determine which downloads need licenses
-					foreach ( $child_licenses as $child_license ) {
-						$license_download_id = get_post_meta( $child_license->ID, '_edd_sl_download_id', true );
-						if ( ! empty( $license_download_id ) ) {
-							$existing_download_licenses[] = $license_download_id;
-						}
-					}
-
-					$bundle_downloads = edd_get_bundled_products( $download['id'] );
-
-					foreach ( $bundle_downloads as $bundle_download ) {
-
-						// If we don't find this download ID in the existing licenses, generate one
-						if ( ! in_array( $bundle_download, $existing_download_licenses ) ) {
-							$child_key = edd_software_licensing()->generate_license( $bundle_download, $payment_id, 'default', $download );
-
-							// Set the post parent to the Bundle Key
-							$update_args = array(
-								'ID'          => $child_key[0],
-								'post_parent' => $parent_license_id,
-							);
-
-							wp_update_post( $update_args );
-							$keys_generated++;
-						}
-					}
+					$price_id = isset( $download['item_number']['options']['price_id'] ) ? $download['item_number']['options']['price_id'] : false;
+					$keys     = $license->create( $download['id'], $payment_id, $price_id , $cart_key );
 
 				} else {
 					continue; // This product already has keys
 				}
+
 			} else {
 
-				$keys     = edd_software_licensing()->generate_license( $download['id'], $payment_id, $type, $download );
-
-				foreach( $keys as $license_id ) {
-
-					$license_length = edd_software_licensing()->get_license_length( $license_id, $payment_id, $download['id'] );
-					if ( 'lifetime' !== $license_length ) {
-						edd_software_licensing()->set_license_expiration( $license_id, strtotime( $license_length, current_time( 'timestamp' ) ) );
-					}
-
-					$keys_generated++;
-
-				}
+				$keys = edd_software_licensing()->generate_license( $download['id'], $payment_id, $type, $download, $cart_key );
 
 			}
+
+			$keys_generated = $keys_generated + count( $keys );
 
 		}
 

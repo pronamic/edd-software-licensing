@@ -1,12 +1,17 @@
 <?php
+
+// Exit if accessed directly
+if ( ! defined( 'ABSPATH' ) ) exit;
+
 // This is the path to markdown.php
-if ( !defined('AUTOMATTIC_README_MARKDOWN') )
+if ( !defined('AUTOMATTIC_README_MARKDOWN') ) {
 	define('AUTOMATTIC_README_MARKDOWN', dirname(__FILE__) . '/markdown.php');
+}
 
 Class Automattic_Readme {
 
-	function Automattic_Readme() {
-		// This space intentially blank
+	function __construct() {
+		// This space intentionally blank
 	}
 
 	function parse_readme( $file ) {

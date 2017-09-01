@@ -25,7 +25,7 @@
 	cursor: pointer;
 }
 
-.edd_sl_license_row span .edd_sl_license_key {
+.edd_sl_license_row span.edd_sl_license_key {
 	display: none;
 	position: absolute;
 	left: 0;
@@ -37,6 +37,24 @@
 	width: 20em;
 	max-width: inherit;
 	text-align: center;
+}
+
+.edd-sl-child-licenses {
+	margin-top: 8px;
+	margin-bottom: 0;
+	width: auto;
+}
+
+.edd-sl-child-licenses .edd_sl_license_key {
+	margin-top: 0;
+}
+
+.edd-sl-child {
+	margin-bottom: 8px;
+}
+
+.edd_sl_license_row .edd-sl-child span {
+	display: block;
 }
 
 #edd_checkout_form_wrap fieldset#edd_sl_renewal_fields {
@@ -68,4 +86,24 @@
 .edd-sl-manage-license-key,
 .edd-sl-manage-license-product {
 	display: block;
+}
+
+.edd-sl-upgrade-link {
+	display: block;
+}
+
+.edd-sl-renewal-details span,
+.edd-sl-renewal-discount-details span {
+	font-size: .9em;
+}
+
+.edd-sl-renewal-details .edd-sl-renewal-label,
+.edd-sl-renewal-discount-details .edd-sl-renewal-discount-label {
+	font-weight: 600;
+}
+
+.edd-sl-renewal-details .edd-sl-renewal-key,
+.edd-sl-renewal-discount-details .edd-sl-renewal-discount-amount {
+	font-style: italic;
+	word-break: keep-all;
 }
