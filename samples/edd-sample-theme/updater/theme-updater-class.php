@@ -3,7 +3,7 @@
  * Theme updater class.
  *
  * @package EDD Sample Theme
- * @version 1.0
+ * @version 1.0.3
  */
 
 class EDD_Theme_Updater {
@@ -34,6 +34,7 @@ class EDD_Theme_Updater {
 			'license'        => '',
 			'version'        => '',
 			'author'         => '',
+			'beta'           => false,
 		);
 
 		$args = wp_parse_args( $args, $defaults );
@@ -43,8 +44,9 @@ class EDD_Theme_Updater {
 		$this->version        = $args['version'];
 		$this->theme_slug     = sanitize_key( $args['theme_slug'] );
 		$this->author         = $args['author'];
+		$this->beta           = $args['beta'];
 		$this->remote_api_url = $args['remote_api_url'];
-		$this->response_key   = $this->theme_slug . '-update-response';
+		$this->response_key   = $this->theme_slug . '-' . $this->beta . '-update-response';
 		$this->strings        = $strings;
 
 		add_filter( 'site_transient_update_themes',        array( $this, 'theme_update_transient' ) );
@@ -143,7 +145,9 @@ class EDD_Theme_Updater {
 				'license'    => $this->license,
 				'name'       => $this->item_name,
 				'slug'       => $this->theme_slug,
+				'version'    => $this->version,
 				'author'     => $this->author,
+				'beta'       => $this->beta
 			);
 
 			$response = wp_remote_post( $this->remote_api_url, array( 'timeout' => 15, 'body' => $api_params ) );

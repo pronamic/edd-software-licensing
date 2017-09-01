@@ -50,7 +50,7 @@ function edd_sl_process_license_export( $data ) {
 
 	check_admin_referer( 'edd_sl_export_nonce', 'edd_sl_export_nonce' );
 
-	require_once EDD_SL_PLUGIN_DIR . 'includes/class-export-licenses.php';
+	require_once EDD_SL_PLUGIN_DIR . 'includes/admin/classes/class-sl-export-licenses.php';
 
 	$export = new EDD_SL_License_Export();
 

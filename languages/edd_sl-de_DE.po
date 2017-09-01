@@ -1,102 +1,101 @@
-# Copyright (C) 2014 Easy Digital Downloads - Software Licenses
+# Copyright (C) 2015 Easy Digital Downloads - Software Licenses
 # This file is distributed under the same license as the Easy Digital Downloads - Software Licenses package.
-# Translators:
-# FxB <fxb@wp-translations.org>, 2014
 msgid ""
 msgstr ""
-"Project-Id-Version: Easy Digital Downloads - Software Licenses 3.2.6\n"
+"Project-Id-Version: Easy Digital Downloads - Software Licenses 3.3\n"
 "Report-Msgid-Bugs-To: https://easydigitaldownloads.com/support/forum/add-on-"
 "plugins/software-licensing\n"
-"POT-Creation-Date: 2017-01-12 12:23-0600\n"
-"PO-Revision-Date: 2017-01-12 12:23-0600\n"
-"Last-Translator: Pippin Williamson <pippin@pippinsplugins.com>\n"
-"Language-Team: fxbenard | FxB <fx@fxbenard.com>\n"
-"Language: fr_FR\n"
+"POT-Creation-Date: 2017-04-06 16:04+0200\n"
+"PO-Revision-Date: 2017-04-06 16:07+0200\n"
+"Last-Translator: flowdee <coder@flowdee.de>\n"
+"Language-Team: Pippin's Plugins <pippin@pippinsplugins.com>\n"
+"Language: de_DE\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Poedit 1.8.11\n"
-"X-Poedit-Basepath: ..\n"
+"X-Generator: Poedit 2.0\n"
 "X-Poedit-KeywordsList: __;_e;_x:1,2c;_ex:1,2c;_n:1,2;_nx:1,2,4c;_n_noop:1,2;"
 "_nx_noop:1,2,3c;esc_attr__;esc_html__;esc_attr_e;esc_html_e;esc_attr_x:1,2c;"
 "esc_html_x:1,2c\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-Basepath: ..\n"
 "X-Textdomain-Support: yes\n"
 "X-Poedit-SearchPath-0: .\n"
 
 #: edd-software-licenses.php:1153 edd-software-licenses.php:1160
 msgid "No item provided"
-msgstr "Aucun élément fourni"
+msgstr "Kein Produkt vorhanden"
 
 #: edd-software-licenses.php:1181
 #, php-format
 msgid "License key provided does not match a valid %s"
 msgstr ""
+"Der eingegebene Lizenzschlüssel stimmt nicht mit einem gültigen %s überein"
 
 #: edd-software-licenses.php:1298
 msgid "LOG - License Activated: "
-msgstr "LOG - Licence activée :"
+msgstr "LOG - Lizenz aktiviert: "
 
 #: edd-software-licenses.php:1326
 msgid "LOG - License Deactivated: "
-msgstr "LOG - Licence désactivée :"
+msgstr "LOG - Lizenz Deaktiviert: "
 
 #: edd-software-licenses.php:2218
 msgid "No changelog found"
-msgstr "Aucun journal n&rsquo;a été trouvé"
+msgstr "Kein Changelog gefunden"
 
 #: edd-software-licenses.php:2243
 msgid ""
 "Your license key for this purchase is expired. Renew your license key and "
 "you will be allowed to download your files again."
 msgstr ""
-"Votre clé de licence pour cet achat est expirée. Renouvelez la et vous "
-"pourrez à nouveau télécharger vos fichiers."
+"Dein Lizenzschlüssel für diesen Kauf ist abgelaufen. Erneuere deine Lizenz "
+"und du kannst wieder auf deinen Downloads zugreifen."
 
 #: edd-software-licenses.php:2243 edd-software-licenses.php:2245
 msgid "Expired License"
-msgstr "Licence expirée"
+msgstr "Abgelaufene Lizenz"
 
 #: edd-software-licenses.php:2245
 msgid "Your license key for this purchase has been revoked."
-msgstr "Votre clé de licence a été révoquée pour cet achat."
+msgstr "Ihr Lizenzschlüssel für diesen Kauf wurde widerrufen."
 
 #: includes/admin/add-renewal-notice.php:15
 #: includes/admin/add-renewal-notice.php:57 includes/admin/settings.php:184
 msgid "Add Renewal Notice"
-msgstr "Ajouter un rappel de renouvellement"
+msgstr "Erneuerungsbenachrichtigung hinzufügen"
 
 #: includes/admin/add-renewal-notice.php:15
 #: includes/admin/edit-renewal-notice.php:21
 msgid "Go Back"
-msgstr "Retour"
+msgstr "Zurückgehen"
 
 #: includes/admin/add-renewal-notice.php:21
 #: includes/admin/classes/class-sl-renewal-notice-logs.php:33
 #: includes/admin/edit-renewal-notice.php:27
 msgid "Email Subject"
-msgstr "Sujet de l&rsquo;e-mail"
+msgstr "E-Mail-Betreff"
 
 #: includes/admin/add-renewal-notice.php:25
 #: includes/admin/edit-renewal-notice.php:31
 msgid "The subject line of the renewal notice email"
-msgstr "Le sujet de l&rsquo;e-mail du rappel de renouvellement"
+msgstr "Die Betreffzeile der Email zur Erneuerungsbenachrichtigung"
 
 #: includes/admin/add-renewal-notice.php:30
 #: includes/admin/edit-renewal-notice.php:36
 msgid "Email Period"
-msgstr "Moment de l&rsquo;envoi"
+msgstr "Zeitraum der Email"
 
 #: includes/admin/add-renewal-notice.php:38
 #: includes/admin/edit-renewal-notice.php:44
 msgid "When should this email be sent?"
-msgstr "Quand l&rsquo;e-mail doit-il être envoyé ?"
+msgstr "Wann soll diese Email gesendet werden?"
 
 #: includes/admin/add-renewal-notice.php:43
 #: includes/admin/edit-renewal-notice.php:49
 msgid "Email Message"
-msgstr "Message e-mail"
+msgstr "Email Nachricht"
 
 #: includes/admin/add-renewal-notice.php:47
 #: includes/admin/edit-renewal-notice.php:53
@@ -104,195 +103,195 @@ msgid ""
 "The email message to be sent with the renewal notice. The following template "
 "tags can be used in the message:"
 msgstr ""
-"Le message de l&rsquo;e-mail a envoyé avec le rappel de renouvellement. Les "
-"balises suivantes peuvent être utilisées dans le message :"
+"Textnachricht der Email, die zur Erneuerungsbenachrichtigung gesendet wird. "
+"Die folgenden Markierungsvorlagen können in der Nachricht verwendet werden:"
 
 #: includes/admin/classes/class-sl-admin-notices.php:34
 msgid "License deactivated successfully"
-msgstr ""
+msgstr "Lizenz wurde erfolgreich deaktiviert"
 
 #: includes/admin/classes/class-sl-admin-notices.php:40
 msgid "License activated successfully"
-msgstr ""
+msgstr "Lizenz wurde erfolgreich aktiviert"
 
 #: includes/admin/classes/class-sl-admin-notices.php:46
 msgid "License enabled successfully"
-msgstr ""
+msgstr "Lizenz wurde erfolgreich freigegeben"
 
 #: includes/admin/classes/class-sl-admin-notices.php:52
 msgid "License disabled successfully"
-msgstr ""
+msgstr "Lizenz wurde erfolgreich gesperrt"
 
 #: includes/admin/classes/class-sl-admin-notices.php:58
 msgid "License renewed successfully"
-msgstr ""
+msgstr "Lizenz wurde erfolgreich erneuert"
 
 #: includes/admin/classes/class-sl-admin-notices.php:64
 msgid "Renewal notice sent successfully"
-msgstr ""
+msgstr "Erneuerungsbenachrichtigung wurde erfolgreich versendet"
 
 #: includes/admin/classes/class-sl-admin-notices.php:70
 msgid "License expiration date updated successfully"
-msgstr ""
+msgstr "Ablaufdatum der Lizenz wurde erfolgreich aktualisiert"
 
 #: includes/admin/classes/class-sl-admin-notices.php:76
 msgid "License deleted successfully"
-msgstr ""
+msgstr "Lizenz wurde erfolgreich gelöscht"
 
 #: includes/admin/classes/class-sl-admin-notices.php:82
 msgid "License renewal notice sent successfully"
-msgstr ""
+msgstr "Erneuerungsbenachrichtigung für Lizenz wurde erfolgreich versendet"
 
 #: includes/admin/classes/class-sl-admin-notices.php:88
 msgid "License expiration set to lifetime successfully"
-msgstr ""
+msgstr "Ablaufdatum der Lizenz wurde erfolgreich auf \"lebenslang\" umgestellt"
 
 #: includes/admin/classes/class-sl-export-licenses.php:86
 msgid "Email"
-msgstr "E-mail"
+msgstr "E-Mail"
 
 #: includes/admin/classes/class-sl-export-licenses.php:87
 #: includes/admin/customers.php:118 includes/admin/licenses.php:445
 #: samples/edd-sample-plugin/edd-sample-plugin.php:72
 #: samples/edd-sample-theme/updater/theme-updater.php:32
 msgid "License Key"
-msgstr "Clé de licence"
+msgstr "Lizenzschlüssel"
 
 #: includes/admin/classes/class-sl-export-licenses.php:88
 msgid "License Status"
-msgstr "État de la licence"
+msgstr "Lizenz-Status"
 
 #: includes/admin/classes/class-sl-export-licenses.php:89
 msgid "Product Name"
-msgstr "Nom du produit"
+msgstr "Produkt-Name"
 
 #: includes/admin/classes/class-sl-export-licenses.php:90
 msgid "Purchase Date"
-msgstr "Date de l&rsquo;achat"
+msgstr "Kaufdatum"
 
 #: includes/admin/classes/class-sl-export-licenses.php:91
 msgid "Expiration Date"
-msgstr "Date d&rsquo;expiration"
+msgstr "Ablaufdatum"
 
 #: includes/admin/classes/class-sl-export-licenses.php:92
 #: includes/admin/classes/class-sl-list-table.php:233
 #: includes/admin/metabox.php:72 includes/admin/metabox.php:348
 msgid "Activation Limit"
-msgstr "Limite d&rsquo;activation"
+msgstr "Aktivierungslimit"
 
 #: includes/admin/classes/class-sl-export-licenses.php:93
 msgid "Activation Count"
-msgstr "Nombre d&rsquo;activations"
+msgstr "Aktivierungen"
 
 #: includes/admin/classes/class-sl-export-licenses.php:94
 msgid "Activated URLs"
-msgstr "URLs activées"
+msgstr "Aktivierte URLs"
 
 #: includes/admin/classes/class-sl-list-table.php:52
 #: includes/admin/licenses.php:331
 msgid "disabled"
-msgstr "désactivée"
+msgstr "deaktiviert"
 
 #: includes/admin/classes/class-sl-list-table.php:62
 #: includes/admin/license-actions.php:370
 #: includes/classes/class-sl-license.php:1058
 msgid "Unlimited"
-msgstr "Illimité"
+msgstr "Unbegrenzt"
 
 #: includes/admin/classes/class-sl-list-table.php:90
 #: includes/admin/metabox.php:98 includes/admin/metabox.php:358
 #: templates/licenses-manage-overview.php:59
 msgid "Lifetime"
-msgstr "Licence à vie"
+msgstr "Lebenslang"
 
 #: includes/admin/classes/class-sl-list-table.php:123
 #: includes/admin/customers.php:133 includes/admin/customers.php:134
 msgid "View"
-msgstr "Afficher"
+msgstr "Anzeigen"
 
 #: includes/admin/classes/class-sl-list-table.php:163
 #: includes/admin/classes/class-sl-list-table.php:396
 #: includes/admin/licenses.php:363
 msgid "Deactivate"
-msgstr "Désactiver"
+msgstr "Deaktivieren"
 
 #: includes/admin/classes/class-sl-list-table.php:168
 #: includes/admin/licenses.php:369
 msgid "Extend this license key's expiration date"
-msgstr "Prolonger la date d&rsquo;expiration de cette clé de licence"
+msgstr "Gültigkeit des Lizenzschlüssels verlängern"
 
 #: includes/admin/classes/class-sl-list-table.php:168
 #: includes/admin/licenses.php:369
 msgid "Extend"
-msgstr "Prolonger"
+msgstr "Erweitern"
 
 #: includes/admin/classes/class-sl-list-table.php:170
 #: includes/admin/classes/class-sl-list-table.php:401
 #: includes/admin/licenses.php:371
 msgid "Renew"
-msgstr "Renouveler"
+msgstr "Erneuern"
 
 #: includes/admin/classes/class-sl-list-table.php:172
 #: includes/admin/classes/class-sl-list-table.php:397
 #: includes/admin/licenses.php:365
 msgid "Activate"
-msgstr "Activer"
+msgstr "Aktivieren"
 
 #: includes/admin/classes/class-sl-list-table.php:176
 #: includes/admin/classes/class-sl-list-table.php:398
 #: includes/admin/licenses.php:377
 msgid "Enable"
-msgstr "Activer"
+msgstr "Aktivieren"
 
 #: includes/admin/classes/class-sl-list-table.php:178
 #: includes/admin/classes/class-sl-list-table.php:399
 #: includes/admin/licenses.php:379
 msgid "Disable"
-msgstr "Désactiver"
+msgstr "Deaktivieren"
 
 #: includes/admin/classes/class-sl-list-table.php:182
 msgid "View Log"
-msgstr "Afficher le journal"
+msgstr "Protokoll anzeigen"
 
 #: includes/admin/classes/class-sl-list-table.php:185
 #: templates/license-keys.php:51 templates/license-keys.php:83
 #: templates/licenses-manage-overview.php:30
 #: templates/licenses-manage-overview.php:74
 msgid "Manage Sites"
-msgstr "Gérer les sites"
+msgstr "Seiten verwalten"
 
 #: includes/admin/classes/class-sl-list-table.php:188
 #: includes/admin/classes/class-sl-list-table.php:402
 #: includes/admin/license-functions.php:54 includes/admin/settings.php:177
 msgid "Delete"
-msgstr "Supprimer"
+msgstr "Löschen"
 
 #: includes/admin/classes/class-sl-list-table.php:193
 msgid "Loading license log.."
-msgstr "Chargement du journal en cours..."
+msgstr "Lade Lizenz-Protokoll.."
 
 #: includes/admin/classes/class-sl-list-table.php:230
 #: includes/admin/licenses.php:444 includes/admin/licenses.php:572
 #: includes/admin/metabox.php:594 templates/licenses-manage-single.php:24
 msgid "Product"
-msgstr ""
+msgstr "Produkt"
 
 #: includes/admin/classes/class-sl-list-table.php:231
 #: templates/licenses-manage-overview.php:25
 msgid "Key"
-msgstr "Clé"
+msgstr "Lizenzschlüssel"
 
 #: includes/admin/classes/class-sl-list-table.php:232
 msgid "Customer"
-msgstr ""
+msgstr "Kunde"
 
 #: includes/admin/classes/class-sl-list-table.php:234
 msgid "Expires"
-msgstr "Expiration"
+msgstr "Gültig bis"
 
 #: includes/admin/classes/class-sl-list-table.php:235
 msgid "Purchased"
-msgstr "Achetée le"
+msgstr "Gekauft am"
 
 #: includes/admin/classes/class-sl-list-table.php:236
 #: includes/admin/customers.php:119 includes/admin/licenses.php:484
@@ -300,95 +299,98 @@ msgstr "Achetée le"
 #: includes/admin/settings.php:166 templates/licenses-manage-single.php:31
 #: templates/licenses-upgrades.php:25
 msgid "Actions"
-msgstr "Actions"
+msgstr "Aktionen"
 
 #: includes/admin/classes/class-sl-list-table.php:275
 msgid "All"
-msgstr "Toutes"
+msgstr "Alle"
 
 #: includes/admin/classes/class-sl-list-table.php:281
 #: includes/classes/class-sl-license.php:957
 msgid "Active"
-msgstr "Activée"
+msgstr "Aktiv"
 
 #: includes/admin/classes/class-sl-list-table.php:287
 #: includes/classes/class-sl-license.php:961
 msgid "Inactive"
-msgstr "Inactivée"
+msgstr "Inaktiv"
 
 #: includes/admin/classes/class-sl-list-table.php:293
 #: includes/classes/class-sl-license.php:965
 msgid "Expired"
-msgstr "Expirée"
+msgstr "Abgelaufen"
 
 #: includes/admin/classes/class-sl-list-table.php:299
 msgid "Disabled"
-msgstr "Désactivée"
+msgstr "Deaktiviert"
 
 #: includes/admin/classes/class-sl-list-table.php:400
 #: includes/admin/licenses.php:360 includes/scripts.php:50
 msgid "Send Renewal Notice"
-msgstr "Envoyer la notification de renouvellement"
+msgstr "Erneuerungsbenachrichtigung versenden"
 
 #: includes/admin/classes/class-sl-renewal-notice-logs.php:32
 msgid "Product - Recipient"
-msgstr "Produit - Destinataire"
+msgstr "Produkt - Empfänger"
 
 #: includes/admin/classes/class-sl-renewal-notice-logs.php:34
 msgid "Date Sent"
-msgstr "Date de l&rsquo;envoi"
+msgstr "Versanddatum"
 
 #: includes/admin/classes/class-sl-retroactive-licensing.php:31
 msgid "Your user account doesn't have permission to access this."
-msgstr "Votre compte n&rsquo;a pas les droits d&rsquo;accès."
+msgstr "Dein Nutzerkonto erlaubt dir keinen Zugriff auf diesen Bereich."
 
 #: includes/admin/classes/class-sl-retroactive-licensing.php:35
 msgid "Software Licensing - Retroactive Licensing Processor"
-msgstr "Software Licensing - Processeur de licence rétroactive"
+msgstr "Software-Lizensierung - Nachträglicher Lizensierungs-Prozessor"
 
 #: includes/admin/classes/class-sl-retroactive-licensing.php:54
 #: includes/admin/classes/class-sl-retroactive-licensing.php:56
 msgid "All Done"
-msgstr "Terminé"
+msgstr "Alles erledigt"
 
 #: includes/admin/classes/class-sl-retroactive-licensing.php:57
 msgid "No purchases needing licenses found."
-msgstr "Aucun achat ayant besoin d&rsquo;une licence n&rsquo;a été trouvé."
+msgstr ""
+"Es wurde keinen erworbenen Produkte gefunden, für die eine Lizenz notwendig "
+"ist."
 
 #: includes/admin/classes/class-sl-retroactive-licensing.php:69
 msgid ""
 "Use this tool to provision licenses for unlicensed Easy Digital Downloads "
 "products."
 msgstr ""
-"Utiliser cet outil pour fournir des licences aux produits d&rsquo;Easy "
-"Digital Downloads encore sans licences."
+"Benutze dieses Tool um Lizenzen für nicht-lizenzierte Easy Digital Downloads "
+"Produkte zu generieren."
 
 #: includes/admin/classes/class-sl-retroactive-licensing.php:70
 msgid ""
 "This processing is not reversible. Backup your database beforehand or be "
 "prepared to revert each transformed post manually."
 msgstr ""
-"Cette action est irréversible. Sauvegardez votre base de données en premier "
-"lieu ou soyez prêt à revenir sur chaque article manuellement."
+"Dieser Prozess kann nicht rückgängig gemacht werden. Führe deshalb vorab "
+"eine Sicherung deines Datenbestands durch, oder sei darauf eingestellt, "
+"jeden einzelnen umgewandelten Post manuell wiederherzustellen."
 
 #: includes/admin/classes/class-sl-retroactive-licensing.php:76
 #, php-format
 msgid "All %s"
-msgstr ""
+msgstr "Alle %s"
 
 #: includes/admin/classes/class-sl-retroactive-licensing.php:77
 #, php-format
 msgid "Single %s"
-msgstr ""
+msgstr "Einzelne %s"
 
 #: includes/admin/classes/class-sl-retroactive-licensing.php:83
 msgid "Generate License Keys for Past Purchases"
-msgstr "Générer des clés de licence pour les achats passés."
+msgstr "Lizenzschlüssel für vergangene Käufe erstellen"
 
 #: includes/admin/classes/class-sl-retroactive-licensing.php:86
 #: includes/admin/classes/class-sl-retroactive-licensing.php:114
 msgid "You must enable Javascript in order to proceed!"
-msgstr "Vous devez activer le Javascript pour pouvoir continuer !"
+msgstr "Aktiviere Javascript um fortzufahren!"
 
 #: includes/admin/classes/class-sl-retroactive-licensing.php:105
 msgid ""
@@ -397,16 +399,18 @@ msgid ""
 "done or the licensing will not be completed. You will be notified via this "
 "page when the licensing is completed."
 msgstr ""
-"S&rsquo;il vous plaît soyez patient pendant l&rsquo;exécution de ce script. "
-"Cela peut prendre un certain temps, jusqu&rsquo;à une minute par paiement. "
-"Ne quittez pas cette page tant que le script s&rsquo;exécute ou les licences "
-"ne seront pas terminées. Vous serez notifié sur cette page lorsque le "
-"processus sera terminée."
+"Bitte habe etwas Geduld, während das Script läuft. Dies kann bis zu einer "
+"Minute pro Zahlungsvorgang in Anspruch nehmen. Bitte schließe diese Seite "
+"nicht bevor das Script abgeschlossen ist, sonst wird die Lizenzierung nicht "
+"abgeschlossen. Sobald die Lizenzierung erfolgt ist, wirst du über diese "
+"Seite benachrichtigt."
 
 #: includes/admin/classes/class-sl-retroactive-licensing.php:107
 #, php-format
 msgid "To go back to the previous page, <a href=\"%s\">click here</a>."
-msgstr "Pour revenir à la page précédente, <a href=\"%s\">cliquez ici</a>."
+msgstr ""
+"Klicke hier </a>, um zur vorhergehenden Seite  <a href=\"%s\"> "
+"zurückzukehren."
 
 #: includes/admin/classes/class-sl-retroactive-licensing.php:109
 #, php-format
@@ -415,9 +419,9 @@ msgid ""
 "were %3$s failures. To try importing the failed posts again, <a href=\"%4$s"
 "\">click here</a>. %5$s"
 msgstr ""
-"Terminé ! %1$s articles ont été traités avec succès en %2$s secondes et il y "
-"a eu %3$s échecs. Pour essayer d&rsquo;importer à nouveau les articles qui "
-"ont échoué, <a href=\"%4$s\">cliquez ici</a>. %5$s"
+"Geschafft! %1$s Posts wurden erfolgreich in %2$s  Sekunden verarbeitet und "
+"dabei gab es %3$s  Fehler. Wenn du versuchen möchtest, die fehlerhaften "
+"Posts erneut zu importieren,  <a href=\"%4$s\">klicke hier </a>. %5$s"
 
 #: includes/admin/classes/class-sl-retroactive-licensing.php:111
 #, php-format
@@ -425,48 +429,47 @@ msgid ""
 "All done! %1$s posts were successfully processed in %2$s seconds and there "
 "were no failures. %3$s"
 msgstr ""
-"Terminé ! %1$s articles ont été traités avec succès en %2$s secondes sans "
-"aucun échec. %3$s"
+"Geschafft! %1$s Posts wurden erfolgreich in %2$s  Sekunden verarbeitet und "
+"dabei gab es  keine Fehler. %3$s"
 
 #: includes/admin/classes/class-sl-retroactive-licensing.php:120
 msgid "Abort Licensing Posts"
-msgstr "Abandonner la procédure de génération de licences sur les articles"
+msgstr "Lizensieren der Posts abbrechen"
 
 #: includes/admin/classes/class-sl-retroactive-licensing.php:122
 #: includes/admin/licenses.php:537 templates/licenses-manage-overview.php:26
 msgid "Status"
-msgstr "État"
+msgstr "Status"
 
 #: includes/admin/classes/class-sl-retroactive-licensing.php:125
 #, php-format
 msgid "Total Payments: %s"
-msgstr "Total des paiements : %s"
+msgstr "Gesamte Zahlungen: %s"
 
 #: includes/admin/classes/class-sl-retroactive-licensing.php:126
 #, php-format
 msgid "Payments Processed: %s"
-msgstr "Paiements traités : %s"
+msgstr "Verarbeitete Zahlungen: %s"
 
 #: includes/admin/classes/class-sl-retroactive-licensing.php:127
 #, php-format
 msgid "License Failures: %s"
-msgstr "Échecs de licence : %s"
+msgstr "Fehlerhafte Lizenzen: %s"
 
 #: includes/admin/classes/class-sl-retroactive-licensing.php:159
 msgid "Stopping, please wait a moment."
-msgstr "En cours d&rsquo;arrêt, attendez un instant svp."
+msgstr "Vorgang wurde angehalten, bitte warte einen Moment."
 
 #: includes/admin/classes/class-sl-retroactive-licensing.php:314
 msgid "Failed Licensing: You do not have permission to perform this action."
 msgstr ""
-"Échec de la licence : vous n&rsquo;êtes pas autorisé à effectuer cette "
-"action."
+"Fehlerhafte Lizensierung: Du hast keine Berechtigung, um diese Aktion "
+"auszuführen."
 
 #: includes/admin/classes/class-sl-retroactive-licensing.php:322
 #, php-format
 msgid "Failed Licensing: %s is incorrect post type."
-msgstr ""
-"Échecs de la procédure : %s n&rsquo;est pas un type d&rsquo;article valable."
+msgstr "Fehlerhafte Lizensierung: %s ist ein ein inkorrekter Post Type."
 
 #: includes/admin/classes/class-sl-retroactive-licensing.php:327
 #, php-format
@@ -477,7 +480,11 @@ msgid_plural ""
 "%1$s License keys for Payment ID <a href=\"%2$s\" target=\"_blank\">%3$s</a> "
 "were successfully generated."
 msgstr[0] ""
+"%1$s Lizenzschlüssel für Zahlung mit ID <a href=\"%2$s\" target=\"_blank\">"
+"%3$s</a> wurde erfolgreich generiert."
 msgstr[1] ""
+"%1$s Lizenzschlüssel für Zahlung mit ID <a href=\"%2$s\" target=\"_blank\">"
+"%3$s</a> wurden erfolgreich generiert."
 
 #: includes/admin/classes/class-sl-retroactive-licensing.php:330
 #, php-format
@@ -485,87 +492,88 @@ msgid ""
 "Payment ID <a href=\"%1$s\" target=\"_blank\">%2$s</a> processed. No "
 "licenses needed to be generated."
 msgstr ""
+"Zahlung mit ID <a href=\"%1$s\" target=\"_blank\">%2$s</a>wurde bearbeitet. "
+"Es war kein Erstellen von Lizenzen notwendig."
 
 #: includes/admin/classes/class-sl-retroactive-licensing.php:332
 msgid ""
 "Payment ID <a href=\"%1$s\" target=\"_blank\">%2$s</a> was NOT licensed "
 "because \"%4$\"."
 msgstr ""
-"AUCUNE licence n&rsquo;a pu être générée pour le paiement n°<a href=\"%1$s\" "
-"target=\"_blank\">%2$s</a> car \"%4$\"."
+"Zahlung mit ID <a href=\"%1$s\" target=\"_blank\">%2$s</a> wurde NICHT "
+"lizensiert wegen \"%4$\"."
 
 #: includes/admin/classes/class-sl-retroactive-licensing.php:346
 msgid "Empty `$payment_id`"
-msgstr "`$payment_id` vide"
+msgstr "Leere `$payment_id`"
 
 #: includes/admin/classes/class-sl-retroactive-licensing.php:353
 msgid "No payment downloads found"
-msgstr "Aucun paiement de téléchargements n&rsquo;a été trouvé"
+msgstr "Keine Downloads von Zahlungen gefunden"
 
 #: includes/admin/customers.php:40 includes/admin/customers.php:112
 #: includes/admin/metabox.php:589 includes/templates.php:7
 msgid "License Keys"
-msgstr "Clés de licences"
+msgstr "Lizenzschlüssel"
 
 #: includes/admin/customers.php:140
 msgid "No license keys found"
-msgstr "Aucune clé de licence n&rsquo;a été trouvée"
+msgstr "Keine Lizenzschlüssel gefunden"
 
 #: includes/admin/edit-renewal-notice.php:21
 msgid "Edit Renewal Notice"
-msgstr "Modifier le rappel de renouvellement"
+msgstr "Erneuerungsbenachrichtigung bearbeiten"
 
 #: includes/admin/edit-renewal-notice.php:64
 msgid "Update Renewal Notice"
-msgstr "Mettre à jour le rappel de renouvellement"
+msgstr "Erneuerungsbenachrichtigung aktualisieren"
 
 #: includes/admin/export.php:12
 msgid "Export License Keys"
-msgstr "Exporter les clés de licence"
+msgstr "Lizenzschlüssel exportieren"
 
 #: includes/admin/export.php:14
 msgid "Use this tool to export license keys to a CSV file."
-msgstr ""
-"Utiliser cet outil pour exporter les clés de licence dans un fichier CSV."
+msgstr "Verwende dieses Tool um Lizenzschlüssel als CSV Datei zu exportieren."
 
 #: includes/admin/export.php:21
 msgid "All License Keys"
-msgstr "Toutes les clés de licence"
+msgstr "Alle Lizenzschlüssel"
 
 #: includes/admin/export.php:22
 msgid "Active License Keys"
-msgstr "Les clés de licence actives"
+msgstr "Aktive Lizenzschlüssel"
 
 #: includes/admin/export.php:23
 msgid "Inactive License Keys"
-msgstr "Les clés de licence inactives"
+msgstr "Inaktive Lizenzschlüssel"
 
 #: includes/admin/export.php:24
 msgid "Expired License Keys"
-msgstr "Les clés de licence expirées"
+msgstr "Abgelaufene Lizenzschlüssel"
 
 #: includes/admin/export.php:30
 msgid "Export"
-msgstr "Exporter"
+msgstr "Exportieren"
 
 #: includes/admin/license-actions.php:28 includes/admin/licenses.php:61
 msgid "Easy Digital Download Licenses"
-msgstr "Licences d&rsquo;Easy Digital Download"
+msgstr "Easy Digital Download Lizenzen"
 
 #: includes/admin/license-actions.php:28 includes/post-types.php:28
 #: includes/post-types.php:34
 msgid "Licenses"
-msgstr "Licences"
+msgstr "Lizenzen"
 
 #: includes/admin/license-actions.php:29
 msgid "License Renewal Notice"
-msgstr "Rappel de renouvellement de licence"
+msgstr "Erneuerungsbenachrichtigung für Lizenz"
 
 #: includes/admin/license-actions.php:108 includes/admin/settings.php:223
 #: includes/admin/settings.php:267 includes/admin/settings.php:322
 #: includes/admin/settings.php:381
 msgid "Nonce verification failed"
-msgstr "Échec de la vérification du nonce"
+msgstr "Überprüfung der Nonce fehlgeschlagen"
 
 #: includes/admin/license-actions.php:108
 #: includes/admin/license-actions.php:137
@@ -591,235 +599,241 @@ msgstr "Échec de la vérification du nonce"
 #: samples/edd-sample-plugin/EDD_SL_Plugin_Updater.php:376
 #: samples/edd-sample-theme/updater/theme-updater-admin.php:240
 msgid "Error"
-msgstr "Erreur"
+msgstr "Fehler"
 
 #: includes/admin/license-actions.php:137
 #: includes/admin/license-actions.php:170
 msgid "You do not have permission to edit this license"
-msgstr ""
+msgstr "Du hast keine Erlaubnis, um diese Lizenz zu bearbeiten"
 
 #: includes/admin/license-actions.php:174
 msgid "Cheatin' eh?!"
-msgstr ""
+msgstr "Cheatest du etwa?!"
 
 #: includes/admin/license-actions.php:178
 msgid "Please confirm you want to delete this license"
-msgstr ""
+msgstr "Bitte bestätige, dass du diese Lizenz löschen möchtest"
 
 #: includes/admin/license-actions.php:274
 #, php-format
 msgid "Missing License Generated: %s"
-msgstr "Licence générée manquante : %s"
+msgstr "Fehlende Lizenz wurde generiert: %s"
 
 #: includes/admin/license-actions.php:415 includes/admin/licenses.php:681
 msgid "This license has no log entries"
-msgstr "Cette licence n&rsquo;a pas de correspondance dans les journaux"
+msgstr "Diese Lizenz hat keine Log-Einträge"
 
 #: includes/admin/license-functions.php:37
 msgid "Details"
-msgstr ""
+msgstr "Details"
 
 #: includes/admin/license-functions.php:38
 msgid "Logs"
-msgstr ""
+msgstr "Logs"
 
 #: includes/admin/licenses.php:111
 msgid "You are not permitted to view this data."
-msgstr ""
+msgstr "Dir fehlt die Berechtigung, um diese Daten zu sehen."
 
 #: includes/admin/licenses.php:116 includes/admin/licenses.php:124
 msgid "Invalid license ID provided."
-msgstr ""
+msgstr "Die angegebene Lizenz ID ist ungültig."
 
 #: includes/admin/licenses.php:131 templates/license-keys.php:16
 msgid "License Details"
-msgstr "Détails de la licence"
+msgstr "Lizenzdetails"
 
 #: includes/admin/licenses.php:151
 #, php-format
 msgctxt "License Details page tab title"
 msgid "License %s"
-msgstr ""
+msgstr "Lizenz %s"
 
 #: includes/admin/licenses.php:214
 msgid "License Key:"
-msgstr ""
+msgstr "Lizenzschlüssel:"
 
 #: includes/admin/licenses.php:222
 msgid "Purchase Date:"
-msgstr ""
+msgstr "Kaufdatum:"
 
 #: includes/admin/licenses.php:239
 msgid "Expiration Date:"
-msgstr ""
+msgstr "Ablaufdatum:"
 
 #: includes/admin/licenses.php:253 includes/admin/settings.php:175
 #: includes/scripts.php:48
 msgid "Edit"
-msgstr "Modifier"
+msgstr "Bearbeiten"
 
 #: includes/admin/licenses.php:256
 msgid "Mark as Lifetime"
-msgstr ""
+msgstr "Als lebenslang markieren"
 
 #: includes/admin/licenses.php:263
 msgid "License Term"
-msgstr ""
+msgstr "Laufzeit"
 
 #: includes/admin/licenses.php:271
 msgid "Product:"
-msgstr ""
+msgstr "Produkt:"
 
 #: includes/admin/licenses.php:298
 msgid "Activation Limit:"
-msgstr ""
+msgstr "Aktivierungsbegrenzung:"
 
 #: includes/admin/licenses.php:324 templates/license-keys.php:66
 msgid "Status:"
-msgstr "État&nbsp;:"
+msgstr "Status:"
 
 #: includes/admin/licenses.php:334
 msgid "What does this mean"
-msgstr ""
+msgstr "Was bedeutet das"
 
 #: includes/admin/licenses.php:334
 msgid "Active:"
-msgstr ""
+msgstr "Aktiv:"
 
 #: includes/admin/licenses.php:334
 msgid "Indicates that a user has activated a site with this license."
-msgstr ""
+msgstr "Bedeutet, dass ein Nutzer eine Seite mit einer Lizenz aktiviert hat."
 
 #: includes/admin/licenses.php:334
 msgid "Inactive:"
-msgstr ""
+msgstr "Inaktiv:"
 
 #: includes/admin/licenses.php:334
 msgid "Indicates that this license is not currently activated on any sites."
-msgstr ""
+msgstr "Bedeutet, dass diese Lizenz derzeit auf keiner Seite aktiviert ist."
 
 #: includes/admin/licenses.php:334 templates/license-keys.php:71
 msgid "Expired:"
-msgstr "Expirée&nbsp;:"
+msgstr "Abgelaufen am:"
 
 #: includes/admin/licenses.php:334
 msgid ""
 "Indicates that this license has expired and can not be used unless renewed."
 msgstr ""
+"Bedeutet, dass diese Lizenz abgelaufen ist und bis zur Erneuerung nicht "
+"verwendet werden kann."
 
 #: includes/admin/licenses.php:334
 msgid "Disabled:"
-msgstr ""
+msgstr "Deaktiviert:"
 
 #: includes/admin/licenses.php:334
 msgid "Indicates that this license has been administratively disabled."
-msgstr ""
+msgstr "Bedeutet, dass diese Lizenz administrativ deaktiviert wurde."
 
 #: includes/admin/licenses.php:339
 msgid "Customer:"
-msgstr ""
+msgstr "Kunde:"
 
 #: includes/admin/licenses.php:351
 msgid "Actions:"
-msgstr ""
+msgstr "Aktionen:"
 
 #: includes/admin/licenses.php:360
 msgid "Send a renewal notice for this license key"
-msgstr ""
+msgstr "Eine Erneuerungsbenachrichtigung für diesen Lizenzschlüssel versenden"
 
 #: includes/admin/licenses.php:398
 msgid "No actions available for this license"
-msgstr ""
+msgstr "Für diese Lizenz sind keine Handlungsoptionen verfügbar"
 
 #: includes/admin/licenses.php:405
 msgid "Select Notice:"
-msgstr ""
+msgstr "Benachrichtigung auswählen:"
 
 #: includes/admin/licenses.php:416
 msgid "Send Notice"
-msgstr ""
+msgstr "Benachrichtigung senden"
 
 #: includes/admin/licenses.php:425
 msgid "Update License"
-msgstr ""
+msgstr "Lizenz aktualisieren"
 
 #: includes/admin/licenses.php:438
 msgid "Related Licenses:"
-msgstr ""
+msgstr "Zugehörige Lizenzen:"
 
 #: includes/admin/licenses.php:439
 msgid ""
 "This table shows licenses related to this license, including relevant "
 "bundled licenses."
 msgstr ""
+"Diese Tabelle zeigt die zu dieser Lizenz zugehörigen Lizenzen auf, "
+"einschließlich relevanter gebündelter Lizenzen."
 
 #: includes/admin/licenses.php:477
 msgid "Licensed URLs:"
-msgstr ""
+msgstr "Lizensierte URLs:"
 
 #: includes/admin/licenses.php:478
 msgid ""
 "Use this form to add a new site URL for this license. Once added, the site "
 "will be considered active and will be included in the total site count."
 msgstr ""
-"Utiliser ce formulaire pour ajouter un nouveau site pour cette licence. Une "
-"fois ajouté, ce site sera considéré comme actif et donc inclus au nombre de "
-"sites autorisés."
+"Verwende dieses Formular um eine neue Seiten-URL für diese Lizenz "
+"hinzuzufügen. Sobald diese zugefügt wurde, wird diese Seite als aktiv "
+"gewertet und in die gesamte Anzahl aller Seiten einberechnet."
 
 #: includes/admin/licenses.php:483 templates/licenses-manage-single.php:30
 msgid "Site URL"
-msgstr "URL du site"
+msgstr "Seiten-URL"
 
 #: includes/admin/licenses.php:496 templates/licenses-manage-single.php:40
 msgid "Deactivate Site"
-msgstr "Désactiver le site"
+msgstr "Seite deaktivieren"
 
 #: includes/admin/licenses.php:502
 msgid "This license has not been activated on any sites"
-msgstr "Cette licence n&rsquo;a été activée sur aucun site"
+msgstr "Diese Lizenz wurde bisher noch auf keiner Seite aktiviert"
 
 #: includes/admin/licenses.php:507
 msgid "New site URL (including http://)"
-msgstr ""
+msgstr "Neue Seiten-URL (mit http://)"
 
 #: includes/admin/licenses.php:511 templates/licenses-manage-single.php:61
 msgid "Add Site"
-msgstr "Ajouter un site"
+msgstr "Seite hinzufügen"
 
 #: includes/admin/licenses.php:524
 msgid "Related Payments:"
-msgstr ""
+msgstr "Zugehörige Zahlungen:"
 
 #: includes/admin/licenses.php:525
 msgid ""
 "This table shows the most recent payments relevant to this license, "
 "including upgrades and renewals."
 msgstr ""
+"Diese Tabelle zeigt die aktuellen Zahlungen in Zusammenhang mit dieser "
+"Lizenz, einschließlich Upgrades und Erneuerungen."
 
 #: includes/admin/licenses.php:534 includes/admin/licenses.php:644
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 #: includes/admin/licenses.php:535 includes/admin/licenses.php:573
 #: includes/admin/metabox.php:263 includes/admin/metabox.php:300
 msgid "Amount"
-msgstr "Quantité"
+msgstr "Anzahl"
 
 #: includes/admin/licenses.php:536 includes/post-types.php:75
 msgid "Date"
-msgstr "Date"
+msgstr "Datum"
 
 #: includes/admin/licenses.php:551 includes/admin/metabox.php:625
 msgid "View Details"
-msgstr ""
+msgstr "Details anzeigen"
 
 #: includes/admin/licenses.php:558
 msgid "No Payments Found"
-msgstr ""
+msgstr "Es wurden keine Zahlungen gefunden"
 
 #: includes/admin/licenses.php:566
 msgid "Upgrade Paths:"
-msgstr ""
+msgstr "Pfade aktualisieren:"
 
 #: includes/admin/licenses.php:567
 #, php-format
@@ -828,95 +842,106 @@ msgid ""
 "link to each specific upgrade. Upgrade paths can be added through the %s "
 "edit screen."
 msgstr ""
+"Die Tabelle zeigt alle verfügbaren Upgrade-Pfade für diese Lizenz, sowie "
+"einen Link zur Durchführung des Upgrades. Upgrade-Pfade können über den %s "
+"Bearbeitungsmodus hinzugefügt werden."
 
 #: includes/admin/licenses.php:574
 msgid "Upgrade Link"
-msgstr ""
+msgstr "Upgrade Link"
 
 #: includes/admin/licenses.php:581
 msgid "This license must be renewed before it can be upgraded"
 msgstr ""
+"Die Lizenz muss erneuert werden, bevor ein Upgrade durchgeführt werden kann"
 
 #: includes/admin/licenses.php:601
 msgid "Bundled licenses can not be upgraded individually"
 msgstr ""
+"Bei gebündelten Lizenzen können keine individuellen Upgrades durchgeführt "
+"werden"
 
 #: includes/admin/licenses.php:605
 msgid "No upgrade path available"
-msgstr ""
+msgstr "Kein Upgrade-Pfad verfügbar"
 
 #: includes/admin/licenses.php:631 includes/admin/licenses.php:706
 #, php-format
 msgid "License Key: %s"
-msgstr ""
+msgstr "Lizenzschlüssel: %s"
 
 #: includes/admin/licenses.php:638
 msgid "Logged Entries:"
-msgstr ""
+msgstr "Protokollierte Einträge:"
 
 #: includes/admin/licenses.php:639
 msgid "This table shows log entries relevant to this license."
 msgstr ""
+"Diese Tabelle zeigt die für diese Lizenz relevanten und protokollierten "
+"Einträge."
 
 #: includes/admin/licenses.php:645
 msgid "Date/Time"
-msgstr ""
+msgstr "Datum/Zeit"
 
 #: includes/admin/licenses.php:646
 msgid "Entry"
-msgstr ""
+msgstr "Eintrag"
 
 #: includes/admin/licenses.php:716
 msgid "Are you sure you want to delete this license?"
-msgstr ""
+msgstr "Bist du sicher, dass du diese Lizenz löschen möchtest?"
 
 #: includes/admin/licenses.php:726
 msgid "Delete License"
-msgstr ""
+msgstr "Lizenz löschen"
 
 #: includes/admin/licenses.php:727 includes/license-renewals.php:157
 #: includes/scripts.php:49
 msgid "Cancel"
-msgstr "Annuler"
+msgstr "Abbrechen"
 
 #: includes/admin/metabox.php:11
 msgid "Licensing"
-msgstr "Licence"
+msgstr "Lizenzierung"
 
 #: includes/admin/metabox.php:12
 msgid "License Upgrade Paths"
-msgstr "Chemins des mises à niveau de la licence"
+msgstr "Upgrade-Pfade der Lizenz"
 
 #: includes/admin/metabox.php:13
 msgid "Generate Missing Licenses"
-msgstr "Générer les clés de licence manquantes"
+msgstr "Fehlende Lizenzen erstellen"
 
 #: includes/admin/metabox.php:14 includes/admin/metabox.php:857
 msgid "Beta Version"
-msgstr ""
+msgstr "Beta-Version"
 
 #: includes/admin/metabox.php:61
 msgid "Check to enable license creation"
-msgstr "Cochez pour activer la création de licence"
+msgstr "Aktivieren, um Lizenzen zu erstellen"
 
 #: includes/admin/metabox.php:63
 msgid ""
 "A license key will be generated for each product in this bundle, upon "
 "purchase."
 msgstr ""
-"Une clé de licence sera générée pour chaque produit dans ce bundle, lors de "
-"l&rsquo;achat."
+"Beim Kauf wird für jedes Produkt in diesem Bundle ein Lizenzschlüssel "
+"erstellt."
 
 #: includes/admin/metabox.php:74
 msgid ""
 "Limit number of times this license can be activated. Use 0 for unlimited. If "
 "using variable prices, set the limit for each price option."
 msgstr ""
+"Lege fest, wie oft diese Lizenz aktiviert werden kann. Verwende 0 für "
+"unbegrenzt. Wenn du variable Preise nutzt, lege eine Begrenzung für jede "
+"Preisoption fest."
 
 #: includes/admin/metabox.php:76 includes/admin/metabox.php:124
 #, php-format
 msgid "%s"
-msgstr ""
+msgstr "%s"
 
 #: includes/admin/metabox.php:77
 msgid ""
@@ -925,52 +950,60 @@ msgid ""
 "take precedence. If your product is a bundle, the activation limit set here "
 "will override the activation limits set on the individual products."
 msgstr ""
+"<strong>Aktivierungsbegrenzung</strong>: Lege die Anzahl der erlaubten "
+"Aktivierungen pro Lizenz fest. Wenn individuelle Aktivierungsbegrenzungen "
+"für variable Preise festgelegt werden, so haben diese Priorität. Sollte dein "
+"Produkt gebündelt sein, so überschreibt die dafür angegebene "
+"Aktivierungsbegrenzung die für die einzelnen Produkte festgelegten "
+"Grenzwerte."
 
 #: includes/admin/metabox.php:86
 msgid "Version Number"
-msgstr ""
+msgstr "Versionsnummer"
 
 #: includes/admin/metabox.php:88
 msgid "Enter the current version number."
-msgstr "Entrez le numéro de la version actuelle"
+msgstr "Die aktuelle Versionsnummer eingeben."
 
 #: includes/admin/metabox.php:96
 msgid "License Length"
-msgstr ""
+msgstr "Lizenzzeitraum"
 
 #: includes/admin/metabox.php:100
 msgid "Limited"
-msgstr "Limité"
+msgstr "Begrenzt"
 
 #: includes/admin/metabox.php:105
 msgid "Days"
-msgstr "Jours"
+msgstr "Tage"
 
 #: includes/admin/metabox.php:106
 msgid "Weeks"
-msgstr "Semaines"
+msgstr "Wochen"
 
 #: includes/admin/metabox.php:107
 msgid "Months"
-msgstr "Mois"
+msgstr "Monate"
 
 #: includes/admin/metabox.php:108
 msgid "Years"
-msgstr "An(s)"
+msgstr "Jahre"
 
 #: includes/admin/metabox.php:111
 msgid "How long are license keys valid for?"
-msgstr "Pendant combien de temps les clés de licence sont-elles valides ?"
+msgstr "Wie lange sind die Lizenzschlüssel gültig?"
 
 #: includes/admin/metabox.php:120 includes/admin/settings.php:108
 msgid "Renewal Discount"
-msgstr "Remise pour le renouvellement"
+msgstr "Rabatt für Erneuerung"
 
 #: includes/admin/metabox.php:122
 msgid ""
 "Enter a discount amount as a percentage, such as 10, or leave blank to use "
 "the global value."
 msgstr ""
+"Gib einen Rabattpreis in Prozentangabe ein, wie zum Beispiel 10 oder lasse "
+"das Feld frei, um den allgemeinen Wert zu übernehmen."
 
 #: includes/admin/metabox.php:125
 msgid ""
@@ -978,60 +1011,63 @@ msgid ""
 "the checkout page renewing their license, this discount will be "
 "automatically applied to their renewal purchase."
 msgstr ""
+"<strong>Wann wird der Rabatt zur Erneuerung angewandt?</strong>: Sobald der "
+"Nutzer auf die Bezahlseite zur Erneuerung der Lizenz gelangt, wird der "
+"Rabatt automatisch auf den Kauf der Erneuerung angerechnet."
 
 #: includes/admin/metabox.php:135
 msgid "Update File"
-msgstr ""
+msgstr "Datei aktualisieren"
 
 #: includes/admin/metabox.php:145
 msgid "Choose the source file to be used for automatic updates."
 msgstr ""
-"Choisir le fichier source à utiliser pour les mises à jour automatiques."
+"Wähle die Quelldatei, die bei automatischen Updates verwendet werden soll."
 
 #: includes/admin/metabox.php:154
 msgid "Change Log"
-msgstr "Notes de version"
+msgstr "Changelog"
 
 #: includes/admin/metabox.php:164 includes/admin/metabox.php:935
 msgid "Enter details about what changed."
-msgstr "Entrez les détails des changements."
+msgstr "Gib an, was sich geändert hat."
 
 #: includes/admin/metabox.php:172
 msgid "Preset License Keys"
-msgstr ""
+msgstr "Voreinstellung der Lizenzschlüssel"
 
 #: includes/admin/metabox.php:176
 msgid ""
 "Enter available license keys, one per line. If empty, keys will be "
 "automatically generated. "
 msgstr ""
-"Entrez les clés de licences disponibles, une par ligne. Si ce champ est "
-"vide, elles seront générées automatiquement."
+"Gib verfügbare Lizenzschlüssel ein, immer einen pro Zeile. Wenn das Feld "
+"leer ist, werden die Schlüssel automatisch generiert. "
 
 #: includes/admin/metabox.php:202
 msgid "Price Option"
-msgstr "Option de prix"
+msgstr "Preisoption"
 
 #: includes/admin/metabox.php:203
 msgid "Prorate"
-msgstr "Prorata"
+msgstr "Freigeben"
 
 #: includes/admin/metabox.php:204
 msgid "Additional Discount"
-msgstr "Remise supplémentaire"
+msgstr "Zusätzlicher Rabatt"
 
 #: includes/admin/metabox.php:248 includes/admin/metabox.php:289
 #: includes/scripts.php:39
 msgid "N/A"
-msgstr "N/D"
+msgstr "N/A"
 
 #: includes/admin/metabox.php:311
 msgid "Add New Upgrade Path"
-msgstr "Ajouter un nouveau chemin d'accès de mise à niveau"
+msgstr "Neuen Upgrade-Pfad hinzufügen"
 
 #: includes/admin/metabox.php:317
 msgid "Configure the optional upgrade paths for customers. "
-msgstr "Configurer les chemins optionnels de mise à niveau pour les clients."
+msgstr "Konfiguriere die optionalen Upgrade-Pfade für Kunden. "
 
 #: includes/admin/metabox.php:332
 #, php-format
@@ -1039,6 +1075,8 @@ msgid ""
 "Missing license keys can be generated for past purchases of this %s from the "
 "%sTools%s page"
 msgstr ""
+"Fehlende Lizenzschlüssel für erhaltene Zahlungen von %s können über die "
+"%sTools%s Seite generiert werden"
 
 #: includes/admin/metabox.php:349
 msgid ""
@@ -1047,83 +1085,88 @@ msgid ""
 "product is a bundle, the activation limits set here will override the "
 "activation limits set on the individual products."
 msgstr ""
+"<strong>Aktivierungsbegrenzung</strong>: Lege die Anzahl der erlaubten "
+"Aktivierungen pro Lizenz fest. Verwende 0 für unendlich. Sollte dein Produkt "
+"gebündelt sein, so überschreibt die dafür angegebene Aktivierungsbegrenzung "
+"die für die einzelnen Produkte festgelegten Grenzwerte."
 
 #: includes/admin/metabox.php:359
 msgid ""
 "<strong>Lifetime</strong>: Check this setting to provide licenses that never "
 "expire."
 msgstr ""
+"<strong>Lebenslang</strong>: Wähle diese Einstellung um Lizenzen anzubieten, "
+"die niemals ablaufen."
 
 #: includes/admin/metabox.php:595 includes/admin/metabox.php:736
 #: templates/licenses-manage-single.php:23
 msgid "License"
-msgstr "Licence"
+msgstr "Lizenz"
 
 #: includes/admin/metabox.php:620
 msgid "View License Key"
-msgstr "Voir la clé de licence"
+msgstr "Lizenzschlüssel anzeigen"
 
 #: includes/admin/metabox.php:637
 msgid ""
 "Use this to generate missing license keys for this purchase. If you add a "
 "product to the purchase, click this after saving the payment."
 msgstr ""
-"Utiliser cela pour générer les clés de licence manquantes pour cet achat. Si "
-"vous ajoutez un produit à cet achat, cliquez ici après avoir sauvegardé le "
-"paiement."
+"Verwende diese Option um fehlende Lizenzschlüssel für diesen Kauf zu "
+"erstellen. Nachdem du dem Kauf ein Produkt hinzufügst und die Änderungen "
+"gespeichert hast, klicke auf die unten stehende Schaltfläche."
 
 #: includes/admin/metabox.php:639
 msgid "Generate License Keys"
-msgstr "Générer les clés de licence"
+msgstr "Lizenzschlüssel erstellen"
 
 #: includes/admin/metabox.php:667
 msgid "Download <code>readme.txt</code> Configuration"
-msgstr "Télécharger la configuration du <code>readme.txt</code>"
+msgstr "Download <code>readme.txt</code> Konfiguration"
 
 #: includes/admin/metabox.php:729
 msgid "Download details"
-msgstr "Détails du Téléchargement"
+msgstr "Download Details"
 
 #: includes/admin/metabox.php:730
 msgid "Use the following data from the remote readme.txt file . "
-msgstr "Utiliser les données suivantes à partir du fichier readme.txt."
+msgstr "Verwende die folgenden Daten aus der readme.txt Datei. "
 
 #: includes/admin/metabox.php:732
 msgid "Tested Up To (WordPress Version)"
-msgstr "Testé jusqu&rsquo;à (version WordPress)"
+msgstr "Getestet bis zur (WordPress Version)"
 
 #: includes/admin/metabox.php:733
 msgid "Stable Tag"
-msgstr "Version stable"
+msgstr "Stabiler Tag"
 
 #: includes/admin/metabox.php:734
 msgid "Contributors"
-msgstr "Contributeurs"
+msgstr "Mitwirkende"
 
 #: includes/admin/metabox.php:735
 msgid "Donate Link"
-msgstr "Lien de donation"
+msgstr "Link spenden"
 
 #: includes/admin/metabox.php:737
 msgid "License URI"
-msgstr "URI de la licence"
+msgstr "URI lizensieren"
 
 #: includes/admin/metabox.php:741
 msgid "Download tabs"
-msgstr "Onglets du téléchargement"
+msgstr "Tabs herunterladen"
 
 #: includes/admin/metabox.php:742
 msgid ""
 "Override the following sections with content from the remote readme.txt "
 "file. Each section appears as a tab in the Update Notice screen . "
 msgstr ""
-"Écraser les sections suivantes avec le contenu provenant du fichier readme."
-"txt. Chaque section apparaît dans un onglet séparé dans l&rsquo;écran de "
-"notification de la mise à jour."
+"Überschreibe die folgenden Sektionen mit Inhalt aus der readme.txt Datei. "
+"Jede Sektion erscheint als einzelner Tab im Aktualisierungsfenster.  "
 
 #: includes/admin/metabox.php:744
 msgid "Description (default: Product content field)"
-msgstr "Description (par défaut : Contenu du champ du produit)"
+msgstr "Beschreibung (Default: Feld für Produktinhalt)"
 
 #: includes/admin/metabox.php:745
 msgid "Installation"
@@ -1135,166 +1178,172 @@ msgstr "FAQ"
 
 #: includes/admin/metabox.php:747
 msgid "Changelog (default: \"Change Log\" field)"
-msgstr "Changelog (par défaut : champ \"Notes de version\")"
+msgstr "Changelog (default: \"Change Log\" Feld)"
 
 #: includes/admin/metabox.php:748
 msgid "Other Content"
-msgstr "Autre contenu"
+msgstr "Andere Inhalte"
 
 #: includes/admin/metabox.php:754
 msgid "Readme.txt Location:"
-msgstr "Emplacement du fichier readme.txt :"
+msgstr "Readme.txt Speicherort:"
 
 #: includes/admin/metabox.php:755
 msgid "What is the URL of the readme.txt file for the download?"
-msgstr ""
-"Qu&rsquo;elle est l&rsquo;URL du fichier readme.txt du téléchargement ?"
+msgstr "Wie lautet die URL für den Download der readme.txt Datei?"
 
 #: includes/admin/metabox.php:782
 msgid "Plugin Banner Image (high resolution):"
-msgstr ""
+msgstr "Plugin Banner-Bild (hohe Auflösung):"
 
 #: includes/admin/metabox.php:783
 msgid "URL of a banner image to use (1544x500 pixels)"
-msgstr ""
+msgstr "URL des zu verwendenden Banner-Bildes (1544x500 Pixel)"
 
 #: includes/admin/metabox.php:789 includes/admin/metabox.php:802
 msgid "Insert Image"
-msgstr ""
+msgstr "Bild einfügen"
 
 #: includes/admin/metabox.php:789 includes/admin/metabox.php:802
 msgid "Insert"
-msgstr ""
+msgstr "Einfügen"
 
 #: includes/admin/metabox.php:789 includes/admin/metabox.php:802
 msgid "Upload an Image"
-msgstr ""
+msgstr "Bild hochladen"
 
 #: includes/admin/metabox.php:795
 msgid "Plugin Banner Image (low resolution):"
-msgstr ""
+msgstr "Plugin Banner-Bild (niedrige Auflösung):"
 
 #: includes/admin/metabox.php:796
 msgid "URL of a banner image to use (772x250 pixels)"
-msgstr ""
+msgstr "URL des zu verwendenden Banner-Bildes (772x250 Pixel)"
 
 #: includes/admin/metabox.php:814
 msgid "Override plugin homepage:"
-msgstr "Écraser la page d&rsquo;accueil de l&rsquo;extension :"
+msgstr "Plugin Homepage überschreiben:"
 
 #: includes/admin/metabox.php:815
 msgid ""
 "Leave blank to use the default plugin homepage (the URL of this Download "
 "page)"
 msgstr ""
-"Laissez vide pour utiliser la page d&rsquo;accueil de l&rsquo;extension par "
-"défaut (l&rsquo;URL de la page de ce Téléchargement)"
+"Frei lassen, um die Default Plugin Homepage zu verwenden (die URL dieser "
+"Download-Seite)"
 
 #: includes/admin/metabox.php:821
 msgid "Plugin Dates:"
-msgstr "Dates de l&rsquo;extension :"
+msgstr "Plugin Daten:"
 
 #: includes/admin/metabox.php:823
 msgid "Use Download \"Published on\" date as Plugin Added date?"
 msgstr ""
-"Utiliser la date \"Publié le\" du Téléchargement comme date d&rsquo;ajout de "
-"l&rsquo;extension ?"
+"Willst du das \"Veröffentlicht am\"-Datum des Downloads als Datum im Plugin "
+"einfügen?"
 
 #: includes/admin/metabox.php:825
 msgid ""
 "Use the last time this Download was modified as the \"Last Modified\" date?"
 msgstr ""
-"Utiliser la dernière date de modification de ce Téléchargement en tant que "
-"\"Dernière date de modification\" ?"
+"Willst du den Zeitpunkt der letzten Aktualisierung als Datum für \"zuletzt "
+"geändert\" verwenden?"
 
 #: includes/admin/metabox.php:852
 msgid "Please set beta version settings for individual products."
 msgstr ""
+"Bitte wähle die Einstellungen der Beta-Version für individuelle Produkte."
 
 #: includes/admin/metabox.php:856
 #, php-format
 msgid "Enable a beta version of this %s"
-msgstr ""
+msgstr "Aktiviere die Beta-Version von %s"
 
 #: includes/admin/metabox.php:857
 msgid ""
 "Check this and configure your beta version to deliver beta updates to any "
 "users who have opted in."
 msgstr ""
+"Überprüfe dies und konfiguriere deine Beta-Version so, dass sie Beta-Updates "
+"zu jedem Nutzer senden, der damit einverstanden ist."
 
 #: includes/admin/metabox.php:860
 #, php-format
 msgid "For information on releasing beta versions, please %s."
 msgstr ""
+"Um Informationen über die Veröffentlichung von Beta-Versionen zu erhalten, "
+"bitte %s."
 
 #: includes/admin/metabox.php:860
 msgid "see our documentation"
-msgstr ""
+msgstr "siehe Dokumentation"
 
 #: includes/admin/metabox.php:868
 msgid "Name"
-msgstr "Nom"
+msgstr "Name"
 
 #: includes/admin/metabox.php:869
 msgid "File URL"
-msgstr ""
+msgstr "Datei URL"
 
 #: includes/admin/metabox.php:878 includes/admin/metabox.php:893
 msgid "File Name"
-msgstr ""
+msgstr "Dateiname"
 
 #: includes/admin/metabox.php:882 includes/admin/metabox.php:897
 msgid "Upload or enter the file URL"
-msgstr ""
+msgstr "Füge die Datei URL ein oder lade sie hoch"
 
 #: includes/admin/metabox.php:884 includes/admin/metabox.php:899
 msgid "Upload a File"
-msgstr ""
+msgstr "Eine Datei hochladen"
 
 #: includes/admin/metabox.php:909
 msgid "Choose the source file to be used for automatic update to beta."
 msgstr ""
+"Wähle die Quelldatei, die für automatische Updates der Beta verwendet werden "
+"soll."
 
 #: includes/admin/metabox.php:919
 msgid "Enter the beta version number."
-msgstr ""
+msgstr "Gib die Nummer der Beta-Version ein."
 
 #: includes/admin/metabox.php:925
 msgid "Beta Change Log"
-msgstr ""
+msgstr "Beta Changelog"
 
 #: includes/admin/reports.php:13
 msgid "License Renewals"
-msgstr "Renouvellements de licence"
+msgstr "Lizenzerneuerungen"
 
 #: includes/admin/reports.php:14 includes/admin/reports.php:364
 #: includes/admin/reports.php:370
 msgid "License Upgrades"
-msgstr "Mises à niveau de licence"
+msgstr "Lizenzaktualisierungen"
 
 #: includes/admin/reports.php:28
 msgid "License Renewal Notices"
-msgstr "Rappels de renouvellement de licence"
+msgstr "Lizenz-Erneuerungsbenachrichtigungen"
 
 #: includes/admin/reports.php:45 includes/admin/reports.php:262
 msgid "You do not have permission to view this data"
-msgstr "Vous n&rsquo;êtes pas autorisé à afficher ces données."
+msgstr "Dir fehlt die Berechtigung, um diese Daten zu sehen"
 
 #: includes/admin/reports.php:171
 msgid "Renewals"
-msgstr "Renouvellements"
+msgstr "Erneuerungen"
 
 #: includes/admin/reports.php:238
 msgid "License Renewals Over Time"
-msgstr "Renouvellements de licence dans le temps"
+msgstr "Lizenzerneuerungen im Laufe der Zeit"
 
 #: includes/admin/reports.php:246
 msgid "Total renewal earnings for period shown: "
-msgstr "Total des revenus issus des renouvellements pour la période suivante :"
+msgstr "Gesamte Einnahmen für Erneuerungen im angegebenen Zeitraum: "
 
 #: includes/admin/reports.php:380
 msgid "Total earnings from upgrades period shown: "
-msgstr "Total des revenus issus des mises à niveau pour la période suivante :"
+msgstr "Gesamte Einnahmen für Aktualisierungen im angegebenen Zeitraum: "
 
 #: includes/admin/settings.php:4 includes/admin/settings.php:40
 msgid "Software Licensing"
@@ -1309,6 +1358,14 @@ msgid ""
 "and the customer's subscription is still active, it will automatically renew "
 "even if this option is disabled."
 msgstr ""
+"Eine Überprüfung dieser Daten wird Kunden ermöglichen, ihren Lizenzschlüssel "
+"auf der Bezahlseite einzugeben und ihn so zu erneuern. Ebenso werden sie "
+"Erinnerungen für benötigte Erneuerungen per Email erhalten und können so den "
+"Vorgang direkt über ihre Profilseite realisieren (sofern diese Seite den "
+"[edd_license_keys] Shortcode verwendet). BITTE BEACHTE: Wenn es sich beim "
+"Produkt um ein wiederkehrendes Produkt handelt und das Abonnement des Kunden "
+"nach wie vor aktiv ist, so wird es automatisch erneuert, auch wenn diese "
+"Option deaktiviert ist."
 
 #: includes/admin/settings.php:25
 msgid ""
@@ -1317,6 +1374,11 @@ msgid ""
 "product is a Recurring product and the customer's subscription is still "
 "active, it will automatically renew with this discount applied."
 msgstr ""
+"Wenn der Nutzer auf der Bezahlseite seine Lizenz erneuert, wird der "
+"Rabattautomatisch auf dessen Erneuerungskauf angerechnet. BITTE BEACHTE: "
+"Wenn es sich beim Produkt um ein wiederkehrendes Produkt handelt und das "
+"Abonnement des Kunden nach wie vor aktiv ist, so wird es automatisch "
+"erneuert, auch wenn diese Option deaktiviert ist."
 
 #: includes/admin/settings.php:27
 msgid ""
@@ -1329,6 +1391,16 @@ msgid ""
 "'Recurring Payments' above). However, if the customer's subscription is "
 "cancelled or expired, they will be sent these emails."
 msgstr ""
+"Erneuerungsbenachrichtigungen sind Emails, die automatisch an den Kunden "
+"versendet werden, sobald dessen Lizenschlüssel kurz vor dem Ablaufen steht. "
+"Diese Emails erinnern den Kunden daran, dass sie ihre Lizenzen erneuern "
+"müssen. Du kannst diese Emails weiter unten konfigurieren. BITTE BEACHTE: "
+"Wenn es sich beim Produkt um ein wiederkehrendes Produkt handelt und das "
+"Abonnement des Kunden nach wie vor aktiv ist, so werden die "
+"Erneuerungsbenachrichtigungen auf dieser Seite nicht versendet. Stattdessen "
+"werden die Emails der Seite für \"Wiederkehrende Zahlungen\" verwendet "
+"(siehe \"Wiederkehrende Zahlungen\" oben). Ist jedoch das Abonnement eins "
+"Kunden deaktiviert oder abgelaufen, so erhält er diese Emails."
 
 #: includes/admin/settings.php:30
 msgid ""
@@ -1337,12 +1409,19 @@ msgid ""
 "email, and can also renew from their account page (if that page uses the "
 "[edd_license_keys] shortcode)."
 msgstr ""
+"Eine Überprüfung dieser Daten wird Kunden ermöglichen, ihren Lizenzschlüssel "
+"auf der Bezahlseite einzugeben und ihn so zu erneuern. Zudem werden sie per "
+"Email Erneuerungsbenachrichtigungen erhalten und können ebenso von ihrer "
+"Profilseite aus erneuern (sofern diese Seite den [edd_license_keys] "
+"Shortcode verwendet)."
 
 #: includes/admin/settings.php:32
 msgid ""
 "When the user is on the checkout page renewing their license, this discount "
 "will be automatically applied to their renewal purchase."
 msgstr ""
+"Wenn der Nutzer auf der Bezahlseite seine Lizenz erneuert, wird der "
+"Rabattautomatisch auf dessen Erneuerungskauf angerechnet."
 
 #: includes/admin/settings.php:34
 msgid ""
@@ -1350,20 +1429,26 @@ msgid ""
 "when their license key is about to expire. These emails will remind the "
 "customer that they need to renew. You can configure those emails below."
 msgstr ""
+"Erneuerungsbenachrichtigungen sind Emails, die automatisch an den Kunden "
+"versendet werden, sobald dessen Lizenschlüssel kurz vor dem Ablaufen steht. "
+"Diese Emails erinnern den Kunden daran, dass sie ihre Lizenzen erneuern "
+"müssen. Du kannst diese Emails weiter unten konfigurieren."
 
 #: includes/admin/settings.php:47
 msgid "Disable URL Checking?"
-msgstr "Désactiver la vérification de l&rsquo;URL ?"
+msgstr "Möchtest du die URL-Überprüfung deaktivieren?"
 
 #: includes/admin/settings.php:48
 msgid ""
 "Check this box if your software is not tied to URLs. If you sell desktop "
 "software, check this."
 msgstr ""
+"Markiere dieses Feld, wenn deine Software nicht an URLs gebunden ist. Wenn "
+"du Desktop Software verkaufst, markiere dies."
 
 #: includes/admin/settings.php:50
 msgid "What is URL Checking?"
-msgstr ""
+msgstr "Was ist URL-Überprüfung?"
 
 #: includes/admin/settings.php:51
 msgid ""
@@ -1373,45 +1458,55 @@ msgid ""
 "running the license by passing the computer's ID in the URL paramater. For "
 "more on this please see the documentation."
 msgstr ""
+"Die Software-Lizensierung erfordert normalerweise, dass die Software "
+"gemeinsam mit der Lizenz eine URL zur Verfügung stellt, um so die "
+"Lizenzgrenze zu ermitteln. Bitte beachte, wenn du Desktop Software "
+"verkaufst, dass du URL Parameter verwenden kannst, um die ID des Computers "
+"zu ermitteln, auf dem die Lizenz installiert ist. Hierfür musst du die "
+"Computer ID in die URL Parameter eingeben. Konsultiere für weitere "
+"Informationen bitte unsere Dokumentation."
 
 #: includes/admin/settings.php:55
 msgid "Ignore Local Host URLs?"
-msgstr "Ignorer les urls de l'hôte local ?"
+msgstr "Lokale Host URLs ignorieren?"
 
 #: includes/admin/settings.php:56
 msgid ""
 "Allow local development domains and IPs to be activated without counting "
 "towards the activation limit totals. The URL will still be logged."
 msgstr ""
-"Autoriser les domaines et adresses IP locales de développement à être "
-"activés sans être décomptés du nombre total d'activation. L'URL sera "
-"toujours connectée."
+"Erlaube lokalen Entwicklerdomains und IPs, dass sie aktiviert werden können, "
+"ohne dabei das Herunterzählen zum Aktivierungslimit in Gang zu setzen. Die "
+"URL wird nach wie vor protokolliert."
 
 #: includes/admin/settings.php:58
 msgid "What is a Local Host?"
-msgstr ""
+msgstr "Was ist ein lokaler Host?"
 
 #: includes/admin/settings.php:59
 msgid ""
 "People who are in the developmental stages of their website will often build "
 "it offline using their own computer. This is called a Local Host. "
 msgstr ""
+"Nutzer, die sich im Entwicklungsstadium ihrer Webseite befinden, bauen diese "
+"häufig offline und mit Hilfe ihres eigenen Computers. Das nennt man einen "
+"lokalen Host. "
 
 #: includes/admin/settings.php:63
 msgid "Selling WordPress Plugins?"
-msgstr "Vous vendez des extensions WordPress ?"
+msgstr "Verkaufst du WordPress Plugins?"
 
 #: includes/admin/settings.php:64
 msgid ""
 "Check this box if you are selling WordPress plugins and wish to enable "
 "advanced ReadMe.txt file parsing."
 msgstr ""
-"Cochez cette case si vous vendez des extensions WordPress et souhaitez "
-"activer l&rsquo;analyse avancé du fichier Readme.txt.  "
+"Markiere dieses Feld, wenn du WordPress Plugins verkaufst und das Parsen der "
+"erweiterten ReadMe.txt Datei wünschst."
 
 #: includes/admin/settings.php:66
 msgid "What is ReadMe.txt?"
-msgstr ""
+msgstr "Was ist ReadMe.txt?"
 
 #: includes/admin/settings.php:67
 msgid ""
@@ -1421,46 +1516,58 @@ msgid ""
 "data to be auto filled based on the included ReadMe.txt file in your plugin. "
 "Note that this is optional even if you are selling WordPress plugins."
 msgstr ""
+"Angemessen erstellte WordPress Plugins beinhalten eine ReadMe.txt Datei, die "
+"Fakten zur Version, Lizenz, zum Autor, eine Beschreibung und andere "
+"Informationen enthält. Wenn du dies markierst, wird automatisch zu jedem "
+"Download eine Metabox hinzugefügt. Diese erlaubt ein automatisches Ausfüllen "
+"der Plugin Daten auf Grundlage der enthaltenen ReadMe.txt Datei in deinem "
+"Plugin. Diese Funktion ist optional, auch wenn du WordPress Plugins "
+"verkaufst."
 
 #: includes/admin/settings.php:71
 msgid "Display Inline Upgrade Links"
-msgstr ""
+msgstr "Inline Upgrade Links anzeigen"
 
 #: includes/admin/settings.php:72
 msgid ""
 "Check this box if you want to display inline upgrade links for customers who "
 "have upgradable purchases."
 msgstr ""
+"Markiere dieses Feld, wenn du Kunden Inline Upgrade Links mit erweiterbaren "
+"Kaufoptionen anzeigen lassen möchtest."
 
 #: includes/admin/settings.php:74
 msgid "Where are upgrade links displayed?"
-msgstr ""
+msgstr "Wo werden Upgrade Links angezeigt?"
 
 #: includes/admin/settings.php:75
 msgid ""
 "Inline upgrade links are displayed below the 'Add To Cart' button in "
 "products lists and on on individual product pages."
 msgstr ""
+"Inline Upgrade Links werden unter dem \"Zum Einkaufswagen hinzufügen\"-"
+"Button, in den Produktlisten und auf individuellen Produktseiten angezeigt."
 
 #: includes/admin/settings.php:79
 msgid "Proration Method"
-msgstr ""
+msgstr "Methode der Verteilung"
 
 #: includes/admin/settings.php:80
 msgid "Specify how to calculate proration for license upgrade."
 msgstr ""
+"Spezifische Informationen zur Berechnung der Verteilung für Lizenz-Upgrades."
 
 #: includes/admin/settings.php:83
 msgid "Cost-Based Calculation"
-msgstr ""
+msgstr "Kostenbasierte Kalkulation"
 
 #: includes/admin/settings.php:84
 msgid "Time-Based Calculation"
-msgstr ""
+msgstr "Zeitbasierte Kalkulation"
 
 #: includes/admin/settings.php:86
 msgid "How are prorations calculated?"
-msgstr ""
+msgstr "Wie werden Verteilungen berechnet?"
 
 #: includes/admin/settings.php:87
 msgid ""
@@ -1470,34 +1577,41 @@ msgid ""
 "the amount of time remaining on the current license is calculated to adjust "
 "the cost of the new license."
 msgstr ""
+"Die kostenbasierte Kalkulation ist eine Art Pseudo-Verteilung, bei der der "
+"Wert eines Upgrades anhand des Kostenunterschiedes zwischen den aktuellen "
+"und neuen Lizenzen berechnet wird. <br /><br /> Zeitbasierte Kalkulation ist "
+"wahre Verteilung, bei der die Menge der verbleibenden Zeit der aktuellen "
+"Lizenz verwendet wird, um die Kosten der neuen Lizenz zu berechnen."
 
 #: includes/admin/settings.php:92
 msgid "Allow Renewals"
-msgstr "Autoriser les renouvellements"
+msgstr "Erneuerungen zulassen"
 
 #: includes/admin/settings.php:93
 msgid ""
 "Check this box if you want customers to be able to renew their license keys."
 msgstr ""
-"Cochez cette case si vous voulez que vos clients soient en mesure de "
-"renouveler leurs clés de licence."
+"Markiere dieses Feld, wenn du Kunden ermöglichen möchtest, ihre "
+"Lizenzschlüssel zu erneuern."
 
 #: includes/admin/settings.php:95
 msgid "What does 'Allow Renewals' do?"
-msgstr ""
+msgstr "Was passiert bei \"Erneuerungen zulassen\"?"
 
 #: includes/admin/settings.php:100
 msgid "Enforce Email Matching"
-msgstr ""
+msgstr "Email-Abgleich erzwingen"
 
 #: includes/admin/settings.php:101
 msgid ""
 "Check this box if you want to enforce email matching on license renewals."
 msgstr ""
+"Markiere dieses Feld, wenn du bei Lizenz-Erneuerungen einen Email-Abgleich "
+"erzwingen willst."
 
 #: includes/admin/settings.php:103
 msgid "What does 'Email Matching' mean?"
-msgstr ""
+msgstr "Was bedeutet \"Email-Abgleich\"?"
 
 #: includes/admin/settings.php:104
 msgid ""
@@ -1505,121 +1619,128 @@ msgid ""
 "originally purchase the license. This prevents license keys from being "
 "renewed by a different customer than purchased it."
 msgstr ""
+"Der Email-Abgleich begrenzt die Lizenz-Erneuerungen auf Email-Adressen, die "
+"beim ursprünglichen Kauf der Lizenz verwendet wurden. Das verhindert, dass "
+"Lizenzschlüssel von einem anderen Kunden als dem ursprünglichen Käufer "
+"erneuert werden können."
 
 #: includes/admin/settings.php:109
 msgid ""
 "Enter a discount amount as a percentage, such as 10. Or enter 0 for no "
 "discount."
 msgstr ""
-"Entrez un pourcentage pour la remise, par exemple 10. Ou 0 pour ne pas faire "
-"de remise."
+"Gib einen Rabattpreis in Prozentangabe ein, wie zum Beispiel 10. Oder gib 0 "
+"ein, wenn du keinen Rabatt gewähren möchtest."
 
 #: includes/admin/settings.php:112
 msgid "When is this renewal discount used?"
-msgstr ""
+msgstr "Wann wird der Erneuerungsrabatt angewendet?"
 
 #: includes/admin/settings.php:117
 msgid "Disable Discount Codes on Renewals"
-msgstr ""
+msgstr "Rabatt-Codes für Erneuerungen deaktivieren"
 
 #: includes/admin/settings.php:118
 msgid ""
 "Check this box if you want to prevent customers from using non-renewal "
 "discounts in conjunction with renewals."
 msgstr ""
+"Markiere dieses Feld, wenn du vermeiden möchtest, dass Kunden Rabatte für "
+"Nicht-Erneuerungen in Verbindungen mit Erneuerungen nutzen."
 
 #: includes/admin/settings.php:120
 msgid "Disable Discount Codes"
-msgstr ""
+msgstr "Rabatt-Codes deaktivieren"
 
 #: includes/admin/settings.php:121
 msgid ""
 "This will disable the option to redeem discount codes when the cart contains "
 "a license renewal."
 msgstr ""
+"Dies wird die Option deaktivieren, Rabatt-Codes einlösen zu können während "
+"sich eine Lizenz-Erneuerung im Einkaufswagen befindet."
 
 #: includes/admin/settings.php:125
 msgid "Send Renewal Reminders"
-msgstr "Envoyer des rappels de renouvellement"
+msgstr "Erneuerungsbenachrichtigungen versenden"
 
 #: includes/admin/settings.php:126
 msgid ""
 "Check this box if you want customers to receive a renewal reminder when "
 "their license key is about to expire."
 msgstr ""
-"Cochez cette case si vous voulez que vos clients soient en mesure de "
-"renouveler leurs clés de licence avant qu&rsquo;elles n&rsquo;expirent."
+"Markiere dieses Feld, wenn Kunden eine Erneuerungsbenachrichtigung erhalten "
+"sollen, sobald ihr Lizenzschlüssel kurz vor dem Ablaufen steht."
 
 #: includes/admin/settings.php:128
 msgid "What are Renewal Reminders?"
-msgstr ""
+msgstr "Was sind Erneuerungsbenachrichtigungen?"
 
 #: includes/admin/settings.php:133
 msgid "Renewal Notices"
-msgstr "Rappels de renouvellement"
+msgstr "Erneuerungsbenachrichtigungen"
 
 #: includes/admin/settings.php:134
 msgid "Configure the renewal notice emails"
-msgstr "Configurer les e-mails de rappel de renouvellement"
+msgstr "Konfigurieren der Emails zur Erneuerungsbenachrichtigung"
 
 #: includes/admin/settings.php:164
 msgid "Subject"
-msgstr "Sujet"
+msgstr "Betreff"
 
 #: includes/admin/settings.php:165
 msgid "Send Period"
-msgstr "Période d&rsquo;envoi"
+msgstr "Sendezeitraum"
 
 #: includes/admin/settings.php:176
 msgid "Clone"
-msgstr ""
+msgstr "Vervielfältigen"
 
 #: includes/admin/settings.php:227 includes/admin/settings.php:263
 #: includes/admin/settings.php:318 includes/admin/settings.php:377
 msgid "You do not have permission to add renewal notices"
 msgstr ""
-"Il semblerait que vous n&rsquo;ayez pas l&rsquo;autorisation d&rsquo;ajouter "
-"de rappels de renouvellement"
+"Dir fehlt die Berechtigung, um Erneuerungsbenachrichtigungen hinzuzufügen"
 
 #: includes/admin/settings.php:236
 msgid "Copy"
-msgstr ""
+msgstr "Kopieren"
 
 #: includes/admin/settings.php:270 includes/admin/settings.php:329
 #: includes/admin/upgrades.php:331 includes/classes/class-sl-emails.php:81
 #: includes/license-renewals.php:74 includes/license-renewals.php:122
 msgid "Your License Key is About to Expire"
-msgstr "Votre licence est sur le point d&apos;expirer"
+msgstr "Dein Lizenzschlüssel läuft in Kürze ab"
 
 #: includes/admin/settings.php:326 includes/admin/settings.php:385
 msgid "No renewal notice ID was provided"
-msgstr "Aucune ID de rappel de renouvellement n&rsquo;a été fournie"
+msgstr "Es steht keine ID zur Erneuerungsbenachrichtigung zur Verfügung"
 
 #: includes/admin/upgrades.php:9
 msgid "EDD SL Upgrades"
-msgstr "Mises à jour EDD SL"
+msgstr "EDD SL Upgrades"
 
 #: includes/admin/upgrades.php:9
 msgid "EDD Upgrades"
-msgstr "Mises à jour EDD"
+msgstr "EDD Upgrades"
 
 #: includes/admin/upgrades.php:26
 msgid "Software Licensing - Upgrades"
-msgstr "Software Licensing - Mises à jour"
+msgstr "Software Licensing - Upgrades"
 
 #: includes/admin/upgrades.php:28
 msgid ""
 "The upgrade process is running, please be patient. This could take several "
 "minutes to complete while license keys are upgraded in batches of 100."
 msgstr ""
-"La procédure de mise à jour est en cours, veuillez patienter. Cela peut "
-"prendre plusieurs minutes car les clés de licence sont mises à jour par lot "
-"de 100."
+"Der Upgrade-Prozess wird ausgeführt, bitte habe etwas Geduld. Der Vorgang "
+"kann einige Minuten dauern, während die Lizenzschlüssel in Chargen von 100 "
+"erweitert werden."
 
 #: includes/admin/upgrades.php:29
 #, php-format
 msgid "Step %d of approximately %d running"
-msgstr "Étape %d sur environ %d en cours"
+msgstr "Schritt %d von voraussichtlich %d wird ausgeführt"
 
 #: includes/admin/upgrades.php:58 includes/admin/upgrades.php:65
 #, php-format
@@ -1627,8 +1748,8 @@ msgid ""
 "The License Keys in Easy Digital Downloads needs to be upgraded, click <a "
 "href=\"%s\">here</a> to start the upgrade."
 msgstr ""
-"Les clés de licence dans Easy Digital Downloads doivent être mises à jour, "
-"<a href=\"%s\">cliquez ici</a> pour lancer la mise à jour."
+"Die Lizenzschlüssel für Easy Digital Downloads müssen durch ein Upgrade "
+"erweitert werden, klicke <a href=\"%s\"> hier </a> um das Upgrade zu starten."
 
 #: includes/admin/upgrades.php:72
 #, php-format
@@ -1636,17 +1757,18 @@ msgid ""
 "The renewal notices in Easy Digital Downloads needs to be upgraded, click <a "
 "href=\"%s\">here</a> to start the upgrade."
 msgstr ""
-"Les rappels de renouvellement de Easy Digital Downloads doivent être mise à "
-"jour, cliquez <a href=\"%s\">ici</a> pour lancer la mise à jour."
+"Die Erneuerungsbenachrichtigungen für Easy Digital Downloads müssen durch "
+"ein Upgrade erweitert werden, klicke <a href=\"%s\"> hier </a> um das "
+"Upgrade zu starten."
 
 #: includes/admin/upgrades.php:83
 msgid ""
 "Easy Digital Downloads - Software Licensing now supports Bundle Licenses. "
 "This is an opt-in upgrade, so please choose one of the following:"
 msgstr ""
-"Easy Digital Downloads - Software Licensing prend désormais en charge les "
-"licences de bundle. Ceci est une mise à niveau de l&rsquo;opt-in, donc "
-"s&rsquo;il vous plaît veuillez choisir une des options suivantes :"
+"Die Easy Digital Downloads Software Licensing unterstützen nun auch "
+"gebündelte Lizenzen. Dies ist ein optionales Upgrade, wähle also bitte eine "
+"der folgenden Möglichkeiten:"
 
 #: includes/admin/upgrades.php:85
 #, php-format
@@ -1654,13 +1776,13 @@ msgid ""
 "If you want to read more on this new feature, <a href=\"%s\" target=\"_blank"
 "\">click here</a>."
 msgstr ""
-"Si vous voulez en savoir plus sur cette nouvelle fonctionnalité, <a href=\"%s"
-"\" target=\"_blank\">cliquez ici</a>."
+"Wenn du mehr über dieses neue Feature erfahren möchtest, <a href=\"%s\" "
+"target=\"_blank\">klicke hier</a>."
 
 #: includes/admin/upgrades.php:88
 #, php-format
 msgid "<li>Make <a href=\"%s\">no changes</a></li>"
-msgstr "<li>Ne faire <a href=\"%s\">aucune modification</a></li>"
+msgstr "<li>Nimm <a href=\"%s\">keine Änderungen vor </a></li>"
 
 #: includes/admin/upgrades.php:89
 msgid ""
@@ -1668,19 +1790,19 @@ msgid ""
 "onClick=\"jQuery('#generate-licenses-button-wrapper').toggle(); return false;"
 "\">generate licenses for bundles with Licensing enabled</a>.</li>"
 msgstr ""
-"<li> Après l&rsquo;activation des licences pour le bundle de votre choix, <a "
-"href=\"#\" onClick=\"jQuery(&rsquo;#generate-licenses-button-wrapper&rsquo;)."
-"toggle(); return false;\">générer des licences pour les bundles avec des "
-"licences activées</a>.</li>"
+"Sobald du das Lizensieren für die gewünschten Bündel aktiviert hast, <a href="
+"\"#\" onClick=\"jQuery('#generate-licenses-button-wrapper').toggle(); return "
+"false;\">generiere gebündelte, aktivierte Lizenzen </a>.</li>"
 
 #: includes/admin/upgrades.php:93
 msgid ""
 "Before clicking this button, verify that all bundles you want to generate "
 "licenses for have Licensing enabled, and their license length is correct."
 msgstr ""
-"Avant de cliquer sur ce bouton, vérifiez que tous les bundles dont vous "
-"voulez générer des licences ont bien leurs licences d&rsquo;activées, et "
-"leurs durées de validité correctes."
+"Bevor du auf diesen Button klickst, stelle sicher, dass all die von dir "
+"ausgewählten und gebündelten Lizenzen, die Lizenzen generieren sollen, das "
+"Lizensieren aktiviert haben. Zudem muss ihr Lizensierungszeitraum korrekt "
+"eingestellt sein."
 
 #: includes/admin/upgrades.php:94
 #, php-format
@@ -1689,7 +1811,7 @@ msgstr "<a href=\"%s\" class=\"button-primary\">"
 
 #: includes/admin/upgrades.php:95
 msgid "Generate Bundle Licenses"
-msgstr "Générer les licences bundle"
+msgstr "Gebündelte Lizenzen generieren"
 
 #: includes/admin/upgrades.php:103
 #, php-format
@@ -1697,42 +1819,41 @@ msgid ""
 "The Software Licensing post meta needs to be upgraded, click <a href=\"%s"
 "\">here</a> to start the upgrade."
 msgstr ""
+"Die Software Licensing Post Meta benötigt ein Upgrade, klicke <a href=\"%s"
+"\">hier</a> um das Upgrade zu starten."
 
 #: includes/admin/upgrades.php:415 includes/admin/upgrades.php:599
 msgid "You do not have permission to do shop upgrades"
-msgstr ""
-"Vous n&rsquo;avez pas l&rsquo;autorisation de faire des mises à jour dans la "
-"boutique."
+msgstr "Dir fehlt die Berechtigung, um Upgrades einzukaufen"
 
 #: includes/classes/class-sl-changelog-widget.php:38
 msgid "EDD Software Licensing Changelog"
-msgstr "Notes de version d&rsquo;EDD Software Licensing"
+msgstr "EDD Software Licensing Changelog"
 
 #: includes/classes/class-sl-changelog-widget.php:43
 msgid "Display the changelog for a specific download."
-msgstr ""
-"Afficher le journal des modifications pour un téléchargement spécifique."
+msgstr "Das Changelog eines bestimmten Download anzeigen."
 
 #: includes/classes/class-sl-changelog-widget.php:49
 msgid "Changelog"
-msgstr "Notes de version"
+msgstr "Changelog"
 
 #: includes/classes/class-sl-changelog-widget.php:168
 msgid "Title:"
-msgstr "Titre :"
+msgstr "Titel:"
 
 #: includes/classes/class-sl-changelog-widget.php:172
 msgid "Show changelog for:"
-msgstr "Afficher les notes de version pour :"
+msgstr "Zeige Changelog für:"
 
 #: includes/classes/class-sl-changelog-widget.php:174
 #, php-format
 msgid "Current %s"
-msgstr "%s actuel"
+msgstr "Aktuell %s"
 
 #: includes/classes/class-sl-emails.php:13
 msgid "Show all purchased licenses"
-msgstr "Afficher toutes les licences achetées"
+msgstr "Alle erworbenen Lizenzen anzeigen"
 
 #: includes/classes/class-sl-emails.php:78
 msgid ""
@@ -1749,49 +1870,49 @@ msgid ""
 "\n"
 "Renew now: {renewal_link}."
 msgstr ""
-"Bonjour {name},\n"
+"Hallo {name},\n"
 "\n"
-"Votre clé de licence pour {product_name} est sur le point d&rsquo;expirer.\n"
+"Dein Lizenzschlüssel für {product_name} ist kurz davor abzulaufen.\n"
 "\n"
-"Si vous souhaitez renouveler votre licence, cliquez sur le lien ci-dessous "
-"et suivez les instructions.\n"
+"Wenn du deine Lizenz erneuern möchtest, klicke auf den unten stehenden Link "
+"und folge den Anweisungen.\n"
 "\n"
-"Votre licence expire le : {expiration}.\n"
+"Deine Lizenz läuft bis: {expiration}.\n"
 "\n"
-"Votre clé de licence est : {license_key}.\n"
+"Dein ablaufender Lizenzschlüssel lautet: {license_key}.\n"
 "\n"
-"Renouvelez maintenant : {renewal_link}."
+"Jetzt erneuern: {renewal_link}."
 
 #: includes/classes/class-sl-emails.php:107
 msgid "LOG - Renewal Notice Sent"
-msgstr "LOG - Rappels de renouvellement envoyés"
+msgstr "LOG - Erneuerungs-Meldung verschickt"
 
 #: includes/classes/class-sl-emails.php:151
 #, php-format
 msgid "expired %s ago"
-msgstr ""
+msgstr "abgelaufen vor %s"
 
 #: includes/classes/class-sl-emails.php:153
 #, php-format
 msgid "expires in %s"
-msgstr ""
+msgstr "läuft ab in %s"
 
 #: includes/classes/class-sl-license.php:969
 msgid "Renew this license"
-msgstr "Renouveler cette licence"
+msgstr "Lizenz erneuern"
 
 #: includes/classes/class-sl-license.php:969
 msgid "renew now"
-msgstr "renouveler maintenant"
+msgstr "jetzt erneuern"
 
 #: includes/classes/class-sl-package-download.php:61
 msgid "Invalid token supplied"
-msgstr "Jeton fournis invalide"
+msgstr "Ungültiges Zeichen wurde übermittelt"
 
 #: includes/classes/class-sl-package-download.php:72
 #: includes/classes/class-sl-package-download.php:180
 msgid "Invalid license supplied"
-msgstr "Licence fournie non valide"
+msgstr "Ungültige Lizenz wurde übermittelt"
 
 #: includes/classes/class-sl-package-download.php:84
 #, php-format
@@ -1799,295 +1920,294 @@ msgid ""
 "Your license has expired, please <a href=\"%s\" title=\"Renew your license"
 "\">renew it</a> to install this update."
 msgstr ""
-"Votre licence est arrivée à expiration, veuillez <a href=\"%s\" title="
-"\"Renouveler votre licence\">la renouveler</a> pour installer cette mise à "
-"jour."
+"Deine Lizenz ist abgelaufen, bitte <a href=\"%s\" title=\"Renew your license"
+"\">erneuere sie </a> um dieses Upgrade zu installieren."
 
 #: includes/classes/class-sl-package-download.php:88
 msgid ""
 "Your license has not been activated for this domain, please activate it "
 "first."
 msgstr ""
-"Cette licence n&rsquo;a pas été activée pour ce domaine, veuillez l&rsquo;"
-"activer."
+"Deine Lizenz wurde für diese Domain nicht aktiviert, bitte schalte sie "
+"zunächst frei."
 
 #: includes/classes/class-sl-package-download.php:91
 msgid "Your license has been disabled."
-msgstr "Votre licence a été désactivée."
+msgstr "Deine Lizenz wurde deaktiviert."
 
 #: includes/classes/class-sl-package-download.php:96
 msgid "Your license could not be validated."
-msgstr "Votre licence n&rsquo;a pas pu être validée."
+msgstr "Die Gültigkeit deiner Lizenz konnte nicht bestätigt werden."
 
 #: includes/classes/class-sl-package-download.php:109
 msgid "Provided hash does not validate."
-msgstr "Le hash fourni n&rsquo;est pas valide."
+msgstr "Die Gültigkeit des Hash konnte nicht bestätigt werden."
 
 #: includes/classes/class-sl-package-download.php:172
 msgid "Your download link has expired"
-msgstr "Votre lien de téléchargement a expiré."
+msgstr "Dein Download-Link ist abgelaufen"
 
 #: includes/classes/class-sl-package-download.php:176
 msgid "No license key provided"
-msgstr "Aucune licence n&rsquo;a été trouvée"
+msgstr "Kein Lizenzschlüssel vorhanden"
 
 #: includes/classes/class-sl-package-download.php:308
 msgid "You do not have permission to download this file"
-msgstr "Vous n&rsquo;avez pas l&rsquo;autorisation de télécharger ce fichier"
+msgstr "Dir fehlt die Berechtigung, um diese Datei herunterzuladen"
 
 #: includes/classes/class-sl-package-download.php:344
 msgid ""
 "You do not have permission to download this file. An invalid hash was "
 "provided."
 msgstr ""
-"Vous n&rsquo;avez pas l&rsquo;autorisation de télécharger ce fichier. Un "
-"hash non valide a été fourni."
+"Dir fehlt die Berechtigung, um diese Datei herunterzuladen. Es wurde ein "
+"ungültiger Hash eingegeben."
 
 #: includes/errors.php:22
 msgid ""
 "This license is at its activation limit. Deactivate a site before adding a "
 "new one."
 msgstr ""
-"Cette licence est arrivée à sa limite d&rsquo;activation. Désactivez un site "
-"avant d&rsquo;en ajouter un nouveau."
+"Die Lizenz befindet sich an ihrer Aktivierungsgrenze. Deaktiviere eine "
+"Seite, bevor du eine neue hinzufügst."
 
 #: includes/errors.php:26
 msgid "There was an error adding your site. Please try again."
 msgstr ""
+"Es gab einen Fehler beim Hinzufügen deiner Seite. Bitte versuche es noch "
+"einmal."
 
 #: includes/errors.php:32
 msgid "Error:"
-msgstr "Erreur :"
+msgstr "Fehler:"
 
 #: includes/license-renewals.php:27
 msgid "One day before expiration"
-msgstr "Un jour avant l&rsquo;expiration"
+msgstr "Einen Tag vor Ablaufdatum"
 
 #: includes/license-renewals.php:28
 msgid "Two days before expiration"
-msgstr "Deux jours avant l&rsquo;expiration"
+msgstr "Zwei Tage vor Ablaufdatum"
 
 #: includes/license-renewals.php:29
 msgid "Three days before expiration"
-msgstr "Trois jours avant l&rsquo;expiration"
+msgstr "Drei Tage vor Ablaufdatum"
 
 #: includes/license-renewals.php:30
 msgid "One week before expiration"
-msgstr "Une semaine avant l&rsquo;expiration"
+msgstr "Eine Woche vor Ablaufdatum"
 
 #: includes/license-renewals.php:31
 msgid "Two weeks before expiration"
-msgstr "Deux semaines avant l&rsquo;expiration"
+msgstr "Zwei Wochen vor Ablaufdatum"
 
 #: includes/license-renewals.php:32
 msgid "One month before expiration"
-msgstr "Un mois avant l&rsquo;expiration"
+msgstr "Einen Monat vor Ablaufdatum"
 
 #: includes/license-renewals.php:33
 msgid "Two months before expiration"
-msgstr "Deux mois avant l&rsquo;expiration"
+msgstr "Zwei Monate vor Ablaufdatum"
 
 #: includes/license-renewals.php:34
 msgid "Three months before expiration"
-msgstr "Trois mois avant l&rsquo;expiration"
+msgstr "Drei Monate vor Ablaufdatum"
 
 #: includes/license-renewals.php:35
 msgid "At the time of expiration"
-msgstr "À la fin de l&rsquo;expiration"
+msgstr "Zeitpunkt des Ablaufdatums"
 
 #: includes/license-renewals.php:36
 msgid "One day after expiration"
-msgstr "Un jour après l&rsquo;expiration"
+msgstr "Einen Tag nach Ablaufdatum"
 
 #: includes/license-renewals.php:37
 msgid "Two days after expiration"
-msgstr "Deux jours après l&rsquo;expiration"
+msgstr "Zwei Tage nach Ablaufdatum"
 
 #: includes/license-renewals.php:38
 msgid "Three days after expiration"
-msgstr "Trois jours après l&rsquo;expiration"
+msgstr "Drei Tage nach Ablaufdatum"
 
 #: includes/license-renewals.php:39
 msgid "One week after expiration"
-msgstr "Une semaine après l&rsquo;expiration"
+msgstr "Eine Woche nach Ablaufdatum"
 
 #: includes/license-renewals.php:40
 msgid "Two weeks after expiration"
-msgstr "Deux semaines après l&rsquo;expiration"
+msgstr "Zwei Wochen nach Ablaufdatum"
 
 #: includes/license-renewals.php:41
 msgid "One month after expiration"
-msgstr "Un mois après l&rsquo;expiration"
+msgstr "Einen Monat nach Ablaufdatum"
 
 #: includes/license-renewals.php:42
 msgid "Two months after expiration"
-msgstr "Deux mois après l&rsquo;expiration"
+msgstr "Zwei Monate nach Ablaufdatum"
 
 #: includes/license-renewals.php:43
 msgid "Three months after expiration"
-msgstr "Trois mois après l&rsquo;expiration"
+msgstr "Drei Monate nach Ablaufdatum"
 
 #: includes/license-renewals.php:149
 msgid ""
 "Renewing a license key? <a href=\"#\" id=\"edd_sl_show_renewal_form\">Click "
 "to renew an existing license</a>"
 msgstr ""
-"Besoin de renouveler une licence ? <a href=\"#\" id="
-"\"edd_sl_show_renewal_form\">Cliquez ici pour renouveler une licence "
-"existante</a>"
+"Lizenz erneuern? <a href=\"#\" id=\"edd_sl_show_renewal_form\">Hier klicken "
+"zum Erneuern einer bestehenden Lizenz</a>"
 
 #: includes/license-renewals.php:152
 msgid ""
 "Enter the license key you wish to renew. Leave blank to purchase a new one."
 msgstr ""
-"Entrez la clé de licence que vous désirez renouveler. Laissez vide pour en "
-"acheter une nouvelle."
+"Bitte den Lizenzschlüssel eingeben, der erneuert werden soll. Leer lassen, "
+"um eine neue Lizenz zu erwerben."
 
 #: includes/license-renewals.php:153
 #: samples/edd-sample-plugin/edd-sample-plugin.php:76
 msgid "Enter your license key"
-msgstr "Entrez votre clé de licence"
+msgstr "Lizenzschlüssel eingeben"
 
 #: includes/license-renewals.php:157
 msgid "Apply License Renewal"
-msgstr "Appliquer le renouvellement de licence"
+msgstr "Lizenz-Erneuerung durchführen"
 
 #: includes/license-renewals.php:162
 msgid "You may renew multiple license keys at once."
-msgstr "Vous pouvez renouveler de multiple clés en une seule fois."
+msgstr "Du kannst mehrere Lizenzschlüssel gleichzeitig erneuern."
 
 #: includes/license-renewals.php:176
 msgid "Cancel License Renewal"
-msgstr "Annuler le renouvellement de licence"
+msgstr "Lizenz-Erneuerung abbrechen"
 
 #: includes/license-renewals.php:239
 #, php-format
 msgid "The specified email is not authorized to renew license %s."
 msgstr ""
+"Diese spezifische Email ist nicht für die Lizenz-Erneuerung autorisiert %s."
 
 #: includes/license-renewals.php:283
 msgid "No license ID supplied or invalid key provided"
 msgstr ""
-"Aucune ID de licence n&rsquo;a été fournie ou la clé n&rsquo;est pas valide."
+"Es wurde keine Lizenz ID übermittelt oder ein ungültiger Schlüssel eingegeben"
 
 #: includes/license-renewals.php:290
 msgid "The purchase record for this license is not marked as complete"
-msgstr ""
-"Le journal d&rsquo;achat de cette licence n'est pas marqué comme terminé."
+msgstr "Der Kaufvorgang für diese Lizenz wurde als unvollständig markiert"
 
 #: includes/license-renewals.php:294
 msgid "The supplied license has been disabled and cannot be renewed"
-msgstr "La licence fournie a été désactivée et ne peut être renouvelée."
+msgstr "Die gelieferte Lizenz wurde deaktiviert und kann nicht erneuert werden"
 
 #: includes/license-renewals.php:298
 msgid "The download for this license is not published"
-msgstr "Le téléchargement de cette licence n'est pas publié."
+msgstr "Der Download dieser Lizenz ist nicht veröffentlicht"
 
 #: includes/license-renewals.php:318
 msgid "There does not appear to be a download ID attached to this license key"
 msgstr ""
-"Il semblerait qu'il n&rsquo;y a pas d&rsquo;ID de téléchargement attaché à "
-"cette clé de licence."
+"Es scheint bei diesem Lizenzschlüssel keine Download-ID beigefügt zu sein"
 
 #: includes/license-renewals.php:336
 msgid "The download for this license is not in the cart or could not be added"
 msgstr ""
-"Le téléchargement de cette licence n&rsquo;est pas dans le panier ou ne peut "
-"y être ajouté."
+"Der Download dieser Lizenz befindet sich nicht im Einkaufswagen oder konnte "
+"nicht hinzugefügt werden"
 
 #: includes/license-renewals.php:360
 msgid "Something went wrong while attempting to apply the renewal"
-msgstr ""
-"Quelque chose s'est mal passé en essayant d&rsquo;appliquer le "
-"renouvellement."
+msgstr "Etwas ist bei der Ausführung der Erneuerung fehlgeschlagen"
 
 #: includes/license-renewals.php:377
 msgid "Renewing"
-msgstr ""
+msgstr "Erneuert"
 
 #: includes/license-renewals.php:819
 #, php-format
 msgid "License renewal discount: %s"
-msgstr ""
+msgstr "Rabatt zur Lizenzerneuerung: %s"
 
 #: includes/license-renewals.php:841
 msgid "Was renewal:"
-msgstr "A été renouvellée :"
+msgstr "Lizenzverlängerung:"
 
 #: includes/license-renewals.php:842
 msgid "Yes"
-msgstr "Oui"
+msgstr "Ja"
 
 #: includes/license-renewals.php:842
 msgid "No"
-msgstr "Non"
+msgstr "Nein"
 
 #: includes/license-renewals.php:903
 msgid "The customer's name"
-msgstr "Le nom du client"
+msgstr "Der Name des Kunden"
 
 #: includes/license-renewals.php:904
 msgid "The license key that needs renewed"
-msgstr "La clé de licence à renouveler"
+msgstr "Der zu erneuernde Lizenzschlüssel"
 
 #: includes/license-renewals.php:905
 msgid "The name of the product the license key belongs to"
-msgstr "Le nom du produit auquel cette clé de licence est attachée"
+msgstr "Name des Produktes, zu dem der Lizenzschlüssel gehört"
 
 #: includes/license-renewals.php:906
 msgid "The expiration date for the license key"
-msgstr "La date d&rsquo;expiration de la clé de licence"
+msgstr "Ablaufdatum des Lizenzschlüssels"
 
 #: includes/license-renewals.php:907
 msgid "URL to the renewal checkout page"
-msgstr "L&rsquo;URL vers la page de paiement du renouvellement"
+msgstr "URL für die Bezahlseite der Erneuerung"
 
 #: includes/license-renewals.php:908
 msgid "Raw URL of the renewal checkout page"
-msgstr ""
+msgstr "Original URL für die Bezahlseite der Erneuerung"
 
 #: includes/license-renewals.php:912
 msgid "The renewal discount, including the `%` symbol."
-msgstr "La remise de renouvellement, incluant le symbole de `%`."
+msgstr "Der Rabatt für die Erneuerung, inklusive des \"%\" Symbols."
 
 #: includes/license-upgrades.php:428
 msgid ""
 "Your license key is expired. It must be renewed before it can be upgraded."
 msgstr ""
-"Votre clé de licence est expirée. Elle doit être renouvelée avant de pouvoir "
-"être mise à niveau."
+"Dein Lizenzschlüssel ist abgelaufen. Es muss zunächst erneuert werden, bevor "
+"ein Upgrade durchgeführt werden kann."
 
 #: includes/license-upgrades.php:432
 msgid ""
 "License renewals and upgrades must be purchased separately. Please complete "
 "your license renewal before upgrading it."
 msgstr ""
+"Lizenzerneuerungen und Upgrades müssen getrennt erworben werden. Bitte "
+"beende zunächst die Lizenzerneuerung, bevor du das Upgrade startest."
 
 #: includes/license-upgrades.php:474
 msgid "<em>license upgrade</em>"
-msgstr "<em>mise à niveau de licence</em>"
+msgstr "<em>Lizenz Upgrade </em>"
 
 #: includes/license-upgrades.php:773
 #, php-format
 msgid "License upgraded from %s to %s"
-msgstr "Licence mise à  à niveau de %s en %s"
+msgstr "Lizenz wurde erweitert von %s bis %s"
 
 #: includes/license-upgrades.php:824
 msgid "Upgraded from"
-msgstr ""
+msgstr "Erweitert ab"
 
 #: includes/license-upgrades.php:836
 msgid "Upgraded to"
-msgstr ""
+msgstr "Erweitert bis"
 
 #: includes/license-upgrades.php:916
 msgid "Upgrade your existing license"
-msgstr ""
+msgstr "Deine bestehende Lizenz upgraden"
 
 #: includes/license-upgrades.php:920
 #, php-format
 msgid "Upgrade license ending in %s"
-msgstr ""
+msgstr "Die in %s endende Lizenz upgraden"
 
 #: includes/misc-functions.php:33
 msgid ""
@@ -2095,48 +2215,51 @@ msgid ""
 "Software Licensing 2.4.8! Use edd_software_licensing-"
 ">get_site_count( $license_id ) instead."
 msgstr ""
+"Die _edd_sl_site_count Post-Meta ist <strong>veraltet</strong> seit EDD "
+"Software Licensing 2.4.8! Verwende stattdessen edd_software_licensing-"
+">get_site_count( $license_id )."
 
 #: includes/post-types.php:22
 msgctxt "post type general name"
 msgid "Licenses"
-msgstr "Licences"
+msgstr "Lizenzen"
 
 #: includes/post-types.php:23
 msgctxt "post type singular name"
 msgid "License"
-msgstr "Licence"
+msgstr "Lizenz"
 
 #: includes/post-types.php:24
 msgid "Add New"
-msgstr "Ajouter"
+msgstr "Neu hinzufügen"
 
 #: includes/post-types.php:25
 msgid "Add New License"
-msgstr "Ajouter une nouvelle licence"
+msgstr "Neue Lizenz hinzufügen"
 
 #: includes/post-types.php:26
 msgid "Edit License"
-msgstr "Modifier la licence"
+msgstr "Lizenz bearbeiten"
 
 #: includes/post-types.php:27
 msgid "New License"
-msgstr "Ajouter une licence"
+msgstr "Neue Lizenz"
 
 #: includes/post-types.php:29
 msgid "View License"
-msgstr "Afficher la licence"
+msgstr "Lizenz ansehen"
 
 #: includes/post-types.php:30
 msgid "Search Licenses"
-msgstr "Rechercher des licences"
+msgstr "Lizenzen suchen"
 
 #: includes/post-types.php:31
 msgid "No Licenses found"
-msgstr "Aucune licence n&rsquo;a été trouvée"
+msgstr "Keine Lizenzen gefunden"
 
 #: includes/post-types.php:32
 msgid "No Licenses found in Trash"
-msgstr "Aucune licence n&rsquo;a été trouvée dans la corbeille"
+msgstr "Keine Lizenzen im Papierkorb gefunden"
 
 #: includes/post-types.php:74
 msgid "Version"
@@ -2144,69 +2267,71 @@ msgstr "Version"
 
 #: includes/readme.php:219
 msgid "The cache has been deleted."
-msgstr "Le cache a été supprimé."
+msgstr "Der Cache wurde gelöscht."
 
 #: includes/readme.php:223
 msgid ""
 "There was an error when deleting the cache. It may have already been deleted."
 msgstr ""
-"Une erreur s&rsquo;est produite lors de la suppression du cache. Il se peut "
-"qu&rsquo;il ai déjà été supprimé."
+"Beim Löschen des Caches ist ein Fehler aufgetreten. Eventuell wurde er schon "
+"gelöscht."
 
 #: includes/readme.php:231
 #, php-format
 msgid "the file has been cached. %sClear cached file%s"
-msgstr "le fichier a été mis en cache. %sSupprimer le fichier mis en cache%s"
+msgstr "die Datei wurde zwischengespeichert. %sGespeicherte Datei löschen%s"
 
 #: includes/readme.php:233
 msgid "the file is not cached."
-msgstr "le fichier n&rsquo;est pas en cache."
+msgstr "die Datei wurde nicht zwischengespeichert."
 
 #: includes/readme.php:237
 msgid "Cache:"
-msgstr "Cache :"
+msgstr "Cache:"
 
 #: includes/scripts.php:40
 msgid "Add Banner"
-msgstr ""
+msgstr "Banner hinzufügen"
 
 #: includes/scripts.php:41
 msgid "Use This Image"
-msgstr ""
+msgstr "Dieses Bild verwenden"
 
 #: includes/scripts.php:47
 msgid "Are you sure you wish to delete this license?"
-msgstr ""
+msgstr "Bist du sicher, dass du diese Lizenz löschen möchtest?"
 
 #: includes/scripts.php:51
 msgid "Cancel Renewal Notice"
-msgstr ""
+msgstr "Erneuerungsbenachrichtigung abbrechen"
 
 #: includes/templates.php:24
 msgid "View Licenses"
-msgstr "Voir les licences"
+msgstr "Lizenzen anzeigen"
 
 #: includes/templates.php:109
 msgid "License Keys:"
-msgstr "Clés de licence :"
+msgstr "Lizenzschlüssel:"
 
 #: includes/templates.php:119
 msgid "expired"
-msgstr "expirée"
+msgstr "abgelaufen"
 
 #: includes/templates.php:121
 msgid "revoked"
-msgstr "révoquée"
+msgstr "widerrufen"
 
 #: includes/templates.php:129
 msgid "none"
-msgstr "aucune"
+msgstr "keine"
 
 #: samples/edd-sample-plugin/EDD_SL_Plugin_Updater.php:201
 #, php-format
 msgid ""
 "There is a new version of %1$s available. %2$sView version %3$s details%4$s."
 msgstr ""
+"Eine neue Version von %1$s ist verfügbar. %2$s Versionsdetails %3$s ansehen "
+"%4$s."
 
 #: samples/edd-sample-plugin/EDD_SL_Plugin_Updater.php:209
 #, php-format
@@ -2214,31 +2339,31 @@ msgid ""
 "There is a new version of %1$s available. %2$sView version %3$s details%4$s "
 "or %5$supdate now%6$s."
 msgstr ""
+"Eine neue Version von %1$s ist verfügbar. %2$sVersionsdetails %3$s ansehen"
+"%4$s oder %5$sjetzt aktualisieren %6$s."
 
 #: samples/edd-sample-plugin/EDD_SL_Plugin_Updater.php:376
 msgid "You do not have permission to install plugin updates"
-msgstr ""
-"Vous n&rsquo;avez pas l&rsquo;autorisation d&rsquo;installer les mises à "
-"jour de l&rsquo;extension"
+msgstr "Dir fehlt die Berechtigung, um Plugin Updates zu installieren"
 
 #: samples/edd-sample-plugin/edd-sample-plugin.php:63
 msgid "Plugin License Options"
-msgstr "Options de la licence de l&rsquo;extension"
+msgstr "Plugin Lizenzoptionen"
 
 #: samples/edd-sample-plugin/edd-sample-plugin.php:82
 #: samples/edd-sample-plugin/edd-sample-plugin.php:91
 #: samples/edd-sample-theme/updater/theme-updater.php:35
 msgid "Activate License"
-msgstr "Activer la licence"
+msgstr "Lizenz aktivieren"
 
 #: samples/edd-sample-plugin/edd-sample-plugin.php:86
 msgid "active"
-msgstr "licence active"
+msgstr "aktiv"
 
 #: samples/edd-sample-plugin/edd-sample-plugin.php:88
 #: samples/edd-sample-theme/updater/theme-updater.php:34
 msgid "Deactivate License"
-msgstr "Désactiver la licence"
+msgstr "Lizenz deaktivieren"
 
 #: samples/edd-sample-plugin/edd-sample-plugin.php:155
 #: samples/edd-sample-plugin/edd-sample-plugin.php:202
@@ -2247,116 +2372,115 @@ msgstr "Désactiver la licence"
 #: samples/edd-sample-theme/updater/theme-updater-admin.php:318
 #: samples/edd-sample-theme/updater/theme-updater-admin.php:371
 msgid "An error occurred, please try again."
-msgstr ""
+msgstr "Ein Fehler ist aufgetreten, bitte versuche es noch einmal."
 
 #: samples/edd-sample-plugin/edd-sample-plugin.php:169
 #: samples/edd-sample-theme/updater/theme-updater-admin.php:285
 #, php-format
 msgid "Your license key expired on %s."
-msgstr ""
+msgstr "Dein Lizenzschlüssel ist am %s abgelaufen."
 
 #: samples/edd-sample-plugin/edd-sample-plugin.php:176
 #: samples/edd-sample-theme/updater/theme-updater-admin.php:292
 msgid "Your license key has been disabled."
-msgstr ""
+msgstr "Dein Lizenzschlüssel wurde deaktiviert."
 
 #: samples/edd-sample-plugin/edd-sample-plugin.php:181
 #: samples/edd-sample-theme/updater/theme-updater-admin.php:297
 msgid "Invalid license."
-msgstr ""
+msgstr "Ungültige Lizenz."
 
 #: samples/edd-sample-plugin/edd-sample-plugin.php:187
 #: samples/edd-sample-theme/updater/theme-updater-admin.php:303
 msgid "Your license is not active for this URL."
-msgstr ""
+msgstr "Deine Lizenz ist für diese URL nicht aktiviert."
 
 #: samples/edd-sample-plugin/edd-sample-plugin.php:192
 #: samples/edd-sample-theme/updater/theme-updater-admin.php:308
 #, php-format
 msgid "This appears to be an invalid license key for %s."
-msgstr ""
+msgstr "Dies scheint ein ungültiger Lizenzschlüssel für %s zu sein."
 
 #: samples/edd-sample-plugin/edd-sample-plugin.php:197
 #: samples/edd-sample-theme/updater/theme-updater-admin.php:313
 msgid "Your license key has reached its activation limit."
-msgstr ""
+msgstr "Dein Lizenzschlüssel hat die Aktivierungsgrenze erreicht."
 
 #: samples/edd-sample-theme/updater/theme-updater.php:30
 msgid "Theme License"
-msgstr "Licence du thème"
+msgstr "Theme Lizenz"
 
 #: samples/edd-sample-theme/updater/theme-updater.php:31
 msgid "Enter your theme license key."
-msgstr "Entrez votre clé de licence du thème."
+msgstr "Gib deinen Theme Lizenzschlüssel ein."
 
 #: samples/edd-sample-theme/updater/theme-updater.php:33
 msgid "License Action"
-msgstr "Action sur la licence"
+msgstr "Lizenz Vorgang"
 
 #: samples/edd-sample-theme/updater/theme-updater.php:36
 #: samples/edd-sample-theme/updater/theme-updater.php:49
 msgid "License status is unknown."
-msgstr "L&rsquo;état de la licence est inconnu."
+msgstr "Status der Lizenz ist unbekannt."
 
 #: samples/edd-sample-theme/updater/theme-updater.php:37
 msgid "Renew?"
-msgstr "Renouveler&nbsp;?"
+msgstr "Erneuern?"
 
 #: samples/edd-sample-theme/updater/theme-updater.php:38
 msgid "unlimited"
-msgstr "illimité"
+msgstr "unbegrenzt"
 
 #: samples/edd-sample-theme/updater/theme-updater.php:39
 msgid "License key is active."
-msgstr "La clé de licence est activée."
+msgstr "Lizenzschlüssel ist aktiviert."
 
 #: samples/edd-sample-theme/updater/theme-updater.php:40
 #, php-format
 msgid "Expires %s."
-msgstr "Expire le %s."
+msgstr "Läuft ab %s."
 
 #: samples/edd-sample-theme/updater/theme-updater.php:41
 msgid "Lifetime License."
-msgstr ""
+msgstr "Lebenslange Lizenz."
 
 #: samples/edd-sample-theme/updater/theme-updater.php:42
 #, php-format
 msgid "You have %1$s / %2$s sites activated."
-msgstr "Vous avez %1$s / %2$s sites activés."
+msgstr "Du hast %1$s / %2$s Seiten aktiviert."
 
 #: samples/edd-sample-theme/updater/theme-updater.php:43
 #, php-format
 msgid "License key expired %s."
-msgstr "La clé de licence expire le %s."
+msgstr "Lizenzschlüssel abgelaufen am %s."
 
 #: samples/edd-sample-theme/updater/theme-updater.php:44
 msgid "License key has expired."
-msgstr "La clé de licence est expirée."
+msgstr "Lizenzschlüssel ist abgelaufen."
 
 #: samples/edd-sample-theme/updater/theme-updater.php:45
 msgid "License keys do not match."
-msgstr "Les clés de licence ne correspondent pas."
+msgstr "Lizenzschlüssel stimmen nicht überein."
 
 #: samples/edd-sample-theme/updater/theme-updater.php:46
 msgid "License is inactive."
-msgstr "Le licence est inactivée."
+msgstr "Lizenz ist inaktiv."
 
 #: samples/edd-sample-theme/updater/theme-updater.php:47
 msgid "License key is disabled."
-msgstr "La clé de licence est désactivée."
+msgstr "Lizenzschlüssel ist deaktiviert."
 
 #: samples/edd-sample-theme/updater/theme-updater.php:48
 msgid "Site is inactive."
-msgstr "Le site est inactif."
+msgstr "Seite ist inaktiv."
 
 #: samples/edd-sample-theme/updater/theme-updater.php:50
 msgid ""
 "Updating this theme will lose any customizations you have made. 'Cancel' to "
 "stop, 'OK' to update."
 msgstr ""
-"Mettre à jour ce thème vous fera perdre toutes les modifications que vous y "
-"avez faites. &rsquo;Annuler&rsquo; pour arrêter. &rsquo;OK&rsquo; pour "
-"mettre à jour."
+"Bei der Aktualisierung dieses Themes gehen alle bisherigen Einstellungen "
+"verloren. Klicke \"Abbrechen\" um zu stoppen, \"OK\" um zu aktualisieren."
 
 #: samples/edd-sample-theme/updater/theme-updater.php:51
 #, php-format
@@ -2365,334 +2489,205 @@ msgid ""
 "title=\"%4s\">Check out what's new</a> or <a href=\"%5$s\"%6$s>update now</"
 "a>."
 msgstr ""
-"<strong>%1$s %2$s</strong> est disponible. <a href=\"%3$s\" class=\"thickbox"
-"\" title=\"%4s\">Découvrez quelles sont les nouveautés</a> ou <a href=\"%5$s"
-"\"%6$s>mettez à jour maintenant</a>."
+"<strong>%1$s %2$s</strong> ist verfügbar. <a href=\"%3$s\" class=\"thickbox"
+"\" title=\"%4s\">Finde heraus, was es Neues gibt</a> oder <a href=\"%5$s"
+"\"%6$s>aktualisiere jetzt</a>."
 
 #: templates/license-keys.php:15 templates/licenses-manage-overview.php:24
 msgid "Item"
-msgstr "Achat"
+msgstr "Produkt"
 
 #: templates/license-keys.php:39
 msgid "Bundle Licenses"
-msgstr ""
+msgstr "Gebündelte Lizenzen"
 
 #: templates/license-keys.php:71
 msgid "Expires:"
-msgstr "Expire le&nbsp;:"
+msgstr "Ablauf am:"
 
 #: templates/license-keys.php:73
 msgid "Never"
-msgstr "Jamais"
+msgstr "Nie"
 
 #: templates/license-keys.php:78
 msgid "Activations:"
-msgstr "Activations&nbsp;:"
+msgstr "Aktivierungen:"
 
 #: templates/license-keys.php:85
 msgid "Renew to manage sites"
-msgstr ""
+msgstr "Erneuern um Seiten zu verwalten"
 
 #: templates/license-keys.php:87
 msgid "Unable to manage sites"
-msgstr ""
+msgstr "Verwalten der Seiten nicht möglich"
 
 #: templates/license-keys.php:91 templates/licenses-manage-overview.php:78
 msgid "View Upgrades"
-msgstr "Afficher les mises à niveau"
+msgstr "Upgrades anzeigen"
 
 #: templates/license-keys.php:94 templates/licenses-manage-overview.php:80
 msgid "Renew to upgrade"
-msgstr "Renouveler pour mettre à niveau"
+msgstr "Erneuern um das Upgrade auszuführen"
 
 #: templates/license-keys.php:99 templates/licenses-manage-overview.php:66
 msgid "Renew license"
-msgstr "Renouveler la licence"
+msgstr "Lizenz erneuern"
 
 #: templates/license-keys.php:102 templates/licenses-manage-overview.php:69
 msgid "Extend license"
-msgstr "Prolonger la licence"
+msgstr "Lizenz erweitern"
 
 #: templates/license-keys.php:106
 msgid "View Purchase Record"
-msgstr "Afficher le journal de l&rsquo;achat"
+msgstr "Kaufvorgang ansehen"
 
 #: templates/license-keys.php:106
 #, php-format
 msgid "Purchase #%d"
-msgstr ""
+msgstr "Kauf #%d"
 
 #: templates/license-keys.php:119
 msgid "You currently have no licenses"
-msgstr ""
+msgstr "Du besitzt derzeit keine Lizenzen"
 
 #: templates/license-keys.php:126
 msgid "You must be logged in to view license keys."
-msgstr ""
+msgstr "Du musst angemeldet sein, um die Lizenzschlüssel sehen zu können."
 
 #: templates/licenses-manage-overview.php:14
 #: templates/licenses-manage-single.php:19 templates/licenses-upgrades.php:17
 msgid "Go back"
-msgstr "Retour"
+msgstr "Zurück"
 
 #: templates/licenses-manage-overview.php:27
 msgid "Activations"
-msgstr "Activations"
+msgstr "Aktivierungen"
 
 #: templates/licenses-manage-overview.php:28
 msgid "Expiration"
-msgstr "Expiration"
+msgstr "Ablaufdatum"
 
 #: templates/licenses-manage-overview.php:32
 msgid "Upgrades"
-msgstr "Mises à jour"
+msgstr "Upgrades"
 
 #: templates/licenses-manage-overview.php:51
 msgid "Click to view license key"
-msgstr "Cliquez pour voir la clé de licence"
+msgstr "Klicke, um den Lizenzschlüssel zu sehen"
 
 #: templates/licenses-manage-overview.php:82
 msgid "No upgrades available"
-msgstr "Aucune mise à niveau disponible"
+msgstr "Keine Upgrades verfügbar"
 
 #: templates/licenses-manage-overview.php:90
 msgid "There are no license keys for this purchase"
-msgstr "Cet achat n&rsquo;a pas de clé de licence"
+msgstr "Für diesen Kauf sind keine Lizenzschlüssel vorhanden"
 
 #: templates/licenses-manage-single.php:21
 msgid "Manage License"
-msgstr ""
+msgstr "Lizenz verwalten"
 
 #: templates/licenses-manage-single.php:47
 msgid "No sites have been activated for this license"
-msgstr "Cette licence n&rsquo;a été activée sur aucun site"
+msgstr "Bisher wurden diese Lizenz auf keiner Seite aktiviert"
 
 #: templates/licenses-manage-single.php:59
 msgid ""
 "Use this form to authorize a new site URL for this license. Enter the full "
 "site URL."
 msgstr ""
-"Utiliser ce formulaire pour ajouter un nouveau site pour cette licence. "
-"Entrez l&rsquo;adresse URL complète du site."
+"An dieser Stelle kannst du deiner Lizenz eine neue Seite hinzufügen. Bitte "
+"die komplette URL eingeben."
 
 #: templates/licenses-upgrades.php:24
 msgid "Upgrade Cost"
-msgstr "Coût de la mise à niveau"
+msgstr "Kosten upgraden"
 
 #: templates/licenses-upgrades.php:40
 msgid "Upgrade License"
-msgstr "Mettre à niveau le licence"
+msgstr "Lizenz upgraden"
 
 #: templates/licenses-upgrades.php:47
 msgid "No upgrades available for this license"
-msgstr "Aucune mise à niveau n&rsquo;disponible pour cette licence"
+msgstr "Für diese Lizenz stehen keine Upgrades zur Verfügung"
 
 #: tests/helpers/class-helper-payment.php:131
 #: tests/helpers/class-helper-payment.php:218
 #, php-format
 msgid "PayPal Transaction ID: %s"
-msgstr ""
-
-#~ msgid "Guest"
-#~ msgstr "Invité"
+msgstr "PayPal Transaktions-ID: %s"
 
 #~ msgid "View payment"
-#~ msgstr "Afficher le paiement"
+#~ msgstr "Zahlung anzeigen"
 
 #~ msgid "License Log"
-#~ msgstr "Journaux de la licence"
-
-#~ msgid "User"
-#~ msgstr "Utilisateur"
+#~ msgstr "Lizenz Protokoll"
 
 #~ msgid "Site Count"
-#~ msgstr "Nombre de sites"
-
-#~ msgid ""
-#~ "License keys for Payment ID <a href=\"%1$s\" target=\"_blank\">%2$s</a> "
-#~ "were successfully generated."
-#~ msgstr ""
-#~ "Les clés de licences pour le paiement n°<a href=\"%1$s\" target=\"_blank"
-#~ "\">%2$s</a> ont été générées avec succès."
+#~ msgstr "Seiten"
 
 #~ msgid "Active Sites for %s"
-#~ msgstr "Activer le site pour %s"
+#~ msgstr "Aktive Seiten für %s"
 
 #~ msgid "Enter the site URL including http://"
-#~ msgstr "Entrez l&rsquo;URL du site en incluant http://"
+#~ msgstr "Bitte die komplette URL inkl. http:// eingeben"
 
 #~ msgid "Edit Expiration for %s"
-#~ msgstr "Modifier l&rsquo;expiration pour %s"
+#~ msgstr "Ablaufdatum für %s bearbeiten"
 
 #~ msgid "Choose a new expiration date."
-#~ msgstr "Choisir une nouvelle date d&rsquo;expiration."
+#~ msgstr "Neues Ablaufdatum auswählen."
 
 #~ msgid "Lifetime License"
-#~ msgstr "Licence à vie"
+#~ msgstr "Lebenslange Lizenz"
 
 #~ msgid ""
 #~ "This license key is associated with the purchase of a bundled product. "
 #~ "Changing its expiration date will alter the expiration of all associated "
 #~ "license keys."
 #~ msgstr ""
-#~ "Cette clé de licence est associée à l&rsquo;achat d&rsquo;un bundle de "
-#~ "produit. La modification de la date d&rsquo;expiration va modifier celle "
-#~ "de toutes les clés de licence associés."
+#~ "Dieser Lizenzschlüssel ist mit dem Kauf eines Produkt-Bundles verknüpft. "
+#~ "Die Änderung des Ablaufdatums beeinflusst den Ablauf aller verknüpften "
+#~ "Lizenzschlüssel."
 
 #~ msgid "Update Expiration"
-#~ msgstr "Mettre l&rsquo;expiration à jour"
+#~ msgstr "Ablaufdatum aktualisieren"
+
+#~ msgid "License Activation Limit"
+#~ msgstr "Aktivierungslimit"
+
+#~ msgid "License keys being renewed:"
+#~ msgstr "Erneuerte Lizenzschlüssel:"
+
+#~ msgid "License renewal discount: %s - %s"
+#~ msgstr "Rabatt für Lizenz-Erneuerung: %s - %s"
+
+#~ msgid "Guest"
+#~ msgstr "Gast"
+
+#~ msgid "User"
+#~ msgstr "Benutzer"
 
 #~ msgid "One key was generated"
 #~ msgid_plural "%d keys were generated."
-#~ msgstr[0] "Une clé à été générée."
-#~ msgstr[1] "%d clés ont été générées."
-
-#~ msgid "One key was updated"
-#~ msgid_plural "%d keys were updated."
-#~ msgstr[0] "Une clé a été mise à jour."
-#~ msgstr[1] "%d clés ont été mises à jour."
-
-#~ msgid ""
-#~ "Expired license keys cannot be upgraded. Renew your license and then you "
-#~ "may upgrade it."
-#~ msgstr ""
-#~ "Les clés de licence expirées ne peuvent pas être mises à niveau. "
-#~ "Renouvelez votre licence et ensuite vous pourrez faire la mise à niveau."
-
-#~ msgid "<strong>Upgraded from:</strong> <a href=\"%s\">#%s</a>"
-#~ msgstr "<strong>Mettre à niveau de :</strong> <a href=\"%s\">#%s</a>"
-
-#~ msgid "<strong>Upgraded to:</strong> <a href=\"%s\">#%s</a>"
-#~ msgstr "<strong>Mettre à niveau vers :</strong> <a href=\"%s\">#%s</a>"
-
-#~ msgid ""
-#~ "Limit number of times this license can be activated. If using variable "
-#~ "prices, set the limit for each price option."
-#~ msgstr ""
-#~ "Limiter le nombre d&rsquo;activation possible pour cette licence. Si vous "
-#~ "utilisez des tarifs variables, définissez la limite pour chaque option de "
-#~ "prix."
-
-#~ msgid ""
-#~ "Generate missing licenses for purchases of this product that did not have "
-#~ "a key generated."
-#~ msgstr ""
-#~ "Générer les licences manquantes pour les achats de ce produit n&rsquo;"
-#~ "ayant pas encore de clés."
-
-#~ msgid "Generate Licenses Now"
-#~ msgstr "Générer les licences maintenant"
-
-#~ msgid "License Activation Limit"
-#~ msgstr "Limite d&rsquo;activation de licence"
+#~ msgstr[0] "Ein Lizenzschlüssel wurde erstellt"
+#~ msgstr[1] "%d Lizenzschlüssel wurden erstellt."
 
 #~ msgid "Verification failed"
-#~ msgstr "Échec de la vérification"
+#~ msgstr "Verifizierung fehlgeschlagen"
 
 #~ msgid "You do not have permission to perform this action"
-#~ msgstr "Vous n&rsquo;êtes pas autorisé à effectuer cette action."
-
-#~ msgid "License keys being renewed:"
-#~ msgstr "Clé de licence à renouveler :"
-
-#~ msgid "License renewal discount: %s - %s"
-#~ msgstr "Réduction pour le renouvellement : %s - %s"
-
-#~ msgid ""
-#~ "Check this box if your software is not tied to to URLs. If you sell "
-#~ "desktop software, check this."
-#~ msgstr ""
-#~ "Cochez cette case si votre logiciel n&rsquo;est pas lié à des URLs. Si "
-#~ "vous vendez des logiciels de bureau, cochez ceci."
-
-#~ msgid ""
-#~ "There is a new version of %1$s available. <a target=\"_blank\" class="
-#~ "\"thickbox\" href=\"%2$s\">View version %3$s details</a>."
-#~ msgstr ""
-#~ "Une nouvelle version de %1$s est disponible. <a target=\"_blank\" class="
-#~ "\"thickbox\" href=\"%2$s\">Afficher les détails de la version %3$s</a>."
-
-#~ msgid ""
-#~ "There is a new version of %1$s available. <a target=\"_blank\" class="
-#~ "\"thickbox\" href=\"%2$s\">View version %3$s details</a> or <a href=\"%4$s"
-#~ "\">update now</a>."
-#~ msgstr ""
-#~ "Une nouvelle version de %1$s est disponible. <a target=\"_blank\" class="
-#~ "\"thickbox\" href=\"%2$s\">Afficher les détails de la version %3$s</a> ou "
-#~ "<a href=\"%4$s\">mettre à jour automatiquement</a>."
+#~ msgstr "Du hast keine Berechtigung, um diese Aktion durchzuführen"
 
 #~ msgid "Purchase"
-#~ msgstr "Achat"
+#~ msgstr "Kaufen"
 
 #~ msgid "License check failed"
-#~ msgstr "Échec de la vérification de la licence"
+#~ msgstr "Lizenzprüfung fehlgeschlagen"
 
 #~ msgid ""
 #~ "Your license is expired. Please renew it or purchase a new one in order "
 #~ "to update this item."
 #~ msgstr ""
-#~ "Votre licence est expirée. Veuillez la renouveler ou faites un nouvel "
-#~ "achat pour mettre à jour cet article."
+#~ "Ihre Lizenz ist abgelaufen. Bitte erneuern oder eine neue Lizenz erwerben."
 
-#~ msgid "License is unable to be renewed due to payment status"
-#~ msgstr ""
-#~ "Impossible de renouveler la licence en raison de l&rsquo;état du paiement."
-
-#~ msgid "Invalid license key provided"
-#~ msgstr "La clé de licence fournie n&rsquo;est pas valide."
-
-#~ msgid "That license key appears to be invalid."
-#~ msgstr "Cette clé de licence semble être invalide."
-
-#~ msgid "Easy Digital Downloads - Software Licenses"
-#~ msgstr "Easy Digital Downloads - Software Licenses"
-
-#~ msgid "Adds a software licensing system to Easy Digital Downloads"
-#~ msgstr "Ajoute un système de licence à Easy Digital Downloads."
-
-#~ msgid "Pippin Williamson"
-#~ msgstr "Pippin Williamson"
-
-#~ msgid "http://pippinsplugins.com"
-#~ msgstr "http://pippinsplugins.com"
-
-#~ msgid "License key expired"
-#~ msgstr "Clé de licence expirée"
-
-#~ msgid ""
-#~ "Renewing a license key? <a href=\"%s\" id=\"edd_sl_show_renewal_form"
-#~ "\">Click to renew an existing license</a>"
-#~ msgstr ""
-#~ "Besoin de renouveler une licence ? <a href=\"%s\" id="
-#~ "\"edd_sl_show_renewal_form\">Cliquez ici pour renouveler une licence "
-#~ "existante</a>"
-
-#~ msgid ""
-#~ "You may only renewal one license at a time. Please remove all but one "
-#~ "item from your cart."
-#~ msgstr ""
-#~ "Vous ne pouvez renouveler qu'une seule licence à la fois. Veuillez ne "
-#~ "garder qu'un seul achat dans votre panier."
-
-#~ msgid "Renewal Reminder Subject"
-#~ msgstr "Sujet du rappel de renouvellement"
-
-#~ msgid "Renewal Reminder Email"
-#~ msgstr "Contenu de l'e-mail du rappel de renouvellement"
-
-#~ msgid ""
-#~ "Enter the email message you'd like your customers to receive when a "
-#~ "license key is about to expire. Use template tags below to customize the "
-#~ "email."
-#~ msgstr ""
-#~ "Entrer le message que vous voulez que vos clients reçoivent lorsqu'une "
-#~ "licence est sur le point d'expirer. Utilisez les balises ci-dessous pour "
-#~ "le personnaliser."
-
-#~ msgid ""
-#~ "These emails will be sent automatically one month before the license "
-#~ "expires, but they can also be sent manually from the Licenses page"
-#~ msgstr ""
-#~ "Ces e-mails seront envoyés automatiquement un mois avant que la licence "
-#~ "n'arrive à expiration, mais ils peuvent aussi être envoyés manuellement à "
-#~ "partir de la page des licences."

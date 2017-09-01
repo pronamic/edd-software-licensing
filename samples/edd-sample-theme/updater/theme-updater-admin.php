@@ -36,7 +36,8 @@ class EDD_Theme_Updater_Admin {
 			'version' => '',
 			'author' => '',
 			'download_id' => '',
-			'renew_url' => ''
+			'renew_url' => '',
+			'beta' => false,
 		) );
 
 		// Set config arguments
@@ -47,6 +48,7 @@ class EDD_Theme_Updater_Admin {
 		$this->author = $config['author'];
 		$this->download_id = $config['download_id'];
 		$this->renew_url = $config['renew_url'];
+		$this->beta = $config['beta'];
 
 		// Populate version fallback
 		if ( '' == $config['version'] ) {
@@ -92,7 +94,8 @@ class EDD_Theme_Updater_Admin {
 				'version' 			=> $this->version,
 				'license' 			=> trim( get_option( $this->theme_slug . '_license_key' ) ),
 				'item_name' 		=> $this->item_name,
-				'author'			=> $this->author
+				'author'			=> $this->author,
+				'beta'              => $this->beta
 			),
 			$this->strings
 		);
@@ -230,7 +233,8 @@ class EDD_Theme_Updater_Admin {
 	 function get_api_response( $api_params ) {
 
 		// Call the custom API.
-		$response = wp_remote_post( $this->remote_api_url, array( 'timeout' => 15, 'sslverify' => false, 'body' => $api_params ) );
+		$verify_ssl = (bool) apply_filters( 'edd_sl_api_request_verify_ssl', true );
+		$response   = wp_remote_post( $this->remote_api_url, array( 'timeout' => 15, 'sslverify' => $verify_ssl, 'body' => $api_params ) );
 
 		// Make sure the response came back okay.
 		if ( is_wp_error( $response ) ) {
@@ -253,7 +257,8 @@ class EDD_Theme_Updater_Admin {
 		$api_params = array(
 			'edd_action' => 'activate_license',
 			'license'    => $license,
-			'item_name'  => urlencode( $this->item_name )
+			'item_name'  => urlencode( $this->item_name ),
+			'url'        => home_url()
 		);
 
 		$response = $this->get_api_response( $api_params );
@@ -352,7 +357,8 @@ class EDD_Theme_Updater_Admin {
 		$api_params = array(
 			'edd_action' => 'deactivate_license',
 			'license'    => $license,
-			'item_name'  => urlencode( $this->item_name )
+			'item_name'  => urlencode( $this->item_name ),
+			'url'        => home_url()
 		);
 
 		$response = $this->get_api_response( $api_params );

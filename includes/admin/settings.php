@@ -67,12 +67,41 @@ function edd_sl_license_settings( $settings ) {
 			'tooltip_desc'  => __( 'Properly built WordPress plugins will include a ReadMe.txt file which includes things like the version, license, author, description, and more. Checking this will add a metabox to each download which allows for plugin data to be auto filled based on the included ReadMe.txt file in your plugin. Note that this is optional even if you are selling WordPress plugins.', 'edd_sl' )
 		),
 		array(
+			'id'            => 'edd_sl_inline_upgrade_links',
+			'name'          => __( 'Display Inline Upgrade Links', 'edd_sl' ),
+			'desc'          => __( 'Check this box if you want to display inline upgrade links for customers who have upgradable purchases.', 'edd_sl' ),
+			'type'          => 'checkbox',
+			'tooltip_title' => __( 'Where are upgrade links displayed?', 'edd_sl' ),
+			'tooltip_desc'  => __( 'Inline upgrade links are displayed below the \'Add To Cart\' button in products lists and on on individual product pages.', 'edd_sl' )
+		),
+		array(
+			'id'            => 'edd_sl_proration_method',
+			'name'          => __( 'Proration Method', 'edd_sl' ),
+			'desc'          => __( 'Specify how to calculate proration for license upgrade.', 'edd_sl' ),
+			'type'          => 'select',
+			'options'       => array(
+				'cost-based' => __( 'Cost-Based Calculation', 'edd_sl' ),
+				'time-based' => __( 'Time-Based Calculation', 'edd_sl' )
+			),
+			'tooltip_title' => __( 'How are prorations calculated?', 'edd_sl' ),
+			'tooltip_desc'  => __( 'Cost-based caluclation is a type of pseudo-proration where the value of an upgrade is calculated based on the cost difference between the current and new licenses.<br /><br />Time-based calculation is true proration in which the amount of time remaining on the current license is calculated to adjust the cost of the new license.', 'edd_sl' ),
+			'std'           => 'cost-based'
+		),
+		array(
 			'id'            => 'edd_sl_renewals',
 			'name'          => __( 'Allow Renewals', 'edd_sl' ),
 			'desc'          => __( 'Check this box if you want customers to be able to renew their license keys.', 'edd_sl' ),
 			'type'          => 'checkbox',
 			'tooltip_title' => __( 'What does \'Allow Renewals\' do?', 'edd_sl' ),
 			'tooltip_desc'  => $edd_sl_renewals_tt_desc
+		),
+		array(
+			'id'            => 'edd_sl_email_matching',
+			'name'          => __( 'Enforce Email Matching', 'edd_sl' ),
+			'desc'          => __( 'Check this box if you want to enforce email matching on license renewals.', 'edd_sl' ),
+			'type'          => 'checkbox',
+			'tooltip_title' => __( 'What does \'Email Matching\' mean?', 'edd_sl' ),
+			'tooltip_desc'  => __( 'Email matching restricts renewal of licenses to the email address used to originally purchase the license. This prevents license keys from being renewed by a different customer than purchased it.', 'edd_sl' )
 		),
 		array(
 			'id'            => 'edd_sl_renewal_discount',
@@ -82,6 +111,14 @@ function edd_sl_license_settings( $settings ) {
 			'size'          => 'small',
 			'tooltip_title' => __( 'When is this renewal discount used?', 'edd_sl' ),
 			'tooltip_desc'  => $edd_sl_renewal_discount_tt_desc
+		),
+		array(
+			'id' => 'edd_sl_disable_discounts',
+			'name' => __( 'Disable Discount Codes on Renewals', 'edd_sl' ),
+			'desc' => __( 'Check this box if you want to prevent customers from using non-renewal discounts in conjunction with renewals.', 'edd_sl' ),
+			'type' => 'checkbox',
+			'tooltip_title' => __( 'Disable Discount Codes', 'edd_sl' ),
+			'tooltip_desc'  => __( 'This will disable the option to redeem discount codes when the cart contains a license renewal.', 'edd_sl' )
 		),
 		array(
 			'id'            => 'edd_sl_send_renewal_reminders',
@@ -136,6 +173,7 @@ function edd_sl_renewal_notices_settings( $args ) {
 				<td><?php echo esc_html( edd_sl_get_renewal_notice_period_label( $key ) ); ?></td>
 				<td>
 					<a href="<?php echo esc_url( admin_url( 'edit.php?post_type=download&page=edd-license-renewal-notice&edd_sl_action=edit-renewal-notice&notice=' . $key ) ); ?>" class="edd-sl-edit-renewal-notice" data-key="<?php echo esc_attr( $key ); ?>"><?php _e( 'Edit', 'edd_sl' ); ?></a>&nbsp;|
+					<a href="<?php echo esc_url( wp_nonce_url( add_query_arg( array( 'edd-action' => 'clone_renewal_notice', 'notice-id' => $key ) ) ) ); ?>" class="edd-sl-clone-renewal-notice" data-key="<?php echo esc_attr( $key ); ?>"><?php _e( 'Clone', 'edd_sl' ); ?></a>&nbsp;|
 					<a href="<?php echo esc_url( wp_nonce_url( admin_url( 'edit.php?post_type=download&page=edd-license-renewal-notice&edd_action=delete_renewal_notice&notice-id=' . $key ) ) ); ?>" class="edd-delete"><?php _e( 'Delete', 'edd_sl' ); ?></a>
 				</td>
 			</tr>
@@ -162,12 +200,51 @@ function edd_sl_license_renewal_notice_edit() {
 	$action = isset( $_GET['edd_sl_action'] ) ? sanitize_text_field( $_GET['edd_sl_action'] ) : 'add-renewal-notice';
 
 	if( 'edit-renewal-notice' === $action ) {
-		include EDD_SL_PLUGIN_DIR . 'includes/edit-renewal-notice.php';
+		include EDD_SL_PLUGIN_DIR . 'includes/admin/edit-renewal-notice.php';
 	} else {
-		include EDD_SL_PLUGIN_DIR . 'includes/add-renewal-notice.php';
+		include EDD_SL_PLUGIN_DIR . 'includes/admin/add-renewal-notice.php';
 	}
 
 }
+
+/**
+ * Processes cloning an existing renewal notice
+ *
+ * @since 3.5
+ * @return void
+ */
+function edd_sl_process_clone_renewal_notice() {
+
+	if( ! is_admin() || ! isset( $_GET['notice-id'] ) ) {
+		return;
+	}
+
+	if( ! wp_verify_nonce( $_GET['_wpnonce'] ) ) {
+		wp_die( __( 'Nonce verification failed', 'edd_sl' ), __( 'Error', 'edd_sl' ), array( 'response' => 401 ) );
+	}
+
+	if( ! current_user_can( 'manage_shop_settings' ) ) {
+		wp_die( __( 'You do not have permission to add renewal notices', 'edd_sl' ), __( 'Error', 'edd_sl' ), array( 'response' => 401 ) );
+	}
+
+	$data = edd_sl_get_renewal_notice( absint( $_GET['notice-id'] ) );
+
+	$notices = edd_sl_get_renewal_notices();
+	$key = count( $notices );
+
+	$notices[] = array(
+		'subject'     => $data['subject'] . ' - ' . __( 'Copy', 'edd_sl' ),
+		'message'     => $data['message'],
+		'send_period' => $data['send_period']
+	);
+
+	update_option( 'edd_sl_renewal_notices', $notices );
+
+	wp_redirect( admin_url( 'edit.php?post_type=download&page=edd-license-renewal-notice&edd_sl_action=edit-renewal-notice&notice=' . $key ) );
+	exit;
+
+}
+add_action( 'edd_clone_renewal_notice', 'edd_sl_process_clone_renewal_notice' );
 
 /**
  * Processes the creation of a new renewal notice

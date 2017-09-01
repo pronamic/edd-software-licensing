@@ -45,18 +45,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 				<td>
 					<?php wp_editor( '', 'message', array( 'textarea_name' => 'message' ) ); ?>
 					<p class="description"><?php _e( 'The email message to be sent with the renewal notice. The following template tags can be used in the message:', 'edd_sl' ); ?></p>
-					<ul>
-						<li>{name} <?php _e( 'The customer\'s name', 'edd_sl' ); ?></li>
-						<li>{license_key} <?php _e( 'The license key that needs renewed', 'edd_sl' ); ?></li>
-						<li>{product_name} <?php _e( 'The name of the product the license key belongs to', 'edd_sl' ); ?></li>
-						<li>{expiration} <?php _e( 'The expiration date for the license key', 'edd_sl' ); ?></li>
-						<li>{renewal_link} <?php _e( 'Link to the renewal checkout page', 'edd_sl' ); ?></li>
-						<li>{renewal_url} <?php _e( 'Raw URL of the renewal checkout page', 'edd_sl' ); ?></li>
-						<?php $discount = edd_get_option( 'edd_sl_renewal_discount', false ); ?>
-						<?php if ( ! empty( $discount ) ) : ?>
-							<li>{renewal_discount} <?php _e( 'The renewal discount, including the `%` symbol.', 'edd_sl' ); ?></li>
-						<?php endif; ?>
-					</ul>
+					<?php do_action( 'edd_sl_after_renewal_notice_form' ); ?>
 				</td>
 			</tr>
 
