@@ -24,6 +24,7 @@ function edd_sl_customer_tab( $tabs ) {
 	$licenses    = get_posts( array(
 		'post_type'      => 'edd_license',
 		'posts_per_page' => 100,
+		'post_status'    => 'any',
 		'meta_query'     =>  array(
 			array(
 				'key'     => '_edd_sl_payment_id',
@@ -61,6 +62,7 @@ function edd_sl_customer_view( $views ) {
 	$licenses    = get_posts( array(
 		'post_type'      => 'edd_license',
 		'posts_per_page' => 100,
+		'post_status'    => 'any',
 		'meta_query'     =>  array(
 			array(
 				'key'     => '_edd_sl_payment_id',
@@ -93,6 +95,7 @@ function edd_sl_customer_licenses_view( $customer ) {
 	$licenses    = get_posts( array(
 		'post_type'      => 'edd_license',
 		'posts_per_page' => 100,
+		'post_status'    => 'any',
 		'meta_query'     =>  array(
 			array(
 				'key'     => '_edd_sl_payment_id',
@@ -116,6 +119,7 @@ function edd_sl_customer_licenses_view( $customer ) {
 				<tr>
 					<th><?php echo edd_get_label_singular(); ?></th>
 					<th><?php _e( 'License Key', 'edd_sl' ); ?></th>
+					<th><?php _e( 'Status', 'edd_sl' ); ?></th>
 					<th width="120px"><?php _e( 'Actions', 'edd_sl' ); ?></th>
 				</tr>
 			</thead>
@@ -129,8 +133,9 @@ function edd_sl_customer_licenses_view( $customer ) {
 						<tr>
 							<td><a href="<?php echo esc_url( admin_url( 'post.php?action=edit&post=' . $download_id ) ); ?>"><?php echo get_the_title( $download_id ); ?></a></td>
 							<td><?php echo $license_key; ?></td>
+							<td><?php echo edd_software_licensing()->get_license_status( $license->ID ); ?></td>
 							<td>
-								<a title="<?php esc_attr_e( 'View', 'edd_sl' ); ?>" href="<?php echo esc_url( admin_url( 'edit.php?post_type=download&page=edd-licenses&s=' . $license_key ) ); ?>">
+								<a title="<?php esc_attr_e( 'View', 'edd_sl' ); ?>" href="<?php echo esc_url( admin_url( 'edit.php?post_type=download&page=edd-licenses&view=overview&license=' . $license->ID ) ); ?>">
 									<?php _e( 'View', 'edd_sl' ); ?>
 								</a>
 							</td>

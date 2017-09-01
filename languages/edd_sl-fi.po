@@ -3,9 +3,9 @@ msgstr ""
 "Project-Id-Version: Easy Digital Downloads - Software Licenses 2.9.1\n"
 "Report-Msgid-Bugs-To: https://easydigitaldownloads.com/support/forum/add-on-"
 "plugins/software-licensing\n"
-"POT-Creation-Date: 2015-08-20 17:43+0200\n"
-"PO-Revision-Date: 2015-08-20 17:43+0200\n"
-"Last-Translator: fxbenard | FxB <fx@fxbenard.com>\n"
+"POT-Creation-Date: 2017-01-12 12:23-0600\n"
+"PO-Revision-Date: 2017-01-12 12:23-0600\n"
+"Last-Translator: Pippin Williamson <pippin@pippinsplugins.com>\n"
 "Language-Team: Pippin's Plugins <pippin@pippinsplugins.com>\n"
 "Language: fi\n"
 "MIME-Version: 1.0\n"
@@ -14,120 +14,1706 @@ msgstr ""
 "X-Poedit-KeywordsList: _;gettext;gettext_noop;__;_x;_n;_e;esc_html__;"
 "esc_html_e;esc_html_x:1,2c\n"
 "X-Poedit-Basepath: .\n"
-"X-Generator: Poedit 1.8.4\n"
+"X-Generator: Poedit 1.8.11\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 "X-Poedit-SearchPath-0: ..\n"
 
-#: edd-software-licenses.php:1078
-#: includes/classes/class-sl-package-download.php:129
-msgid "No license key provided"
-msgstr "Lisenssiavainta ei ole syötetty"
-
-#: edd-software-licenses.php:1083
+#: ../edd-software-licenses.php:1153 ../edd-software-licenses.php:1160
 #, fuzzy
 msgid "No item provided"
 msgstr "Nimeä ei annettu"
 
-#: edd-software-licenses.php:1091
-msgid "License check failed"
-msgstr "Lisenssin tarkistus epäonnistui"
-
-#: edd-software-licenses.php:1108 edd-software-licenses.php:1109
-msgid ""
-"Your license is expired. Please renew it or purchase a new one in order to "
-"update this item."
+#: ../edd-software-licenses.php:1181
+#, php-format
+msgid "License key provided does not match a valid %s"
 msgstr ""
 
-#: edd-software-licenses.php:1168
+#: ../edd-software-licenses.php:1298
 msgid "LOG - License Activated: "
 msgstr "LOKI - Lisenssi aktivoitu:"
 
-#: edd-software-licenses.php:1192
+#: ../edd-software-licenses.php:1326
 msgid "LOG - License Deactivated: "
 msgstr "LOKI - Lisenssi poistettu käytöstä:"
 
-#: edd-software-licenses.php:1528 includes/EDD_SL_List_Table.php:284
-msgid "Active"
-msgstr "Aktiivinen"
-
-#: edd-software-licenses.php:1532 includes/EDD_SL_List_Table.php:290
-msgid "Inactive"
-msgstr "Passiivinen"
-
-#: edd-software-licenses.php:1536 includes/EDD_SL_List_Table.php:296
-msgid "Expired"
-msgstr "Vanhentunut"
-
-#: edd-software-licenses.php:1543
-#, fuzzy
-msgid "Renew this license"
-msgstr "Uusitko lisenssiavainta?"
-
-#: edd-software-licenses.php:1543
-msgid "renew now"
-msgstr ""
-
-#: edd-software-licenses.php:1751 includes/EDD_SL_List_Table.php:73
-#: includes/admin.php:546
-#, fuzzy
-msgid "Unlimited"
-msgstr "Rajoittamaton"
-
-#: edd-software-licenses.php:1902
+#: ../edd-software-licenses.php:2218
 msgid "No changelog found"
 msgstr "Muutoslokia ei löytynyt"
 
-#: edd-software-licenses.php:1924
+#: ../edd-software-licenses.php:2243
 msgid ""
 "Your license key for this purchase is expired. Renew your license key and "
 "you will be allowed to download your files again."
 msgstr ""
 
-#: edd-software-licenses.php:1924 edd-software-licenses.php:1926
+#: ../edd-software-licenses.php:2243 ../edd-software-licenses.php:2245
 #, fuzzy
 msgid "Expired License"
 msgstr "Muokkaa lisenssiä"
 
-#: edd-software-licenses.php:1926
+#: ../edd-software-licenses.php:2245
 #, fuzzy
 msgid "Your license key for this purchase has been revoked."
 msgstr "Käytä tätä lisenssiavaimien luonnissa tälle ostolle"
 
-#: includes/EDD_SL_Changelog_Widget.php:38
+#: ../includes/admin/add-renewal-notice.php:15
+#: ../includes/admin/add-renewal-notice.php:57
+#: ../includes/admin/settings.php:184
+#, fuzzy
+msgid "Add Renewal Notice"
+msgstr "Lähetä uusimisviesti"
+
+#: ../includes/admin/add-renewal-notice.php:15
+#: ../includes/admin/edit-renewal-notice.php:21
+msgid "Go Back"
+msgstr ""
+
+#: ../includes/admin/add-renewal-notice.php:21
+#: ../includes/admin/classes/class-sl-renewal-notice-logs.php:33
+#: ../includes/admin/edit-renewal-notice.php:27
+msgid "Email Subject"
+msgstr ""
+
+#: ../includes/admin/add-renewal-notice.php:25
+#: ../includes/admin/edit-renewal-notice.php:31
+#, fuzzy
+msgid "The subject line of the renewal notice email"
+msgstr "Uusintasähköpostin aihe"
+
+#: ../includes/admin/add-renewal-notice.php:30
+#: ../includes/admin/edit-renewal-notice.php:36
+msgid "Email Period"
+msgstr ""
+
+#: ../includes/admin/add-renewal-notice.php:38
+#: ../includes/admin/edit-renewal-notice.php:44
+msgid "When should this email be sent?"
+msgstr ""
+
+#: ../includes/admin/add-renewal-notice.php:43
+#: ../includes/admin/edit-renewal-notice.php:49
+msgid "Email Message"
+msgstr ""
+
+#: ../includes/admin/add-renewal-notice.php:47
+#: ../includes/admin/edit-renewal-notice.php:53
+msgid ""
+"The email message to be sent with the renewal notice. The following template "
+"tags can be used in the message:"
+msgstr ""
+
+#: ../includes/admin/classes/class-sl-admin-notices.php:34
+msgid "License deactivated successfully"
+msgstr ""
+
+#: ../includes/admin/classes/class-sl-admin-notices.php:40
+msgid "License activated successfully"
+msgstr ""
+
+#: ../includes/admin/classes/class-sl-admin-notices.php:46
+msgid "License enabled successfully"
+msgstr ""
+
+#: ../includes/admin/classes/class-sl-admin-notices.php:52
+msgid "License disabled successfully"
+msgstr ""
+
+#: ../includes/admin/classes/class-sl-admin-notices.php:58
+msgid "License renewed successfully"
+msgstr ""
+
+#: ../includes/admin/classes/class-sl-admin-notices.php:64
+msgid "Renewal notice sent successfully"
+msgstr ""
+
+#: ../includes/admin/classes/class-sl-admin-notices.php:70
+msgid "License expiration date updated successfully"
+msgstr ""
+
+#: ../includes/admin/classes/class-sl-admin-notices.php:76
+msgid "License deleted successfully"
+msgstr ""
+
+#: ../includes/admin/classes/class-sl-admin-notices.php:82
+msgid "License renewal notice sent successfully"
+msgstr ""
+
+#: ../includes/admin/classes/class-sl-admin-notices.php:88
+msgid "License expiration set to lifetime successfully"
+msgstr ""
+
+#: ../includes/admin/classes/class-sl-export-licenses.php:86
+#, fuzzy
+msgid "Email"
+msgstr "Sähköposti"
+
+#: ../includes/admin/classes/class-sl-export-licenses.php:87
+#: ../includes/admin/customers.php:118 ../includes/admin/licenses.php:445
+#: ../samples/edd-sample-plugin/edd-sample-plugin.php:72
+#: ../samples/edd-sample-theme/updater/theme-updater.php:32
+msgid "License Key"
+msgstr "Lisenssiavain"
+
+#: ../includes/admin/classes/class-sl-export-licenses.php:88
+#, fuzzy
+msgid "License Status"
+msgstr "Lisenssiavaimen tila on tuntematon."
+
+#: ../includes/admin/classes/class-sl-export-licenses.php:89
+msgid "Product Name"
+msgstr ""
+
+#: ../includes/admin/classes/class-sl-export-licenses.php:90
+#, fuzzy
+msgid "Purchase Date"
+msgstr "Ostettu"
+
+#: ../includes/admin/classes/class-sl-export-licenses.php:91
+#, fuzzy
+msgid "Expiration Date"
+msgstr "Pidennä lisenssiavaimen voimassaoloaikaa"
+
+#: ../includes/admin/classes/class-sl-export-licenses.php:92
+#: ../includes/admin/classes/class-sl-list-table.php:233
+#: ../includes/admin/metabox.php:72 ../includes/admin/metabox.php:348
+msgid "Activation Limit"
+msgstr "Aktivointiraja"
+
+#: ../includes/admin/classes/class-sl-export-licenses.php:93
+#, fuzzy
+msgid "Activation Count"
+msgstr "Pakota aktivoinnin lukumäärä"
+
+#: ../includes/admin/classes/class-sl-export-licenses.php:94
+#, fuzzy
+msgid "Activated URLs"
+msgstr "Aktivoi lisenssi"
+
+#: ../includes/admin/classes/class-sl-list-table.php:52
+#: ../includes/admin/licenses.php:331
+#, fuzzy
+msgid "disabled"
+msgstr "Poistettu käytöstä"
+
+#: ../includes/admin/classes/class-sl-list-table.php:62
+#: ../includes/admin/license-actions.php:370
+#: ../includes/classes/class-sl-license.php:1058
+#, fuzzy
+msgid "Unlimited"
+msgstr "Rajoittamaton"
+
+#: ../includes/admin/classes/class-sl-list-table.php:90
+#: ../includes/admin/metabox.php:98 ../includes/admin/metabox.php:358
+#: ../templates/licenses-manage-overview.php:59
+msgid "Lifetime"
+msgstr ""
+
+#: ../includes/admin/classes/class-sl-list-table.php:123
+#: ../includes/admin/customers.php:134
+#, fuzzy
+msgid "View"
+msgstr "Näytä lisenssiavain"
+
+#: ../includes/admin/classes/class-sl-list-table.php:163
+#: ../includes/admin/classes/class-sl-list-table.php:396
+#: ../includes/admin/licenses.php:363
+msgid "Deactivate"
+msgstr "Passivoi"
+
+#: ../includes/admin/classes/class-sl-list-table.php:168
+#: ../includes/admin/licenses.php:369
+msgid "Extend this license key's expiration date"
+msgstr "Pidennä lisenssiavaimen voimassaoloaikaa"
+
+#: ../includes/admin/classes/class-sl-list-table.php:168
+#: ../includes/admin/licenses.php:369
+msgid "Extend"
+msgstr "Pidennä"
+
+#: ../includes/admin/classes/class-sl-list-table.php:170
+#: ../includes/admin/classes/class-sl-list-table.php:401
+#: ../includes/admin/licenses.php:371
+msgid "Renew"
+msgstr "Uusi"
+
+#: ../includes/admin/classes/class-sl-list-table.php:172
+#: ../includes/admin/classes/class-sl-list-table.php:397
+#: ../includes/admin/licenses.php:365
+msgid "Activate"
+msgstr "Aktivoi"
+
+#: ../includes/admin/classes/class-sl-list-table.php:176
+#: ../includes/admin/classes/class-sl-list-table.php:398
+#: ../includes/admin/licenses.php:377
+msgid "Enable"
+msgstr "Ota käyttöön"
+
+#: ../includes/admin/classes/class-sl-list-table.php:178
+#: ../includes/admin/classes/class-sl-list-table.php:399
+#: ../includes/admin/licenses.php:379
+msgid "Disable"
+msgstr "Poista käytöstä"
+
+#: ../includes/admin/classes/class-sl-list-table.php:182
+msgid "View Log"
+msgstr "Katso lokia"
+
+#: ../includes/admin/classes/class-sl-list-table.php:185
+#: ../templates/license-keys.php:51 ../templates/license-keys.php:83
+#: ../templates/licenses-manage-overview.php:30
+#: ../templates/licenses-manage-overview.php:74
+msgid "Manage Sites"
+msgstr ""
+
+#: ../includes/admin/classes/class-sl-list-table.php:188
+#: ../includes/admin/classes/class-sl-list-table.php:402
+#: ../includes/admin/license-functions.php:54
+#: ../includes/admin/settings.php:177
+msgid "Delete"
+msgstr "Poista"
+
+#: ../includes/admin/classes/class-sl-list-table.php:193
+#, fuzzy
+msgid "Loading license log.."
+msgstr "Lisenssiavaimen tila on tuntematon."
+
+#: ../includes/admin/classes/class-sl-list-table.php:230
+#: ../includes/admin/licenses.php:444 ../includes/admin/licenses.php:572
+#: ../includes/admin/metabox.php:594 ../templates/licenses-manage-single.php:24
+msgid "Product"
+msgstr ""
+
+#: ../includes/admin/classes/class-sl-list-table.php:231
+#: ../templates/licenses-manage-overview.php:25
+msgid "Key"
+msgstr "Avain"
+
+#: ../includes/admin/classes/class-sl-list-table.php:232
+msgid "Customer"
+msgstr ""
+
+#: ../includes/admin/classes/class-sl-list-table.php:234
+msgid "Expires"
+msgstr "Vanhenee"
+
+#: ../includes/admin/classes/class-sl-list-table.php:235
+msgid "Purchased"
+msgstr "Ostettu"
+
+#: ../includes/admin/classes/class-sl-list-table.php:236
+#: ../includes/admin/customers.php:119 ../includes/admin/licenses.php:484
+#: ../includes/admin/licenses.php:538 ../includes/admin/metabox.php:596
+#: ../includes/admin/settings.php:166
+#: ../templates/licenses-manage-single.php:31
+#: ../templates/licenses-upgrades.php:25
+#, fuzzy
+msgid "Actions"
+msgstr "Aktiivinen"
+
+#: ../includes/admin/classes/class-sl-list-table.php:275
+msgid "All"
+msgstr "Kaikki"
+
+#: ../includes/admin/classes/class-sl-list-table.php:281
+#: ../includes/classes/class-sl-license.php:957
+msgid "Active"
+msgstr "Aktiivinen"
+
+#: ../includes/admin/classes/class-sl-list-table.php:287
+#: ../includes/classes/class-sl-license.php:961
+msgid "Inactive"
+msgstr "Passiivinen"
+
+#: ../includes/admin/classes/class-sl-list-table.php:293
+#: ../includes/classes/class-sl-license.php:965
+msgid "Expired"
+msgstr "Vanhentunut"
+
+#: ../includes/admin/classes/class-sl-list-table.php:299
+msgid "Disabled"
+msgstr "Poistettu käytöstä"
+
+#: ../includes/admin/classes/class-sl-list-table.php:400
+#: ../includes/admin/licenses.php:360 ../includes/scripts.php:50
+msgid "Send Renewal Notice"
+msgstr "Lähetä uusimisviesti"
+
+#: ../includes/admin/classes/class-sl-renewal-notice-logs.php:32
+msgid "Product - Recipient"
+msgstr ""
+
+#: ../includes/admin/classes/class-sl-renewal-notice-logs.php:34
+#, fuzzy
+msgid "Date Sent"
+msgstr "Päivämäärä"
+
+#: ../includes/admin/classes/class-sl-retroactive-licensing.php:31
+#, fuzzy
+msgid "Your user account doesn't have permission to access this."
+msgstr "Sinulla ei ole oikeutta ladata tiedostoa"
+
+#: ../includes/admin/classes/class-sl-retroactive-licensing.php:35
+#, fuzzy
+msgid "Software Licensing - Retroactive Licensing Processor"
+msgstr "Ohjelmistolisensointi"
+
+#: ../includes/admin/classes/class-sl-retroactive-licensing.php:54
+#: ../includes/admin/classes/class-sl-retroactive-licensing.php:56
+msgid "All Done"
+msgstr ""
+
+#: ../includes/admin/classes/class-sl-retroactive-licensing.php:57
+#, fuzzy
+msgid "No purchases needing licenses found."
+msgstr "Näytä kaikki ostetut lisenssit"
+
+#: ../includes/admin/classes/class-sl-retroactive-licensing.php:69
+msgid ""
+"Use this tool to provision licenses for unlicensed Easy Digital Downloads "
+"products."
+msgstr ""
+
+#: ../includes/admin/classes/class-sl-retroactive-licensing.php:70
+msgid ""
+"This processing is not reversible. Backup your database beforehand or be "
+"prepared to revert each transformed post manually."
+msgstr ""
+
+#: ../includes/admin/classes/class-sl-retroactive-licensing.php:76
+#, php-format
+msgid "All %s"
+msgstr ""
+
+#: ../includes/admin/classes/class-sl-retroactive-licensing.php:77
+#, php-format
+msgid "Single %s"
+msgstr ""
+
+#: ../includes/admin/classes/class-sl-retroactive-licensing.php:83
+#, fuzzy
+msgid "Generate License Keys for Past Purchases"
+msgstr "Käytä tätä lisenssiavaimien luonnissa tälle ostolle"
+
+#: ../includes/admin/classes/class-sl-retroactive-licensing.php:86
+#: ../includes/admin/classes/class-sl-retroactive-licensing.php:114
+msgid "You must enable Javascript in order to proceed!"
+msgstr ""
+
+#: ../includes/admin/classes/class-sl-retroactive-licensing.php:105
+msgid ""
+"Please be patient while this script runs. This can take a while, up to a "
+"minute per payment. Do not navigate away from this page until this script is "
+"done or the licensing will not be completed. You will be notified via this "
+"page when the licensing is completed."
+msgstr ""
+
+#: ../includes/admin/classes/class-sl-retroactive-licensing.php:107
+#, php-format
+msgid "To go back to the previous page, <a href=\"%s\">click here</a>."
+msgstr ""
+
+#: ../includes/admin/classes/class-sl-retroactive-licensing.php:109
+#, php-format
+msgid ""
+"All done! %1$s posts were successfully processed in %2$s seconds and there "
+"were %3$s failures. To try importing the failed posts again, <a href=\"%4$s"
+"\">click here</a>. %5$s"
+msgstr ""
+
+#: ../includes/admin/classes/class-sl-retroactive-licensing.php:111
+#, php-format
+msgid ""
+"All done! %1$s posts were successfully processed in %2$s seconds and there "
+"were no failures. %3$s"
+msgstr ""
+
+#: ../includes/admin/classes/class-sl-retroactive-licensing.php:120
+#, fuzzy
+msgid "Abort Licensing Posts"
+msgstr "Ohjelmistolisensointi"
+
+#: ../includes/admin/classes/class-sl-retroactive-licensing.php:122
+#: ../includes/admin/licenses.php:537
+#: ../templates/licenses-manage-overview.php:26
+msgid "Status"
+msgstr "Tila"
+
+#: ../includes/admin/classes/class-sl-retroactive-licensing.php:125
+#, fuzzy, php-format
+msgid "Total Payments: %s"
+msgstr "%1$s %2$s."
+
+#: ../includes/admin/classes/class-sl-retroactive-licensing.php:126
+#, fuzzy, php-format
+msgid "Payments Processed: %s"
+msgstr "%1$s %2$s."
+
+#: ../includes/admin/classes/class-sl-retroactive-licensing.php:127
+#, fuzzy, php-format
+msgid "License Failures: %s"
+msgstr "Lisenssiavaimet:"
+
+#: ../includes/admin/classes/class-sl-retroactive-licensing.php:159
+msgid "Stopping, please wait a moment."
+msgstr ""
+
+#: ../includes/admin/classes/class-sl-retroactive-licensing.php:314
+#, fuzzy
+msgid "Failed Licensing: You do not have permission to perform this action."
+msgstr "Sinulla ei ole oikeutta ladata tiedostoa"
+
+#: ../includes/admin/classes/class-sl-retroactive-licensing.php:322
+#, php-format
+msgid "Failed Licensing: %s is incorrect post type."
+msgstr ""
+
+#: ../includes/admin/classes/class-sl-retroactive-licensing.php:327
+#, php-format
+msgid ""
+"%1$s License key for Payment ID <a href=\"%2$s\" target=\"_blank\">%3$s</a> "
+"was successfully generated."
+msgstr ""
+
+#: ../includes/admin/classes/class-sl-retroactive-licensing.php:330
+#, php-format
+msgid ""
+"Payment ID <a href=\"%1$s\" target=\"_blank\">%2$s</a> processed. No "
+"licenses needed to be generated."
+msgstr ""
+
+#: ../includes/admin/classes/class-sl-retroactive-licensing.php:332
+msgid ""
+"Payment ID <a href=\"%1$s\" target=\"_blank\">%2$s</a> was NOT licensed "
+"because \"%4$\"."
+msgstr ""
+
+#: ../includes/admin/classes/class-sl-retroactive-licensing.php:346
+msgid "Empty `$payment_id`"
+msgstr ""
+
+#: ../includes/admin/classes/class-sl-retroactive-licensing.php:353
+#, fuzzy
+msgid "No payment downloads found"
+msgstr "Easy Digital Downloads"
+
+#: ../includes/admin/customers.php:40 ../includes/admin/customers.php:112
+#: ../includes/admin/metabox.php:589 ../includes/templates.php:7
+msgid "License Keys"
+msgstr "Lisenssiavaimet"
+
+#: ../includes/admin/customers.php:140
+#, fuzzy
+msgid "No license keys found"
+msgstr "Lisenssejä ei löytynyt"
+
+#: ../includes/admin/edit-renewal-notice.php:21
+#, fuzzy
+msgid "Edit Renewal Notice"
+msgstr "Lähetä uusimisviesti"
+
+#: ../includes/admin/edit-renewal-notice.php:64
+#, fuzzy
+msgid "Update Renewal Notice"
+msgstr "Lähetä uusimisviesti"
+
+#: ../includes/admin/export.php:12
+#, fuzzy
+msgid "Export License Keys"
+msgstr "Lisenssiavaimet"
+
+#: ../includes/admin/export.php:14
+msgid "Use this tool to export license keys to a CSV file."
+msgstr ""
+
+#: ../includes/admin/export.php:21
+#, fuzzy
+msgid "All License Keys"
+msgstr "Lisenssiavaimet"
+
+#: ../includes/admin/export.php:22
+#, fuzzy
+msgid "Active License Keys"
+msgstr "Lisenssiavain on aktiivinen."
+
+#: ../includes/admin/export.php:23
+#, fuzzy
+msgid "Inactive License Keys"
+msgstr "Luo lisenssiavaimet"
+
+#: ../includes/admin/export.php:24
+#, fuzzy
+msgid "Expired License Keys"
+msgstr "Lisenssiavaimet eivät täsmää."
+
+#: ../includes/admin/export.php:30
+msgid "Export"
+msgstr ""
+
+#: ../includes/admin/license-actions.php:28 ../includes/admin/licenses.php:61
+msgid "Easy Digital Download Licenses"
+msgstr "Easy Digital Download lisensointi"
+
+#: ../includes/admin/license-actions.php:28 ../includes/post-types.php:22
+#: ../includes/post-types.php:28 ../includes/post-types.php:34
+msgid "Licenses"
+msgstr "Lisenssit"
+
+#: ../includes/admin/license-actions.php:29
+#, fuzzy
+msgid "License Renewal Notice"
+msgstr "Lisenssiavaimen tila on tuntematon."
+
+#: ../includes/admin/license-actions.php:108 ../includes/admin/settings.php:223
+#: ../includes/admin/settings.php:267 ../includes/admin/settings.php:322
+#: ../includes/admin/settings.php:381
+msgid "Nonce verification failed"
+msgstr ""
+
+#: ../includes/admin/license-actions.php:108
+#: ../includes/admin/license-actions.php:137
+#: ../includes/admin/license-actions.php:170 ../includes/admin/reports.php:45
+#: ../includes/admin/reports.php:262 ../includes/admin/settings.php:223
+#: ../includes/admin/settings.php:227 ../includes/admin/settings.php:263
+#: ../includes/admin/settings.php:267 ../includes/admin/settings.php:318
+#: ../includes/admin/settings.php:322 ../includes/admin/settings.php:377
+#: ../includes/admin/settings.php:381 ../includes/admin/settings.php:385
+#: ../includes/admin/upgrades.php:415 ../includes/admin/upgrades.php:599
+#: ../includes/classes/class-sl-package-download.php:61
+#: ../includes/classes/class-sl-package-download.php:72
+#: ../includes/classes/class-sl-package-download.php:84
+#: ../includes/classes/class-sl-package-download.php:88
+#: ../includes/classes/class-sl-package-download.php:91
+#: ../includes/classes/class-sl-package-download.php:96
+#: ../includes/classes/class-sl-package-download.php:109
+#: ../includes/classes/class-sl-package-download.php:172
+#: ../includes/classes/class-sl-package-download.php:176
+#: ../includes/classes/class-sl-package-download.php:180
+#: ../includes/classes/class-sl-package-download.php:308
+#: ../includes/classes/class-sl-package-download.php:344
+#: ../samples/edd-sample-plugin/EDD_SL_Plugin_Updater.php:376
+#: ../samples/edd-sample-theme/updater/theme-updater-admin.php:240
+msgid "Error"
+msgstr "Virhe"
+
+#: ../includes/admin/license-actions.php:137
+#: ../includes/admin/license-actions.php:170
+msgid "You do not have permission to edit this license"
+msgstr ""
+
+#: ../includes/admin/license-actions.php:174
+msgid "Cheatin' eh?!"
+msgstr ""
+
+#: ../includes/admin/license-actions.php:178
+msgid "Please confirm you want to delete this license"
+msgstr ""
+
+#: ../includes/admin/license-actions.php:274
+#, php-format
+msgid "Missing License Generated: %s"
+msgstr ""
+
+#: ../includes/admin/license-actions.php:415 ../includes/admin/licenses.php:681
+msgid "This license has no log entries"
+msgstr "Lisenssillä ei ole lokimerkintöjä"
+
+#: ../includes/admin/license-functions.php:37
+msgid "Details"
+msgstr ""
+
+#: ../includes/admin/license-functions.php:38
+msgid "Logs"
+msgstr ""
+
+#: ../includes/admin/licenses.php:111
+msgid "You are not permitted to view this data."
+msgstr ""
+
+#: ../includes/admin/licenses.php:116 ../includes/admin/licenses.php:124
+msgid "Invalid license ID provided."
+msgstr ""
+
+#: ../includes/admin/licenses.php:131 ../templates/license-keys.php:16
+msgid "License Details"
+msgstr ""
+
+#: ../includes/admin/licenses.php:151
+#, php-format
+msgid "License %s"
+msgstr ""
+
+#: ../includes/admin/licenses.php:214
+msgid "License Key:"
+msgstr ""
+
+#: ../includes/admin/licenses.php:222
+msgid "Purchase Date:"
+msgstr ""
+
+#: ../includes/admin/licenses.php:239
+msgid "Expiration Date:"
+msgstr ""
+
+#: ../includes/admin/licenses.php:253 ../includes/admin/settings.php:175
+#: ../includes/scripts.php:48
+msgid "Edit"
+msgstr "Muokkaa"
+
+#: ../includes/admin/licenses.php:256
+msgid "Mark as Lifetime"
+msgstr ""
+
+#: ../includes/admin/licenses.php:263
+msgid "License Term"
+msgstr ""
+
+#: ../includes/admin/licenses.php:271
+msgid "Product:"
+msgstr ""
+
+#: ../includes/admin/licenses.php:298
+msgid "Activation Limit:"
+msgstr ""
+
+#: ../includes/admin/licenses.php:324 ../templates/license-keys.php:66
+msgid "Status:"
+msgstr ""
+
+#: ../includes/admin/licenses.php:334
+msgid "What does this mean"
+msgstr ""
+
+#: ../includes/admin/licenses.php:334
+msgid "Active:"
+msgstr ""
+
+#: ../includes/admin/licenses.php:334
+msgid "Indicates that a user has activated a site with this license."
+msgstr ""
+
+#: ../includes/admin/licenses.php:334
+msgid "Inactive:"
+msgstr ""
+
+#: ../includes/admin/licenses.php:334
+msgid "Indicates that this license is not currently activated on any sites."
+msgstr ""
+
+#: ../includes/admin/licenses.php:334 ../templates/license-keys.php:71
+msgid "Expired:"
+msgstr ""
+
+#: ../includes/admin/licenses.php:334
+msgid ""
+"Indicates that this license has expired and can not be used unless renewed."
+msgstr ""
+
+#: ../includes/admin/licenses.php:334
+msgid "Disabled:"
+msgstr ""
+
+#: ../includes/admin/licenses.php:334
+msgid "Indicates that this license has been administratively disabled."
+msgstr ""
+
+#: ../includes/admin/licenses.php:339
+msgid "Customer:"
+msgstr ""
+
+#: ../includes/admin/licenses.php:351
+msgid "Actions:"
+msgstr ""
+
+#: ../includes/admin/licenses.php:360
+msgid "Send a renewal notice for this license key"
+msgstr ""
+
+#: ../includes/admin/licenses.php:398
+msgid "No actions available for this license"
+msgstr ""
+
+#: ../includes/admin/licenses.php:405
+msgid "Select Notice:"
+msgstr ""
+
+#: ../includes/admin/licenses.php:416
+msgid "Send Notice"
+msgstr ""
+
+#: ../includes/admin/licenses.php:425
+msgid "Update License"
+msgstr ""
+
+#: ../includes/admin/licenses.php:438
+msgid "Related Licenses:"
+msgstr ""
+
+#: ../includes/admin/licenses.php:439
+msgid ""
+"This table shows licenses related to this license, including relevant "
+"bundled licenses."
+msgstr ""
+
+#: ../includes/admin/licenses.php:477
+msgid "Licensed URLs:"
+msgstr ""
+
+#: ../includes/admin/licenses.php:478
+msgid ""
+"Use this form to add a new site URL for this license. Once added, the site "
+"will be considered active and will be included in the total site count."
+msgstr ""
+
+#: ../includes/admin/licenses.php:483
+#: ../templates/licenses-manage-single.php:30
+#, fuzzy
+msgid "Site URL"
+msgstr "Sivuston otsikon väri"
+
+#: ../includes/admin/licenses.php:496
+#: ../templates/licenses-manage-single.php:40
+#, fuzzy
+msgid "Deactivate Site"
+msgstr "Passivoi"
+
+#: ../includes/admin/licenses.php:502
+#, fuzzy
+msgid "This license has not been activated on any sites"
+msgstr "Lisenssillä ei ole lokimerkintöjä"
+
+#: ../includes/admin/licenses.php:507
+msgid "New site URL (including http://)"
+msgstr ""
+
+#: ../includes/admin/licenses.php:511
+#: ../templates/licenses-manage-single.php:61
+#, fuzzy
+msgid "Add Site"
+msgstr "Sivuston otsikon väri"
+
+#: ../includes/admin/licenses.php:524
+msgid "Related Payments:"
+msgstr ""
+
+#: ../includes/admin/licenses.php:525
+msgid ""
+"This table shows the most recent payments relevant to this license, "
+"including upgrades and renewals."
+msgstr ""
+
+#: ../includes/admin/licenses.php:534 ../includes/admin/licenses.php:644
+msgid "ID"
+msgstr ""
+
+#: ../includes/admin/licenses.php:535 ../includes/admin/licenses.php:573
+#: ../includes/admin/metabox.php:263 ../includes/admin/metabox.php:300
+msgid "Amount"
+msgstr ""
+
+#: ../includes/admin/licenses.php:536 ../includes/post-types.php:75
+msgid "Date"
+msgstr "Päivämäärä"
+
+#: ../includes/admin/licenses.php:551 ../includes/admin/metabox.php:625
+msgid "View Details"
+msgstr ""
+
+#: ../includes/admin/licenses.php:558
+msgid "No Payments Found"
+msgstr ""
+
+#: ../includes/admin/licenses.php:566
+msgid "Upgrade Paths:"
+msgstr ""
+
+#: ../includes/admin/licenses.php:567
+#, php-format
+msgid ""
+"This table shows the available upgrade paths for this license, along with a "
+"link to each specific upgrade. Upgrade paths can be added through the %s "
+"edit screen."
+msgstr ""
+
+#: ../includes/admin/licenses.php:574
+msgid "Upgrade Link"
+msgstr ""
+
+#: ../includes/admin/licenses.php:581
+msgid "This license must be renewed before it can be upgraded"
+msgstr ""
+
+#: ../includes/admin/licenses.php:601
+msgid "Bundled licenses can not be upgraded individually"
+msgstr ""
+
+#: ../includes/admin/licenses.php:605
+msgid "No upgrade path available"
+msgstr ""
+
+#: ../includes/admin/licenses.php:631 ../includes/admin/licenses.php:706
+#, php-format
+msgid "License Key: %s"
+msgstr ""
+
+#: ../includes/admin/licenses.php:638
+msgid "Logged Entries:"
+msgstr ""
+
+#: ../includes/admin/licenses.php:639
+msgid "This table shows log entries relevant to this license."
+msgstr ""
+
+#: ../includes/admin/licenses.php:645
+msgid "Date/Time"
+msgstr ""
+
+#: ../includes/admin/licenses.php:646
+msgid "Entry"
+msgstr ""
+
+#: ../includes/admin/licenses.php:716
+msgid "Are you sure you want to delete this license?"
+msgstr ""
+
+#: ../includes/admin/licenses.php:726
+msgid "Delete License"
+msgstr ""
+
+#: ../includes/admin/licenses.php:727 ../includes/license-renewals.php:157
+#: ../includes/scripts.php:49
+msgid "Cancel"
+msgstr ""
+
+#: ../includes/admin/metabox.php:11
+msgid "Licensing"
+msgstr "Lisensointi"
+
+#: ../includes/admin/metabox.php:12
+#, fuzzy
+msgid "License Upgrade Paths"
+msgstr "Lisenssiavaimen tila on tuntematon."
+
+#: ../includes/admin/metabox.php:13
+#, fuzzy
+msgid "Generate Missing Licenses"
+msgstr "Luo lisenssiavaimet"
+
+#: ../includes/admin/metabox.php:14 ../includes/admin/metabox.php:857
+msgid "Beta Version"
+msgstr ""
+
+#: ../includes/admin/metabox.php:61
+msgid "Check to enable license creation"
+msgstr "Ota lisensointi käyttöön"
+
+#: ../includes/admin/metabox.php:63
+msgid ""
+"A license key will be generated for each product in this bundle, upon "
+"purchase."
+msgstr ""
+
+#: ../includes/admin/metabox.php:74
+msgid ""
+"Limit number of times this license can be activated. Use 0 for unlimited. If "
+"using variable prices, set the limit for each price option."
+msgstr ""
+
+#: ../includes/admin/metabox.php:77
+msgid ""
+"<strong>Activation Limit</strong>: Set the number of activations allowed per "
+"license. If individual activation limits are set for variable pricing, they "
+"take precedence. If your product is a bundle, the activation limit set here "
+"will override the activation limits set on the individual products."
+msgstr ""
+
+#: ../includes/admin/metabox.php:86
+msgid "Version Number"
+msgstr ""
+
+#: ../includes/admin/metabox.php:88
+#, fuzzy
+msgid "Enter the current version number."
+msgstr "Syötä nykyinen versionumero"
+
+#: ../includes/admin/metabox.php:96
+msgid "License Length"
+msgstr ""
+
+#: ../includes/admin/metabox.php:100
+#, fuzzy
+msgid "Limited"
+msgstr "Rajoittamaton"
+
+#: ../includes/admin/metabox.php:105
+msgid "Days"
+msgstr "Päivää"
+
+#: ../includes/admin/metabox.php:106
+msgid "Weeks"
+msgstr "Viikkoa"
+
+#: ../includes/admin/metabox.php:107
+msgid "Months"
+msgstr "Kuukautta"
+
+#: ../includes/admin/metabox.php:108
+msgid "Years"
+msgstr "Vuotta"
+
+#: ../includes/admin/metabox.php:111
+msgid "How long are license keys valid for?"
+msgstr ""
+
+#: ../includes/admin/metabox.php:120 ../includes/admin/settings.php:108
+msgid "Renewal Discount"
+msgstr "Uusinnan alennus"
+
+#: ../includes/admin/metabox.php:122
+msgid ""
+"Enter a discount amount as a percentage, such as 10, or leave blank to use "
+"the global value."
+msgstr ""
+
+#: ../includes/admin/metabox.php:125
+msgid ""
+"<strong>When is this renewal discount used?</strong>: When the user is on "
+"the checkout page renewing their license, this discount will be "
+"automatically applied to their renewal purchase."
+msgstr ""
+
+#: ../includes/admin/metabox.php:135
+msgid "Update File"
+msgstr ""
+
+#: ../includes/admin/metabox.php:145
+#, fuzzy
+msgid "Choose the source file to be used for automatic updates."
+msgstr "Valitse lähdetiedosto, jota käytetään automaattisessa päivityksessä"
+
+#: ../includes/admin/metabox.php:154
+msgid "Change Log"
+msgstr "Muutosloki"
+
+#: ../includes/admin/metabox.php:164 ../includes/admin/metabox.php:935
+#, fuzzy
+msgid "Enter details about what changed."
+msgstr "Syötä tietoja siitä, mikä on muuttunut"
+
+#: ../includes/admin/metabox.php:172
+msgid "Preset License Keys"
+msgstr ""
+
+#: ../includes/admin/metabox.php:176
+#, fuzzy
+msgid ""
+"Enter available license keys, one per line. If empty, keys will be "
+"automatically generated. "
+msgstr ""
+"Syötä käytettävät lisenssiavaimet, yksi per rivi. Jos kenttä on tyhjä, "
+"avaimet luodaan automaattisesti."
+
+#: ../includes/admin/metabox.php:202
+#, fuzzy
+msgid "Price Option"
+msgstr "Lisäosan lisenssivaihtoehdot"
+
+#: ../includes/admin/metabox.php:203
+msgid "Prorate"
+msgstr ""
+
+#: ../includes/admin/metabox.php:204
+#, fuzzy
+msgid "Additional Discount"
+msgstr "Uusinnan alennus"
+
+#: ../includes/admin/metabox.php:248 ../includes/admin/metabox.php:289
+#: ../includes/scripts.php:39
+msgid "N/A"
+msgstr ""
+
+#: ../includes/admin/metabox.php:311
+msgid "Add New Upgrade Path"
+msgstr ""
+
+#: ../includes/admin/metabox.php:317
+msgid "Configure the optional upgrade paths for customers. "
+msgstr ""
+
+#: ../includes/admin/metabox.php:332
+#, php-format
+msgid ""
+"Missing license keys can be generated for past purchases of this %s from the "
+"%sTools%s page"
+msgstr ""
+
+#: ../includes/admin/metabox.php:349
+msgid ""
+"<strong>Activation Limit</strong>: For each variable pricing option, set the "
+"number of activations allowed per license. Use 0 for unlimited. If your "
+"product is a bundle, the activation limits set here will override the "
+"activation limits set on the individual products."
+msgstr ""
+
+#: ../includes/admin/metabox.php:359
+msgid ""
+"<strong>Lifetime</strong>: Check this setting to provide licenses that never "
+"expire."
+msgstr ""
+
+#: ../includes/admin/metabox.php:595 ../includes/admin/metabox.php:736
+#: ../includes/post-types.php:23 ../templates/licenses-manage-single.php:23
+msgid "License"
+msgstr "Lisenssi"
+
+#: ../includes/admin/metabox.php:620
+msgid "View License Key"
+msgstr "Näytä lisenssiavain"
+
+#: ../includes/admin/metabox.php:637
+msgid ""
+"Use this to generate missing license keys for this purchase. If you add a "
+"product to the purchase, click this after saving the payment."
+msgstr ""
+
+#: ../includes/admin/metabox.php:639
+msgid "Generate License Keys"
+msgstr "Luo lisenssiavaimet"
+
+#: ../includes/admin/metabox.php:667
+msgid "Download <code>readme.txt</code> Configuration"
+msgstr ""
+
+#: ../includes/admin/metabox.php:729
+msgid "Download details"
+msgstr ""
+
+#: ../includes/admin/metabox.php:730
+msgid "Use the following data from the remote readme.txt file . "
+msgstr ""
+
+#: ../includes/admin/metabox.php:732
+msgid "Tested Up To (WordPress Version)"
+msgstr ""
+
+#: ../includes/admin/metabox.php:733
+msgid "Stable Tag"
+msgstr ""
+
+#: ../includes/admin/metabox.php:734
+msgid "Contributors"
+msgstr ""
+
+#: ../includes/admin/metabox.php:735
+msgid "Donate Link"
+msgstr ""
+
+#: ../includes/admin/metabox.php:737
+#, fuzzy
+msgid "License URI"
+msgstr "Licenssiavain"
+
+#: ../includes/admin/metabox.php:741
+msgid "Download tabs"
+msgstr ""
+
+#: ../includes/admin/metabox.php:742
+msgid ""
+"Override the following sections with content from the remote readme.txt "
+"file. Each section appears as a tab in the Update Notice screen . "
+msgstr ""
+
+#: ../includes/admin/metabox.php:744
+msgid "Description (default: Product content field)"
+msgstr ""
+
+#: ../includes/admin/metabox.php:745
+msgid "Installation"
+msgstr ""
+
+#: ../includes/admin/metabox.php:746
+msgid "FAQ"
+msgstr ""
+
+#: ../includes/admin/metabox.php:747
+msgid "Changelog (default: \"Change Log\" field)"
+msgstr ""
+
+#: ../includes/admin/metabox.php:748
+#, fuzzy
+msgid "Other Content"
+msgstr "2 saraketta: Sisältö / Sivupalkki"
+
+#: ../includes/admin/metabox.php:754
+msgid "Readme.txt Location:"
+msgstr ""
+
+#: ../includes/admin/metabox.php:755
+msgid "What is the URL of the readme.txt file for the download?"
+msgstr ""
+
+#: ../includes/admin/metabox.php:782
+msgid "Plugin Banner Image (high resolution):"
+msgstr ""
+
+#: ../includes/admin/metabox.php:783
+msgid "URL of a banner image to use (1544x500 pixels)"
+msgstr ""
+
+#: ../includes/admin/metabox.php:789 ../includes/admin/metabox.php:802
+msgid "Insert Image"
+msgstr ""
+
+#: ../includes/admin/metabox.php:789 ../includes/admin/metabox.php:802
+msgid "Insert"
+msgstr ""
+
+#: ../includes/admin/metabox.php:789 ../includes/admin/metabox.php:802
+msgid "Upload an Image"
+msgstr ""
+
+#: ../includes/admin/metabox.php:795
+msgid "Plugin Banner Image (low resolution):"
+msgstr ""
+
+#: ../includes/admin/metabox.php:796
+msgid "URL of a banner image to use (772x250 pixels)"
+msgstr ""
+
+#: ../includes/admin/metabox.php:814
+msgid "Override plugin homepage:"
+msgstr ""
+
+#: ../includes/admin/metabox.php:815
+msgid ""
+"Leave blank to use the default plugin homepage (the URL of this Download "
+"page)"
+msgstr ""
+
+#: ../includes/admin/metabox.php:821
+msgid "Plugin Dates:"
+msgstr ""
+
+#: ../includes/admin/metabox.php:823
+msgid "Use Download \"Published on\" date as Plugin Added date?"
+msgstr ""
+
+#: ../includes/admin/metabox.php:825
+msgid ""
+"Use the last time this Download was modified as the \"Last Modified\" date?"
+msgstr ""
+
+#: ../includes/admin/metabox.php:852
+msgid "Please set beta version settings for individual products."
+msgstr ""
+
+#: ../includes/admin/metabox.php:856
+#, php-format
+msgid "Enable a beta version of this %s"
+msgstr ""
+
+#: ../includes/admin/metabox.php:857
+msgid ""
+"Check this and configure your beta version to deliver beta updates to any "
+"users who have opted in."
+msgstr ""
+
+#: ../includes/admin/metabox.php:860
+#, php-format
+msgid "For information on releasing beta versions, please %s."
+msgstr ""
+
+#: ../includes/admin/metabox.php:860
+msgid "see our documentation"
+msgstr ""
+
+#: ../includes/admin/metabox.php:868
+msgid "Name"
+msgstr "Nimi"
+
+#: ../includes/admin/metabox.php:869
+msgid "File URL"
+msgstr ""
+
+#: ../includes/admin/metabox.php:878 ../includes/admin/metabox.php:893
+msgid "File Name"
+msgstr ""
+
+#: ../includes/admin/metabox.php:882 ../includes/admin/metabox.php:897
+msgid "Upload or enter the file URL"
+msgstr ""
+
+#: ../includes/admin/metabox.php:884 ../includes/admin/metabox.php:899
+msgid "Upload a File"
+msgstr ""
+
+#: ../includes/admin/metabox.php:909
+msgid "Choose the source file to be used for automatic update to beta."
+msgstr ""
+
+#: ../includes/admin/metabox.php:919
+msgid "Enter the beta version number."
+msgstr ""
+
+#: ../includes/admin/metabox.php:925
+msgid "Beta Change Log"
+msgstr ""
+
+#: ../includes/admin/reports.php:13
+msgid "License Renewals"
+msgstr "Lisenssien uusinnat"
+
+#: ../includes/admin/reports.php:14 ../includes/admin/reports.php:364
+#: ../includes/admin/reports.php:370
+#, fuzzy
+msgid "License Upgrades"
+msgstr "Lisenssiavaimet"
+
+#: ../includes/admin/reports.php:28
+#, fuzzy
+msgid "License Renewal Notices"
+msgstr "Lisenssiavaimen tila on tuntematon."
+
+#: ../includes/admin/reports.php:45 ../includes/admin/reports.php:262
+#, fuzzy
+msgid "You do not have permission to view this data"
+msgstr "Sinulla ei ole oikeutta ladata tiedostoa"
+
+#: ../includes/admin/reports.php:171
+msgid "Renewals"
+msgstr "Uusinnat"
+
+#: ../includes/admin/reports.php:238
+msgid "License Renewals Over Time"
+msgstr "Lisenssien uusinnat"
+
+#: ../includes/admin/reports.php:246
+msgid "Total renewal earnings for period shown: "
+msgstr "Uusimisten tienestit valitulla ajalla:"
+
+#: ../includes/admin/reports.php:380
+#, fuzzy
+msgid "Total earnings from upgrades period shown: "
+msgstr "Uusimisten tienestit valitulla ajalla:"
+
+#: ../includes/admin/settings.php:4 ../includes/admin/settings.php:40
+msgid "Software Licensing"
+msgstr "Ohjelmistolisensointi"
+
+#: ../includes/admin/settings.php:23
+msgid ""
+"Checking this will give customers the ability to enter their license key on "
+"the checkout page and renew it. They'll also get renewal reminders to their "
+"email, and can also renew from their account page (if that page uses the "
+"[edd_license_keys] shortcode). NOTE: If the product is a Recurring product "
+"and the customer's subscription is still active, it will automatically renew "
+"even if this option is disabled."
+msgstr ""
+
+#: ../includes/admin/settings.php:25
+msgid ""
+"When the user is on the checkout page renewing their license, this discount "
+"will be automatically applied to their renewal purchase. NOTE: If the "
+"product is a Recurring product and the customer's subscription is still "
+"active, it will automatically renew with this discount applied."
+msgstr ""
+
+#: ../includes/admin/settings.php:27
+msgid ""
+"Renewal Reminders are emails that are automatically sent out to the customer "
+"when their license key is about to expire. These emails will remind the "
+"customer that they need to renew. You can configure those emails below. "
+"NOTE: If the product is a Recurring product and the customer's subscription "
+"is still active, the Renewal Reminders on this page will not be sent. "
+"Instead, the emails on the 'Recurring Payments' page will be used (see "
+"'Recurring Payments' above). However, if the customer's subscription is "
+"cancelled or expired, they will be sent these emails."
+msgstr ""
+
+#: ../includes/admin/settings.php:30
+msgid ""
+"Checking this will give customers the ability to enter their license key on "
+"the checkout page and renew it. They'll also get renewal reminders to their "
+"email, and can also renew from their account page (if that page uses the "
+"[edd_license_keys] shortcode)."
+msgstr ""
+
+#: ../includes/admin/settings.php:32
+msgid ""
+"When the user is on the checkout page renewing their license, this discount "
+"will be automatically applied to their renewal purchase."
+msgstr ""
+
+#: ../includes/admin/settings.php:34
+msgid ""
+"Renewal Reminders are emails that are automatically sent out to the customer "
+"when their license key is about to expire. These emails will remind the "
+"customer that they need to renew. You can configure those emails below."
+msgstr ""
+
+#: ../includes/admin/settings.php:47
+msgid "Disable URL Checking?"
+msgstr ""
+
+#: ../includes/admin/settings.php:48
+msgid ""
+"Check this box if your software is not tied to URLs. If you sell desktop "
+"software, check this."
+msgstr ""
+
+#: ../includes/admin/settings.php:50
+msgid "What is URL Checking?"
+msgstr ""
+
+#: ../includes/admin/settings.php:51
+msgid ""
+"Software Licensing will typically require the software to pass a URL along "
+"with a license to check the license limit. Note that if you sell desktop "
+"software, you could use the URL paramater to track the ID of the computer "
+"running the license by passing the computer's ID in the URL paramater. For "
+"more on this please see the documentation."
+msgstr ""
+
+#: ../includes/admin/settings.php:55
+msgid "Ignore Local Host URLs?"
+msgstr ""
+
+#: ../includes/admin/settings.php:56
+msgid ""
+"Allow local development domains and IPs to be activated without counting "
+"towards the activation limit totals. The URL will still be logged."
+msgstr ""
+
+#: ../includes/admin/settings.php:58
+msgid "What is a Local Host?"
+msgstr ""
+
+#: ../includes/admin/settings.php:59
+msgid ""
+"People who are in the developmental stages of their website will often build "
+"it offline using their own computer. This is called a Local Host. "
+msgstr ""
+
+#: ../includes/admin/settings.php:63
+msgid "Selling WordPress Plugins?"
+msgstr ""
+
+#: ../includes/admin/settings.php:64
+msgid ""
+"Check this box if you are selling WordPress plugins and wish to enable "
+"advanced ReadMe.txt file parsing."
+msgstr ""
+
+#: ../includes/admin/settings.php:66
+msgid "What is ReadMe.txt?"
+msgstr ""
+
+#: ../includes/admin/settings.php:67
+msgid ""
+"Properly built WordPress plugins will include a ReadMe.txt file which "
+"includes things like the version, license, author, description, and more. "
+"Checking this will add a metabox to each download which allows for plugin "
+"data to be auto filled based on the included ReadMe.txt file in your plugin. "
+"Note that this is optional even if you are selling WordPress plugins."
+msgstr ""
+
+#: ../includes/admin/settings.php:71
+msgid "Display Inline Upgrade Links"
+msgstr ""
+
+#: ../includes/admin/settings.php:72
+msgid ""
+"Check this box if you want to display inline upgrade links for customers who "
+"have upgradable purchases."
+msgstr ""
+
+#: ../includes/admin/settings.php:74
+msgid "Where are upgrade links displayed?"
+msgstr ""
+
+#: ../includes/admin/settings.php:75
+msgid ""
+"Inline upgrade links are displayed below the 'Add To Cart' button in "
+"products lists and on on individual product pages."
+msgstr ""
+
+#: ../includes/admin/settings.php:79
+msgid "Proration Method"
+msgstr ""
+
+#: ../includes/admin/settings.php:80
+msgid "Specify how to calculate proration for license upgrade."
+msgstr ""
+
+#: ../includes/admin/settings.php:83
+msgid "Cost-Based Calculation"
+msgstr ""
+
+#: ../includes/admin/settings.php:84
+msgid "Time-Based Calculation"
+msgstr ""
+
+#: ../includes/admin/settings.php:86
+msgid "How are prorations calculated?"
+msgstr ""
+
+#: ../includes/admin/settings.php:87
+msgid ""
+"Cost-based caluclation is a type of pseudo-proration where the value of an "
+"upgrade is calculated based on the cost difference between the current and "
+"new licenses.<br /><br />Time-based calculation is true proration in which "
+"the amount of time remaining on the current license is calculated to adjust "
+"the cost of the new license."
+msgstr ""
+
+#: ../includes/admin/settings.php:92
+msgid "Allow Renewals"
+msgstr "Salli uusiminen"
+
+#: ../includes/admin/settings.php:93
+msgid ""
+"Check this box if you want customers to be able to renew their license keys."
+msgstr "Ruksita tämä, jos haluat että asiakas voi uusia lisenssiavaimen."
+
+#: ../includes/admin/settings.php:95
+msgid "What does 'Allow Renewals' do?"
+msgstr ""
+
+#: ../includes/admin/settings.php:100
+msgid "Enforce Email Matching"
+msgstr ""
+
+#: ../includes/admin/settings.php:101
+msgid ""
+"Check this box if you want to enforce email matching on license renewals."
+msgstr ""
+
+#: ../includes/admin/settings.php:103
+msgid "What does 'Email Matching' mean?"
+msgstr ""
+
+#: ../includes/admin/settings.php:104
+msgid ""
+"Email matching restricts renewal of licenses to the email address used to "
+"originally purchase the license. This prevents license keys from being "
+"renewed by a different customer than purchased it."
+msgstr ""
+
+#: ../includes/admin/settings.php:109
+msgid ""
+"Enter a discount amount as a percentage, such as 10. Or enter 0 for no "
+"discount."
+msgstr ""
+"Syötä alennus prosenttina, esim. 10. Tai syötä 0 ja alennusta ei anneta."
+
+#: ../includes/admin/settings.php:112
+msgid "When is this renewal discount used?"
+msgstr ""
+
+#: ../includes/admin/settings.php:117
+msgid "Disable Discount Codes on Renewals"
+msgstr ""
+
+#: ../includes/admin/settings.php:118
+msgid ""
+"Check this box if you want to prevent customers from using non-renewal "
+"discounts in conjunction with renewals."
+msgstr ""
+
+#: ../includes/admin/settings.php:120
+msgid "Disable Discount Codes"
+msgstr ""
+
+#: ../includes/admin/settings.php:121
+msgid ""
+"This will disable the option to redeem discount codes when the cart contains "
+"a license renewal."
+msgstr ""
+
+#: ../includes/admin/settings.php:125
+msgid "Send Renewal Reminders"
+msgstr "Lähetä uusimisviestit"
+
+#: ../includes/admin/settings.php:126
+msgid ""
+"Check this box if you want customers to receive a renewal reminder when "
+"their license key is about to expire."
+msgstr ""
+"Ruksita tämä, jos haluat asiakkaan saavan uusintamuistutuksia lisenssin "
+"vanhentumisesta."
+
+#: ../includes/admin/settings.php:128
+msgid "What are Renewal Reminders?"
+msgstr ""
+
+#: ../includes/admin/settings.php:133
+#, fuzzy
+msgid "Renewal Notices"
+msgstr "Lähetä uusimisviesti"
+
+#: ../includes/admin/settings.php:134
+msgid "Configure the renewal notice emails"
+msgstr ""
+
+#: ../includes/admin/settings.php:164
+msgid "Subject"
+msgstr ""
+
+#: ../includes/admin/settings.php:165
+msgid "Send Period"
+msgstr ""
+
+#: ../includes/admin/settings.php:176
+msgid "Clone"
+msgstr ""
+
+#: ../includes/admin/settings.php:227 ../includes/admin/settings.php:263
+#: ../includes/admin/settings.php:318 ../includes/admin/settings.php:377
+#, fuzzy
+msgid "You do not have permission to add renewal notices"
+msgstr "Sinulla ei ole oikeutta ladata tiedostoa"
+
+#: ../includes/admin/settings.php:236
+msgid "Copy"
+msgstr ""
+
+#: ../includes/admin/settings.php:270 ../includes/admin/settings.php:329
+#: ../includes/admin/upgrades.php:331
+#: ../includes/classes/class-sl-emails.php:81
+#: ../includes/license-renewals.php:74 ../includes/license-renewals.php:122
+msgid "Your License Key is About to Expire"
+msgstr "Lisenssiavain on vanhenemassa"
+
+#: ../includes/admin/settings.php:326 ../includes/admin/settings.php:385
+#, fuzzy
+msgid "No renewal notice ID was provided"
+msgstr "Lisenssiavainta ei ole syötetty"
+
+#: ../includes/admin/upgrades.php:9
+msgid "EDD SL Upgrades"
+msgstr ""
+
+#: ../includes/admin/upgrades.php:9
+msgid "EDD Upgrades"
+msgstr ""
+
+#: ../includes/admin/upgrades.php:26
+#, fuzzy
+msgid "Software Licensing - Upgrades"
+msgstr "Ohjelmistolisensointi"
+
+#: ../includes/admin/upgrades.php:28
+msgid ""
+"The upgrade process is running, please be patient. This could take several "
+"minutes to complete while license keys are upgraded in batches of 100."
+msgstr ""
+
+#: ../includes/admin/upgrades.php:29
+#, php-format
+msgid "Step %d of approximately %d running"
+msgstr ""
+
+#: ../includes/admin/upgrades.php:58 ../includes/admin/upgrades.php:65
+#, php-format
+msgid ""
+"The License Keys in Easy Digital Downloads needs to be upgraded, click <a "
+"href=\"%s\">here</a> to start the upgrade."
+msgstr ""
+
+#: ../includes/admin/upgrades.php:72
+#, php-format
+msgid ""
+"The renewal notices in Easy Digital Downloads needs to be upgraded, click <a "
+"href=\"%s\">here</a> to start the upgrade."
+msgstr ""
+
+#: ../includes/admin/upgrades.php:83
+msgid ""
+"Easy Digital Downloads - Software Licensing now supports Bundle Licenses. "
+"This is an opt-in upgrade, so please choose one of the following:"
+msgstr ""
+
+#: ../includes/admin/upgrades.php:85
+#, php-format
+msgid ""
+"If you want to read more on this new feature, <a href=\"%s\" target=\"_blank"
+"\">click here</a>."
+msgstr ""
+
+#: ../includes/admin/upgrades.php:88
+#, php-format
+msgid "<li>Make <a href=\"%s\">no changes</a></li>"
+msgstr ""
+
+#: ../includes/admin/upgrades.php:89
+msgid ""
+"<li>After you enable licensing for the bundles of your choice, <a href=\"#\" "
+"onClick=\"jQuery('#generate-licenses-button-wrapper').toggle(); return false;"
+"\">generate licenses for bundles with Licensing enabled</a>.</li>"
+msgstr ""
+
+#: ../includes/admin/upgrades.php:93
+msgid ""
+"Before clicking this button, verify that all bundles you want to generate "
+"licenses for have Licensing enabled, and their license length is correct."
+msgstr ""
+
+#: ../includes/admin/upgrades.php:94
+#, php-format
+msgid "<a href=\"%s\" class=\"button-primary\">"
+msgstr ""
+
+#: ../includes/admin/upgrades.php:95
+#, fuzzy
+msgid "Generate Bundle Licenses"
+msgstr "Luo lisenssiavaimet"
+
+#: ../includes/admin/upgrades.php:103
+#, php-format
+msgid ""
+"The Software Licensing post meta needs to be upgraded, click <a href=\"%s"
+"\">here</a> to start the upgrade."
+msgstr ""
+
+#: ../includes/admin/upgrades.php:415 ../includes/admin/upgrades.php:599
+#, fuzzy
+msgid "You do not have permission to do shop upgrades"
+msgstr "Sinulla ei ole oikeutta ladata tiedostoa"
+
+#: ../includes/classes/class-sl-changelog-widget.php:38
 #, fuzzy
 msgid "EDD Software Licensing Changelog"
 msgstr "Ohjelmistolisensointi"
 
-#: includes/EDD_SL_Changelog_Widget.php:43
+#: ../includes/classes/class-sl-changelog-widget.php:43
 msgid "Display the changelog for a specific download."
 msgstr ""
 
-#: includes/EDD_SL_Changelog_Widget.php:49
+#: ../includes/classes/class-sl-changelog-widget.php:49
 #, fuzzy
 msgid "Changelog"
 msgstr "Muutosloki"
 
-#: includes/EDD_SL_Changelog_Widget.php:168
+#: ../includes/classes/class-sl-changelog-widget.php:168
 #, fuzzy
 msgid "Title:"
 msgstr "<span class=\"meta-nav\">&larr;</span> %title"
 
-#: includes/EDD_SL_Changelog_Widget.php:172
+#: ../includes/classes/class-sl-changelog-widget.php:172
 #, fuzzy
 msgid "Show changelog for:"
 msgstr "Muutoslokia ei löytynyt"
 
-#: includes/EDD_SL_Changelog_Widget.php:174
-#, fuzzy
+#: ../includes/classes/class-sl-changelog-widget.php:174
+#, fuzzy, php-format
 msgid "Current %s"
 msgstr "%1$s %2$s."
 
-#: includes/EDD_SL_Emails.php:13
+#: ../includes/classes/class-sl-emails.php:13
 msgid "Show all purchased licenses"
 msgstr "Näytä kaikki ostetut lisenssit"
 
-#: includes/EDD_SL_Emails.php:82
+#: ../includes/classes/class-sl-emails.php:78
 msgid ""
 "Hello {name},\n"
 "\n"
@@ -154,1406 +1740,578 @@ msgstr ""
 "\n"
 "Uusi nyt: {renewal_link}."
 
-#: includes/EDD_SL_Emails.php:85 includes/renewals.php:74
-#: includes/renewals.php:122 includes/settings.php:154
-#: includes/settings.php:213 includes/upgrades.php:317
-msgid "Your License Key is About to Expire"
-msgstr "Lisenssiavain on vanhenemassa"
-
-#: includes/EDD_SL_Emails.php:111
+#: ../includes/classes/class-sl-emails.php:107
 #, fuzzy
 msgid "LOG - Renewal Notice Sent"
 msgstr "Lähetä uusimisviesti"
 
-#: includes/EDD_SL_List_Table.php:52
+#: ../includes/classes/class-sl-emails.php:151
+#, php-format
+msgid "expired %s ago"
+msgstr ""
+
+#: ../includes/classes/class-sl-emails.php:153
+#, php-format
+msgid "expires in %s"
+msgstr ""
+
+#: ../includes/classes/class-sl-license.php:969
 #, fuzzy
-msgid "disabled"
-msgstr "Poistettu käytöstä"
+msgid "Renew this license"
+msgstr "Uusitko lisenssiavainta?"
 
-#: includes/EDD_SL_List_Table.php:63
-msgid "Guest"
-msgstr "Vieras"
-
-#: includes/EDD_SL_List_Table.php:102 includes/metabox.php:80
-#: includes/metabox.php:329 templates/licenses-manage-overview.php:50
-msgid "Lifetime"
+#: ../includes/classes/class-sl-license.php:969
+msgid "renew now"
 msgstr ""
 
-#: includes/EDD_SL_List_Table.php:121 includes/settings.php:99
-msgid "Edit"
-msgstr "Muokkaa"
-
-#: includes/EDD_SL_List_Table.php:132
-msgid "View payment"
-msgstr ""
-
-#: includes/EDD_SL_List_Table.php:168 includes/EDD_SL_List_Table.php:395
-msgid "Deactivate"
-msgstr "Passivoi"
-
-#: includes/EDD_SL_List_Table.php:173
-msgid "Extend this license key's expiration date"
-msgstr "Pidennä lisenssiavaimen voimassaoloaikaa"
-
-#: includes/EDD_SL_List_Table.php:173
-msgid "Extend"
-msgstr "Pidennä"
-
-#: includes/EDD_SL_List_Table.php:175 includes/EDD_SL_List_Table.php:399
-msgid "Renew"
-msgstr "Uusi"
-
-#: includes/EDD_SL_List_Table.php:177 includes/EDD_SL_List_Table.php:396
-msgid "Activate"
-msgstr "Aktivoi"
-
-#: includes/EDD_SL_List_Table.php:181 includes/EDD_SL_List_Table.php:397
-msgid "Enable"
-msgstr "Ota käyttöön"
-
-#: includes/EDD_SL_List_Table.php:183
-msgid "Disable"
-msgstr "Poista käytöstä"
-
-#: includes/EDD_SL_List_Table.php:187
-msgid "License Log"
-msgstr "Lisenssiloki"
-
-#: includes/EDD_SL_List_Table.php:187
-msgid "View Log"
-msgstr "Katso lokia"
-
-#: includes/EDD_SL_List_Table.php:190 templates/licenses-manage-overview.php:30
-#: templates/licenses-manage-overview.php:56
-msgid "Manage Sites"
-msgstr ""
-
-#: includes/EDD_SL_List_Table.php:193 includes/EDD_SL_List_Table.php:400
-#: includes/settings.php:100
-msgid "Delete"
-msgstr "Poista"
-
-#: includes/EDD_SL_List_Table.php:195
-#, fuzzy
-msgid "Loading license log.."
-msgstr "Lisenssiavaimen tila on tuntematon."
-
-#: includes/EDD_SL_List_Table.php:232
-msgid "Name"
-msgstr "Nimi"
-
-#: includes/EDD_SL_List_Table.php:233
-#: includes/EDD_SL_Retroactive_Licensing.php:113
-#: templates/licenses-manage-overview.php:26
-msgid "Status"
-msgstr "Tila"
-
-#: includes/EDD_SL_List_Table.php:234 templates/licenses-manage-overview.php:25
-msgid "Key"
-msgstr "Avain"
-
-#: includes/EDD_SL_List_Table.php:235
-msgid "User"
-msgstr "Käyttäjä"
-
-#: includes/EDD_SL_List_Table.php:236 includes/class-export-licenses.php:92
-#, fuzzy
-msgid "Activation Count"
-msgstr "Pakota aktivoinnin lukumäärä"
-
-#: includes/EDD_SL_List_Table.php:236
-msgid "Site Count"
-msgstr "Sivustojen lukumäärä"
-
-#: includes/EDD_SL_List_Table.php:237 includes/class-export-licenses.php:91
-msgid "Activation Limit"
-msgstr "Aktivointiraja"
-
-#: includes/EDD_SL_List_Table.php:238
-msgid "Expires"
-msgstr "Vanhenee"
-
-#: includes/EDD_SL_List_Table.php:239
-msgid "Purchased"
-msgstr "Ostettu"
-
-#: includes/EDD_SL_List_Table.php:278
-msgid "All"
-msgstr "Kaikki"
-
-#: includes/EDD_SL_List_Table.php:302
-msgid "Disabled"
-msgstr "Poistettu käytöstä"
-
-#: includes/EDD_SL_List_Table.php:398
-msgid "Send Renewal Notice"
-msgstr "Lähetä uusimisviesti"
-
-#: includes/EDD_SL_Renewal_Notice_Logs.php:32
-msgid "Product - Recipient"
-msgstr ""
-
-#: includes/EDD_SL_Renewal_Notice_Logs.php:33
-#: includes/add-renewal-notice.php:21 includes/edit-renewal-notice.php:27
-msgid "Email Subject"
-msgstr ""
-
-#: includes/EDD_SL_Renewal_Notice_Logs.php:34
-#, fuzzy
-msgid "Date Sent"
-msgstr "Päivämäärä"
-
-#: includes/EDD_SL_Retroactive_Licensing.php:31
-#, fuzzy
-msgid "Your user account doesn't have permission to access this."
-msgstr "Sinulla ei ole oikeutta ladata tiedostoa"
-
-#: includes/EDD_SL_Retroactive_Licensing.php:35
-#, fuzzy
-msgid "Software Licensing - Retroactive Licensing Processor"
-msgstr "Ohjelmistolisensointi"
-
-#: includes/EDD_SL_Retroactive_Licensing.php:55
-#: includes/EDD_SL_Retroactive_Licensing.php:57
-msgid "All Done"
-msgstr ""
-
-#: includes/EDD_SL_Retroactive_Licensing.php:58
-#, fuzzy
-msgid "No purchases needing licenses found."
-msgstr "Näytä kaikki ostetut lisenssit"
-
-#: includes/EDD_SL_Retroactive_Licensing.php:69
-msgid ""
-"Use this tool to provision licenses for unlicensed Easy Digital Downloads "
-"products."
-msgstr ""
-
-#: includes/EDD_SL_Retroactive_Licensing.php:70
-msgid ""
-"This processing is not reversible. Backup your database beforehand or be "
-"prepared to revert each transformed post manually."
-msgstr ""
-
-#: includes/EDD_SL_Retroactive_Licensing.php:74
-#, fuzzy
-msgid "Generate License Keys for Past Purchases"
-msgstr "Käytä tätä lisenssiavaimien luonnissa tälle ostolle"
-
-#: includes/EDD_SL_Retroactive_Licensing.php:77
-#: includes/EDD_SL_Retroactive_Licensing.php:105
-msgid "You must enable Javascript in order to proceed!"
-msgstr ""
-
-#: includes/EDD_SL_Retroactive_Licensing.php:96
-msgid ""
-"Please be patient while this script runs. This can take a while, up to a "
-"minute per payment. Do not navigate away from this page until this script is "
-"done or the licensing will not be completed. You will be notified via this "
-"page when the licensing is completed."
-msgstr ""
-
-#: includes/EDD_SL_Retroactive_Licensing.php:98
-msgid "To go back to the previous page, <a href=\"%s\">click here</a>."
-msgstr ""
-
-#: includes/EDD_SL_Retroactive_Licensing.php:100
-msgid ""
-"All done! %1$s posts were successfully processed in %2$s seconds and there "
-"were %3$s failures. To try importing the failed posts again, <a href=\"%4$s"
-"\">click here</a>. %5$s"
-msgstr ""
-
-#: includes/EDD_SL_Retroactive_Licensing.php:102
-msgid ""
-"All done! %1$s posts were successfully processed in %2$s seconds and there "
-"were no failures. %3$s"
-msgstr ""
-
-#: includes/EDD_SL_Retroactive_Licensing.php:111
-#, fuzzy
-msgid "Abort Licensing Posts"
-msgstr "Ohjelmistolisensointi"
-
-#: includes/EDD_SL_Retroactive_Licensing.php:116
-#, fuzzy
-msgid "Total Payments: %s"
-msgstr "%1$s %2$s."
-
-#: includes/EDD_SL_Retroactive_Licensing.php:117
-#, fuzzy
-msgid "Payments Processed: %s"
-msgstr "%1$s %2$s."
-
-#: includes/EDD_SL_Retroactive_Licensing.php:118
-#, fuzzy
-msgid "License Failures: %s"
-msgstr "Lisenssiavaimet:"
-
-#: includes/EDD_SL_Retroactive_Licensing.php:149
-msgid "Stopping, please wait a moment."
-msgstr ""
-
-#: includes/EDD_SL_Retroactive_Licensing.php:345
-#, fuzzy
-msgid "Failed Licensing: You do not have permission to perform this action."
-msgstr "Sinulla ei ole oikeutta ladata tiedostoa"
-
-#: includes/EDD_SL_Retroactive_Licensing.php:352
-msgid "Failed Licensing: %s is incorrect post type."
-msgstr ""
-
-#: includes/EDD_SL_Retroactive_Licensing.php:357
-msgid ""
-"License keys for Payment ID <a href=\"%1$s\" target=\"_blank\">%2$s</a> were "
-"successfully generated."
-msgstr ""
-
-#: includes/EDD_SL_Retroactive_Licensing.php:359
-msgid ""
-"Payment ID <a href=\"%1$s\" target=\"_blank\">%2$s</a> was NOT licensed "
-"because \"%4$\"."
-msgstr ""
-
-#: includes/EDD_SL_Retroactive_Licensing.php:372
-msgid "Empty `$payment_id`"
-msgstr ""
-
-#: includes/EDD_SL_Retroactive_Licensing.php:376
-#, fuzzy
-msgid "No payment downloads found"
-msgstr "Easy Digital Downloads"
-
-#: includes/add-renewal-notice.php:15 includes/add-renewal-notice.php:67
-#: includes/settings.php:107
-#, fuzzy
-msgid "Add Renewal Notice"
-msgstr "Lähetä uusimisviesti"
-
-#: includes/add-renewal-notice.php:15 includes/edit-renewal-notice.php:21
-msgid "Go Back"
-msgstr ""
-
-#: includes/add-renewal-notice.php:25 includes/edit-renewal-notice.php:31
-#, fuzzy
-msgid "The subject line of the renewal notice email"
-msgstr "Uusintasähköpostin aihe"
-
-#: includes/add-renewal-notice.php:30 includes/edit-renewal-notice.php:36
-msgid "Email Period"
-msgstr ""
-
-#: includes/add-renewal-notice.php:38 includes/edit-renewal-notice.php:44
-msgid "When should this email be sent?"
-msgstr ""
-
-#: includes/add-renewal-notice.php:43 includes/edit-renewal-notice.php:49
-msgid "Email Message"
-msgstr ""
-
-#: includes/add-renewal-notice.php:47 includes/edit-renewal-notice.php:53
-msgid ""
-"The email message to be sent with the renewal notice. The following template "
-"tags can be used in the message:"
-msgstr ""
-
-#: includes/add-renewal-notice.php:49 includes/edit-renewal-notice.php:55
-msgid "The customer's name"
-msgstr "Asiakkaan nimi"
-
-#: includes/add-renewal-notice.php:50 includes/edit-renewal-notice.php:56
-msgid "The license key that needs renewed"
-msgstr "Lisenssiavain, joka tarvitsee uusimista"
-
-#: includes/add-renewal-notice.php:51 includes/edit-renewal-notice.php:57
-msgid "The name of the product the license key belongs to"
-msgstr "Lisenssiavaimen tuotteen nimi"
-
-#: includes/add-renewal-notice.php:52 includes/edit-renewal-notice.php:58
-msgid "The expiration date for the license key"
-msgstr "Lisenssiavaimen vanhentumispäivä"
-
-#: includes/add-renewal-notice.php:53 includes/edit-renewal-notice.php:59
-msgid "URL to the renewal checkout page"
-msgstr "Verkko-osoite lisenssin uusintasivulle"
-
-#: includes/add-renewal-notice.php:56 includes/edit-renewal-notice.php:62
-msgid "The renewal discount, including the `%` symbol."
-msgstr ""
-
-#: includes/admin.php:14 includes/admin.php:45
-msgid "Easy Digital Download Licenses"
-msgstr "Easy Digital Download lisensointi"
-
-#: includes/admin.php:14 includes/post-types.php:26 includes/post-types.php:32
-msgid "Licenses"
-msgstr "Lisenssit"
-
-#: includes/admin.php:15
-#, fuzzy
-msgid "License Renewal Notice"
-msgstr "Lisenssiavaimen tila on tuntematon."
-
-#: includes/admin.php:54
-msgid "Active Sites for %s"
-msgstr ""
-
-#: includes/admin.php:65 templates/licenses-manage-single.php:34
-#, fuzzy
-msgid "Deactivate Site"
-msgstr "Passivoi"
-
-#: includes/admin.php:71
-#, fuzzy
-msgid "This license has not been activated on any sites"
-msgstr "Lisenssillä ei ole lokimerkintöjä"
-
-#: includes/admin.php:76
-msgid ""
-"Use this form to add a new site URL for this license. Once added, the site "
-"will be considered active and will be included in the total site count."
-msgstr ""
-
-#: includes/admin.php:79
-msgid "Enter the site URL including http://"
-msgstr ""
-
-#: includes/admin.php:85 templates/licenses-manage-single.php:55
-#, fuzzy
-msgid "Add Site"
-msgstr "Sivuston otsikon väri"
-
-#: includes/admin.php:117
-msgid "Edit Expiration for %s"
-msgstr ""
-
-#: includes/admin.php:123
-#, fuzzy
-msgid "Choose a new expiration date."
-msgstr "Pidennä lisenssiavaimen voimassaoloaikaa"
-
-#: includes/admin.php:127
-#, fuzzy
-msgid "Lifetime License"
-msgstr "Teeman lisenssi"
-
-#: includes/admin.php:132
-msgid ""
-"This license key is associated with the purchase of a bundled product. "
-"Changing its expiration date will alter the expiration of all associated "
-"license keys."
-msgstr ""
-
-#: includes/admin.php:140
-msgid "Update Expiration"
-msgstr ""
-
-#: includes/admin.php:431
-msgid "One key was generated"
-msgid_plural "%d keys were generated."
-msgstr[0] ""
-msgstr[1] ""
-
-#: includes/admin.php:433
-#, fuzzy
-msgid "One key was updated"
-msgid_plural "%d keys were updated."
-msgstr[0] "Lisenssiavain on vanhentunut."
-msgstr[1] "Lisenssiavain on vanhentunut."
-
-#: includes/admin.php:449
-msgid "Missing License Generated: %s"
-msgstr ""
-
-#: includes/admin.php:594
-msgid "This license has no log entries"
-msgstr "Lisenssillä ei ole lokimerkintöjä"
-
-#: includes/class-export-licenses.php:85
-#, fuzzy
-msgid "Email"
-msgstr "Sähköposti"
-
-#: includes/class-export-licenses.php:86 includes/customers.php:118
-#: samples/edd-sample-plugin/edd-sample-plugin.php:66
-#: samples/edd-sample-theme/updater/theme-updater.php:31
-msgid "License Key"
-msgstr "Lisenssiavain"
-
-#: includes/class-export-licenses.php:87
-#, fuzzy
-msgid "License Status"
-msgstr "Lisenssiavaimen tila on tuntematon."
-
-#: includes/class-export-licenses.php:88
-msgid "Product Name"
-msgstr ""
-
-#: includes/class-export-licenses.php:89
-#, fuzzy
-msgid "Purchase Date"
-msgstr "Ostettu"
-
-#: includes/class-export-licenses.php:90
-#, fuzzy
-msgid "Expiration Date"
-msgstr "Pidennä lisenssiavaimen voimassaoloaikaa"
-
-#: includes/class-export-licenses.php:93
-#, fuzzy
-msgid "Activated URLs"
-msgstr "Aktivoi lisenssi"
-
-#: includes/classes/class-sl-package-download.php:61
+#: ../includes/classes/class-sl-package-download.php:61
 msgid "Invalid token supplied"
 msgstr ""
 
-#: includes/classes/class-sl-package-download.php:61
-#: includes/classes/class-sl-package-download.php:70
-#: includes/classes/class-sl-package-download.php:78
-#: includes/classes/class-sl-package-download.php:125
-#: includes/classes/class-sl-package-download.php:129
-#: includes/classes/class-sl-package-download.php:133
-#: includes/classes/class-sl-package-download.php:250
-#: includes/classes/class-sl-package-download.php:281 includes/metabox.php:545
-#: includes/metabox.php:554 includes/reports.php:45 includes/reports.php:259
-#: includes/settings.php:147 includes/settings.php:151
-#: includes/settings.php:202 includes/settings.php:206
-#: includes/settings.php:261 includes/settings.php:265
-#: includes/settings.php:269 includes/upgrades.php:401
-#: samples/edd-sample-plugin/EDD_SL_Plugin_Updater.php:328
-msgid "Error"
-msgstr "Virhe"
-
-#: includes/classes/class-sl-package-download.php:70
-#: includes/classes/class-sl-package-download.php:133
+#: ../includes/classes/class-sl-package-download.php:72
+#: ../includes/classes/class-sl-package-download.php:180
 msgid "Invalid license supplied"
 msgstr ""
 
-#: includes/classes/class-sl-package-download.php:78
+#: ../includes/classes/class-sl-package-download.php:84
+#, php-format
+msgid ""
+"Your license has expired, please <a href=\"%s\" title=\"Renew your license"
+"\">renew it</a> to install this update."
+msgstr ""
+
+#: ../includes/classes/class-sl-package-download.php:88
+msgid ""
+"Your license has not been activated for this domain, please activate it "
+"first."
+msgstr ""
+
+#: ../includes/classes/class-sl-package-download.php:91
+msgid "Your license has been disabled."
+msgstr ""
+
+#: ../includes/classes/class-sl-package-download.php:96
+msgid "Your license could not be validated."
+msgstr ""
+
+#: ../includes/classes/class-sl-package-download.php:109
 msgid "Provided hash does not validate."
 msgstr ""
 
-#: includes/classes/class-sl-package-download.php:125
+#: ../includes/classes/class-sl-package-download.php:172
 msgid "Your download link has expired"
 msgstr ""
 
-#: includes/classes/class-sl-package-download.php:250
+#: ../includes/classes/class-sl-package-download.php:176
+msgid "No license key provided"
+msgstr "Lisenssiavainta ei ole syötetty"
+
+#: ../includes/classes/class-sl-package-download.php:308
 msgid "You do not have permission to download this file"
 msgstr "Sinulla ei ole oikeutta ladata tiedostoa"
 
-#: includes/classes/class-sl-package-download.php:281
+#: ../includes/classes/class-sl-package-download.php:344
 #, fuzzy
 msgid ""
 "You do not have permission to download this file. An invalid hash was "
 "provided."
 msgstr "Sinulla ei ole oikeutta ladata tiedostoa"
 
-#: includes/customers.php:40 includes/customers.php:112 includes/history.php:4
-#: includes/metabox.php:129 includes/metabox.php:493
-msgid "License Keys"
-msgstr "Lisenssiavaimet"
-
-#: includes/customers.php:119 includes/settings.php:90
-#: templates/licenses-manage-single.php:25 templates/licenses-upgrades.php:25
-#, fuzzy
-msgid "Actions"
-msgstr "Aktiivinen"
-
-#: includes/customers.php:133 includes/customers.php:134
-#, fuzzy
-msgid "View"
-msgstr "Näytä lisenssiavain"
-
-#: includes/customers.php:140
-#, fuzzy
-msgid "No license keys found"
-msgstr "Lisenssejä ei löytynyt"
-
-#: includes/edit-renewal-notice.php:21
-#, fuzzy
-msgid "Edit Renewal Notice"
-msgstr "Lähetä uusimisviesti"
-
-#: includes/edit-renewal-notice.php:74
-#, fuzzy
-msgid "Update Renewal Notice"
-msgstr "Lähetä uusimisviesti"
-
-#: includes/errors.php:19
+#: ../includes/errors.php:22
 msgid ""
 "This license is at its activation limit. Deactivate a site before adding a "
 "new one."
 msgstr ""
 
-#: includes/errors.php:25
+#: ../includes/errors.php:26
+msgid "There was an error adding your site. Please try again."
+msgstr ""
+
+#: ../includes/errors.php:32
 #, fuzzy
 msgid "Error:"
 msgstr "Virhe"
 
-#: includes/export.php:12
-#, fuzzy
-msgid "Export License Keys"
-msgstr "Lisenssiavaimet"
-
-#: includes/export.php:14
-msgid "Use this tool to export license keys to a CSV file."
-msgstr ""
-
-#: includes/export.php:21
-#, fuzzy
-msgid "All License Keys"
-msgstr "Lisenssiavaimet"
-
-#: includes/export.php:22
-#, fuzzy
-msgid "Active License Keys"
-msgstr "Lisenssiavain on aktiivinen."
-
-#: includes/export.php:23
-#, fuzzy
-msgid "Inactive License Keys"
-msgstr "Luo lisenssiavaimet"
-
-#: includes/export.php:24
-#, fuzzy
-msgid "Expired License Keys"
-msgstr "Lisenssiavaimet eivät täsmää."
-
-#: includes/export.php:30
-msgid "Export"
-msgstr ""
-
-#: includes/history.php:21
-#, fuzzy
-msgid "View Licenses"
-msgstr "Näytä lisenssi"
-
-#: includes/license-upgrades.php:332
-msgid "<em>license upgrade</em>"
-msgstr ""
-
-#: includes/license-upgrades.php:533
-#, fuzzy
-msgid "License upgraded from %s to %s"
-msgstr "Lisenssin uusimisalennus"
-
-#: includes/license-upgrades.php:560
-msgid "<strong>Upgraded from:</strong> <a href=\"%s\">#%s</a>"
-msgstr ""
-
-#: includes/license-upgrades.php:572
-msgid "<strong>Upgraded to:</strong> <a href=\"%s\">#%s</a>"
-msgstr ""
-
-#: includes/metabox.php:11
-msgid "Licensing"
-msgstr "Lisensointi"
-
-#: includes/metabox.php:12
-#, fuzzy
-msgid "License Upgrade Paths"
-msgstr "Lisenssiavaimen tila on tuntematon."
-
-#: includes/metabox.php:13
-#, fuzzy
-msgid "Generate Missing Licenses"
-msgstr "Luo lisenssiavaimet"
-
-#: includes/metabox.php:56
-msgid "Check to enable license creation"
-msgstr "Ota lisensointi käyttöön"
-
-#: includes/metabox.php:58
-msgid ""
-"A license key will be generated for each product in this bundle, upon "
-"purchase."
-msgstr ""
-
-#: includes/metabox.php:66
-msgid ""
-"Limit number of times this license can be activated. If using variable "
-"prices, set the limit for each price option."
-msgstr ""
-
-#: includes/metabox.php:73
-#, fuzzy
-msgid "Enter the current version number."
-msgstr "Syötä nykyinen versionumero"
-
-#: includes/metabox.php:79
-msgid "How long are license keys valid for?"
-msgstr ""
-
-#: includes/metabox.php:82
-#, fuzzy
-msgid "Limited"
-msgstr "Rajoittamaton"
-
-#: includes/metabox.php:86
-msgid "Days"
-msgstr "Päivää"
-
-#: includes/metabox.php:87
-msgid "Weeks"
-msgstr "Viikkoa"
-
-#: includes/metabox.php:88
-msgid "Months"
-msgstr "Kuukautta"
-
-#: includes/metabox.php:89
-msgid "Years"
-msgstr "Vuotta"
-
-#: includes/metabox.php:106
-#, fuzzy
-msgid "Choose the source file to be used for automatic updates."
-msgstr "Valitse lähdetiedosto, jota käytetään automaattisessa päivityksessä"
-
-#: includes/metabox.php:113
-msgid "Change Log"
-msgstr "Muutosloki"
-
-#: includes/metabox.php:123
-#, fuzzy
-msgid "Enter details about what changed."
-msgstr "Syötä tietoja siitä, mikä on muuttunut"
-
-#: includes/metabox.php:131
-#, fuzzy
-msgid ""
-"Enter available license keys, one per line. If empty, keys will be "
-"automatically generated. "
-msgstr ""
-"Syötä käytettävät lisenssiavaimet, yksi per rivi. Jos kenttä on tyhjä, "
-"avaimet luodaan automaattisesti."
-
-#: includes/metabox.php:156
-#, fuzzy
-msgid "Price Option"
-msgstr "Lisäosan lisenssivaihtoehdot"
-
-#: includes/metabox.php:157
-msgid "Prorate"
-msgstr ""
-
-#: includes/metabox.php:158
-#, fuzzy
-msgid "Additional Discount"
-msgstr "Uusinnan alennus"
-
-#: includes/metabox.php:202 includes/metabox.php:263 includes/scripts.php:32
-msgid "N/A"
-msgstr ""
-
-#: includes/metabox.php:217 includes/metabox.php:275
-msgid "Amount"
-msgstr ""
-
-#: includes/metabox.php:286
-msgid "Add New Upgrade Path"
-msgstr ""
-
-#: includes/metabox.php:292
-msgid "Configure the optional upgrade paths for customers. "
-msgstr ""
-
-#: includes/metabox.php:306
-msgid ""
-"Generate missing licenses for purchases of this product that did not have a "
-"key generated."
-msgstr ""
-
-#: includes/metabox.php:307
-#, fuzzy
-msgid "Generate Licenses Now"
-msgstr "Luo lisenssiavaimet"
-
-#: includes/metabox.php:322
-#, fuzzy
-msgid "License Activation Limit"
-msgstr "Lisenssiavaimen tila on tuntematon."
-
-#: includes/metabox.php:510
-msgid "View License Key"
-msgstr "Näytä lisenssiavain"
-
-#: includes/metabox.php:524
-msgid ""
-"Use this to generate missing license keys for this purchase. If you add a "
-"product to the purchase, click this after saving the payment."
-msgstr ""
-
-#: includes/metabox.php:526
-msgid "Generate License Keys"
-msgstr "Luo lisenssiavaimet"
-
-#: includes/metabox.php:545
-msgid "Verification failed"
-msgstr ""
-
-#: includes/metabox.php:554
-#, fuzzy
-msgid "You do not have permission to perform this action"
-msgstr "Sinulla ei ole oikeutta ladata tiedostoa"
-
-#: includes/metabox.php:648
-msgid "Download <code>readme.txt</code> Configuration"
-msgstr ""
-
-#: includes/metabox.php:708
-msgid "Download details"
-msgstr ""
-
-#: includes/metabox.php:709
-msgid "Use the following data from the remote readme.txt file . "
-msgstr ""
-
-#: includes/metabox.php:711
-msgid "Tested Up To (WordPress Version)"
-msgstr ""
-
-#: includes/metabox.php:712
-msgid "Stable Tag"
-msgstr ""
-
-#: includes/metabox.php:713
-msgid "Contributors"
-msgstr ""
-
-#: includes/metabox.php:714
-msgid "Donate Link"
-msgstr ""
-
-#: includes/metabox.php:715
-msgid "License"
-msgstr "Lisenssi"
-
-#: includes/metabox.php:716
-#, fuzzy
-msgid "License URI"
-msgstr "Licenssiavain"
-
-#: includes/metabox.php:720
-msgid "Download tabs"
-msgstr ""
-
-#: includes/metabox.php:721
-msgid ""
-"Override the following sections with content from the remote readme.txt "
-"file. Each section appears as a tab in the Update Notice screen . "
-msgstr ""
-
-#: includes/metabox.php:723
-msgid "Description (default: Product content field)"
-msgstr ""
-
-#: includes/metabox.php:724
-msgid "Installation"
-msgstr ""
-
-#: includes/metabox.php:725
-msgid "FAQ"
-msgstr ""
-
-#: includes/metabox.php:726
-msgid "Changelog (default: \"Change Log\" field)"
-msgstr ""
-
-#: includes/metabox.php:727
-#, fuzzy
-msgid "Other Content"
-msgstr "2 saraketta: Sisältö / Sivupalkki"
-
-#: includes/metabox.php:733
-msgid "Readme.txt Location:"
-msgstr ""
-
-#: includes/metabox.php:734
-msgid "What is the URL of the readme.txt file for the download?"
-msgstr ""
-
-#: includes/metabox.php:764
-msgid "Override plugin homepage:"
-msgstr ""
-
-#: includes/metabox.php:765
-msgid ""
-"Leave blank to use the default plugin homepage (the URL of this Download "
-"page)"
-msgstr ""
-
-#: includes/metabox.php:771
-msgid "Plugin Dates:"
-msgstr ""
-
-#: includes/metabox.php:773
-msgid "Use Download \"Published on\" date as Plugin Added date?"
-msgstr ""
-
-#: includes/metabox.php:775
-msgid ""
-"Use the last time this Download was modified as the \"Last Modified\" date?"
-msgstr ""
-
-#: includes/post-types.php:20
-#, fuzzy
-msgctxt "post type general name"
-msgid "Licenses"
-msgstr "Lisenssit"
-
-#: includes/post-types.php:21
-#, fuzzy
-msgctxt "post type singular name"
-msgid "License"
-msgstr "Lisenssi"
-
-#: includes/post-types.php:22
-msgid "Add New"
-msgstr "Lisää uusi"
-
-#: includes/post-types.php:23
-msgid "Add New License"
-msgstr "Lisää uusi lisenssi"
-
-#: includes/post-types.php:24
-msgid "Edit License"
-msgstr "Muokkaa lisenssiä"
-
-#: includes/post-types.php:25
-msgid "New License"
-msgstr "Uusi lisenssi"
-
-#: includes/post-types.php:27
-msgid "View License"
-msgstr "Näytä lisenssi"
-
-#: includes/post-types.php:28
-msgid "Search Licenses"
-msgstr "Hae lisenssejä"
-
-#: includes/post-types.php:29
-msgid "No Licenses found"
-msgstr "Lisenssejä ei löytynyt"
-
-#: includes/post-types.php:30
-msgid "No Licenses found in Trash"
-msgstr "Lisenssejä ei löytynyt roskakorista"
-
-#: includes/post-types.php:72
-msgid "Version"
-msgstr "Versio"
-
-#: includes/post-types.php:73
-msgid "Date"
-msgstr "Päivämäärä"
-
-#: includes/readme.php:177
-msgid "The cache has been deleted."
-msgstr ""
-
-#: includes/readme.php:181
-msgid ""
-"There was an error when deleting the cache. It may have already been deleted."
-msgstr ""
-
-#: includes/readme.php:189
-msgid "the file has been cached. %sClear cached file%s"
-msgstr ""
-
-#: includes/readme.php:191
-msgid "the file is not cached."
-msgstr ""
-
-#: includes/readme.php:195
-msgid "Cache:"
-msgstr ""
-
-#: includes/receipt.php:22
-msgid "License Keys:"
-msgstr "Lisenssiavaimet:"
-
-#: includes/receipt.php:31
-#, fuzzy
-msgid "expired"
-msgstr "Vanhentunut"
-
-#: includes/receipt.php:33
-msgid "revoked"
-msgstr ""
-
-#: includes/receipt.php:41
-msgid "none"
-msgstr "ei mitään"
-
-#: includes/renewals.php:27
+#: ../includes/license-renewals.php:27
 msgid "One day before expiration"
 msgstr ""
 
-#: includes/renewals.php:28
+#: ../includes/license-renewals.php:28
 msgid "Two days before expiration"
 msgstr ""
 
-#: includes/renewals.php:29
+#: ../includes/license-renewals.php:29
 msgid "Three days before expiration"
 msgstr ""
 
-#: includes/renewals.php:30
+#: ../includes/license-renewals.php:30
 msgid "One week before expiration"
 msgstr ""
 
-#: includes/renewals.php:31
+#: ../includes/license-renewals.php:31
 msgid "Two weeks before expiration"
 msgstr ""
 
-#: includes/renewals.php:32
+#: ../includes/license-renewals.php:32
 msgid "One month before expiration"
 msgstr ""
 
-#: includes/renewals.php:33
+#: ../includes/license-renewals.php:33
 msgid "Two months before expiration"
 msgstr ""
 
-#: includes/renewals.php:34
+#: ../includes/license-renewals.php:34
 msgid "Three months before expiration"
 msgstr ""
 
-#: includes/renewals.php:35
+#: ../includes/license-renewals.php:35
 msgid "At the time of expiration"
 msgstr ""
 
-#: includes/renewals.php:36
+#: ../includes/license-renewals.php:36
 msgid "One day after expiration"
 msgstr ""
 
-#: includes/renewals.php:37
+#: ../includes/license-renewals.php:37
 msgid "Two days after expiration"
 msgstr ""
 
-#: includes/renewals.php:38
+#: ../includes/license-renewals.php:38
 msgid "Three days after expiration"
 msgstr ""
 
-#: includes/renewals.php:39
+#: ../includes/license-renewals.php:39
 msgid "One week after expiration"
 msgstr ""
 
-#: includes/renewals.php:40
+#: ../includes/license-renewals.php:40
 msgid "Two weeks after expiration"
 msgstr ""
 
-#: includes/renewals.php:41
+#: ../includes/license-renewals.php:41
 msgid "One month after expiration"
 msgstr ""
 
-#: includes/renewals.php:42
+#: ../includes/license-renewals.php:42
 msgid "Two months after expiration"
 msgstr ""
 
-#: includes/renewals.php:43
+#: ../includes/license-renewals.php:43
 msgid "Three months after expiration"
 msgstr ""
 
-#: includes/renewals.php:149
+#: ../includes/license-renewals.php:149
 msgid ""
 "Renewing a license key? <a href=\"#\" id=\"edd_sl_show_renewal_form\">Click "
 "to renew an existing license</a>"
 msgstr ""
 
-#: includes/renewals.php:152
+#: ../includes/license-renewals.php:152
 msgid ""
 "Enter the license key you wish to renew. Leave blank to purchase a new one."
 msgstr ""
 "Syötä lisenssiavain, jonka haluat uusia. Jätä tyhjäksi ostaaksesi uuden."
 
-#: includes/renewals.php:153 samples/edd-sample-plugin/edd-sample-plugin.php:70
+#: ../includes/license-renewals.php:153
+#: ../samples/edd-sample-plugin/edd-sample-plugin.php:76
 msgid "Enter your license key"
 msgstr "Syötä lisenssiavain"
 
-#: includes/renewals.php:157
+#: ../includes/license-renewals.php:157
 msgid "Apply License Renewal"
 msgstr "Jatka lisenssin uusintaa"
 
-#: includes/renewals.php:157
-msgid "Cancel"
-msgstr ""
-
-#: includes/renewals.php:163
-#, fuzzy
-msgid "License keys being renewed:"
-msgstr "Uusittava lisenssiavain"
-
-#: includes/renewals.php:174
+#: ../includes/license-renewals.php:162
 msgid "You may renew multiple license keys at once."
 msgstr ""
 
-#: includes/renewals.php:182
-msgid "License is unable to be renewed due to payment status"
-msgstr ""
-
-#: includes/renewals.php:185
-#, fuzzy
-msgid "Invalid license key provided"
-msgstr "Lisenssiavainta ei ole syötetty"
-
-#: includes/renewals.php:189
-#, fuzzy
-msgid "That license key appears to be invalid."
-msgstr "Lisenssiavainta ei ole syötetty"
-
-#: includes/renewals.php:203
+#: ../includes/license-renewals.php:176
 msgid "Cancel License Renewal"
 msgstr "Peruuta lisenssin uusinta"
 
-#: includes/renewals.php:736
-#, fuzzy
-msgid "License renewal discount: %s - %s"
-msgstr "Lisenssin uusimisalennus"
+#: ../includes/license-renewals.php:239
+#, php-format
+msgid "The specified email is not authorized to renew license %s."
+msgstr ""
 
-#: includes/renewals.php:758
+#: ../includes/license-renewals.php:283
+msgid "No license ID supplied or invalid key provided"
+msgstr ""
+
+#: ../includes/license-renewals.php:290
+msgid "The purchase record for this license is not marked as complete"
+msgstr ""
+
+#: ../includes/license-renewals.php:294
+msgid "The supplied license has been disabled and cannot be renewed"
+msgstr ""
+
+#: ../includes/license-renewals.php:298
+msgid "The download for this license is not published"
+msgstr ""
+
+#: ../includes/license-renewals.php:318
+msgid "There does not appear to be a download ID attached to this license key"
+msgstr ""
+
+#: ../includes/license-renewals.php:336
+msgid "The download for this license is not in the cart or could not be added"
+msgstr ""
+
+#: ../includes/license-renewals.php:360
+msgid "Something went wrong while attempting to apply the renewal"
+msgstr ""
+
+#: ../includes/license-renewals.php:377
+msgid "Renewing"
+msgstr ""
+
+#: ../includes/license-renewals.php:819
+#, php-format
+msgid "License renewal discount: %s"
+msgstr ""
+
+#: ../includes/license-renewals.php:841
 #, fuzzy
 msgid "Was renewal:"
 msgstr "Lähetä uusimisviesti"
 
-#: includes/renewals.php:759
+#: ../includes/license-renewals.php:842
 #, fuzzy
 msgid "Yes"
 msgstr "Vuotta"
 
-#: includes/renewals.php:759
+#: ../includes/license-renewals.php:842
 msgid "No"
 msgstr ""
 
-#: includes/reports.php:13
-msgid "License Renewals"
-msgstr "Lisenssien uusinnat"
+#: ../includes/license-renewals.php:903
+msgid "The customer's name"
+msgstr "Asiakkaan nimi"
 
-#: includes/reports.php:14 includes/reports.php:357 includes/reports.php:363
+#: ../includes/license-renewals.php:904
+msgid "The license key that needs renewed"
+msgstr "Lisenssiavain, joka tarvitsee uusimista"
+
+#: ../includes/license-renewals.php:905
+msgid "The name of the product the license key belongs to"
+msgstr "Lisenssiavaimen tuotteen nimi"
+
+#: ../includes/license-renewals.php:906
+msgid "The expiration date for the license key"
+msgstr "Lisenssiavaimen vanhentumispäivä"
+
+#: ../includes/license-renewals.php:907
+msgid "URL to the renewal checkout page"
+msgstr "Verkko-osoite lisenssin uusintasivulle"
+
+#: ../includes/license-renewals.php:908
+msgid "Raw URL of the renewal checkout page"
+msgstr ""
+
+#: ../includes/license-renewals.php:912
+msgid "The renewal discount, including the `%` symbol."
+msgstr ""
+
+#: ../includes/license-upgrades.php:428
+msgid ""
+"Your license key is expired. It must be renewed before it can be upgraded."
+msgstr ""
+
+#: ../includes/license-upgrades.php:432
+msgid ""
+"License renewals and upgrades must be purchased separately. Please complete "
+"your license renewal before upgrading it."
+msgstr ""
+
+#: ../includes/license-upgrades.php:474
+msgid "<em>license upgrade</em>"
+msgstr ""
+
+#: ../includes/license-upgrades.php:773
+#, fuzzy, php-format
+msgid "License upgraded from %s to %s"
+msgstr "Lisenssin uusimisalennus"
+
+#: ../includes/license-upgrades.php:824
+msgid "Upgraded from"
+msgstr ""
+
+#: ../includes/license-upgrades.php:836
+msgid "Upgraded to"
+msgstr ""
+
+#: ../includes/license-upgrades.php:916
+msgid "Upgrade your existing license"
+msgstr ""
+
+#: ../includes/license-upgrades.php:920
+#, php-format
+msgid "Upgrade license ending in %s"
+msgstr ""
+
+#: ../includes/misc-functions.php:33
+msgid ""
+"The _edd_sl_site_count postmeta is <strong>deprecated</strong> since EDD "
+"Software Licensing 2.4.8! Use edd_software_licensing-"
+">get_site_count( $license_id ) instead."
+msgstr ""
+
+#: ../includes/post-types.php:24
+msgid "Add New"
+msgstr "Lisää uusi"
+
+#: ../includes/post-types.php:25
+msgid "Add New License"
+msgstr "Lisää uusi lisenssi"
+
+#: ../includes/post-types.php:26
+msgid "Edit License"
+msgstr "Muokkaa lisenssiä"
+
+#: ../includes/post-types.php:27
+msgid "New License"
+msgstr "Uusi lisenssi"
+
+#: ../includes/post-types.php:29
+msgid "View License"
+msgstr "Näytä lisenssi"
+
+#: ../includes/post-types.php:30
+msgid "Search Licenses"
+msgstr "Hae lisenssejä"
+
+#: ../includes/post-types.php:31
+msgid "No Licenses found"
+msgstr "Lisenssejä ei löytynyt"
+
+#: ../includes/post-types.php:32
+msgid "No Licenses found in Trash"
+msgstr "Lisenssejä ei löytynyt roskakorista"
+
+#: ../includes/post-types.php:74
+msgid "Version"
+msgstr "Versio"
+
+#: ../includes/readme.php:219
+msgid "The cache has been deleted."
+msgstr ""
+
+#: ../includes/readme.php:223
+msgid ""
+"There was an error when deleting the cache. It may have already been deleted."
+msgstr ""
+
+#: ../includes/readme.php:231
+#, php-format
+msgid "the file has been cached. %sClear cached file%s"
+msgstr ""
+
+#: ../includes/readme.php:233
+msgid "the file is not cached."
+msgstr ""
+
+#: ../includes/readme.php:237
+msgid "Cache:"
+msgstr ""
+
+#: ../includes/scripts.php:40
+msgid "Add Banner"
+msgstr ""
+
+#: ../includes/scripts.php:41
+msgid "Use This Image"
+msgstr ""
+
+#: ../includes/scripts.php:47
+msgid "Are you sure you wish to delete this license?"
+msgstr ""
+
+#: ../includes/scripts.php:51
+msgid "Cancel Renewal Notice"
+msgstr ""
+
+#: ../includes/templates.php:24
 #, fuzzy
-msgid "License Upgrades"
-msgstr "Lisenssiavaimet"
+msgid "View Licenses"
+msgstr "Näytä lisenssi"
 
-#: includes/reports.php:28
+#: ../includes/templates.php:109
+msgid "License Keys:"
+msgstr "Lisenssiavaimet:"
+
+#: ../includes/templates.php:119
 #, fuzzy
-msgid "License Renewal Notices"
-msgstr "Lisenssiavaimen tila on tuntematon."
+msgid "expired"
+msgstr "Vanhentunut"
 
-#: includes/reports.php:45 includes/reports.php:259
-#, fuzzy
-msgid "You do not have permission to view this data"
-msgstr "Sinulla ei ole oikeutta ladata tiedostoa"
-
-#: includes/reports.php:168
-msgid "Renewals"
-msgstr "Uusinnat"
-
-#: includes/reports.php:235
-msgid "License Renewals Over Time"
-msgstr "Lisenssien uusinnat"
-
-#: includes/reports.php:243
-msgid "Total renewal earnings for period shown: "
-msgstr "Uusimisten tienestit valitulla ajalla:"
-
-#: includes/reports.php:373
-#, fuzzy
-msgid "Total earnings from upgrades period shown: "
-msgstr "Uusimisten tienestit valitulla ajalla:"
-
-#: includes/settings.php:17
-msgid "Software Licensing"
-msgstr "Ohjelmistolisensointi"
-
-#: includes/settings.php:24
-msgid "Disable URL Checking?"
+#: ../includes/templates.php:121
+msgid "revoked"
 msgstr ""
 
-#: includes/settings.php:25
+#: ../includes/templates.php:129
+msgid "none"
+msgstr "ei mitään"
+
+#: ../samples/edd-sample-plugin/EDD_SL_Plugin_Updater.php:201
+#, php-format
 msgid ""
-"Check this box if your software is not tied to to URLs. If you sell desktop "
-"software, check this."
-msgstr ""
-"Ruksita tämä, jos sovellus ei ole sidoksissa verkko-osoitteeseen. Jos myyt "
-"työpöytäsovelluksia, ruksita tämä."
-
-#: includes/settings.php:30
-msgid "Ignore Local Host URLs?"
+"There is a new version of %1$s available. %2$sView version %3$s details%4$s."
 msgstr ""
 
-#: includes/settings.php:31
+#: ../samples/edd-sample-plugin/EDD_SL_Plugin_Updater.php:209
+#, php-format
 msgid ""
-"Allow local development domains and IPs to be activated without counting "
-"towards the activation limit totals. The URL will still be logged."
+"There is a new version of %1$s available. %2$sView version %3$s details%4$s "
+"or %5$supdate now%6$s."
 msgstr ""
 
-#: includes/settings.php:36
-msgid "Selling WordPress Plugins?"
-msgstr ""
-
-#: includes/settings.php:37
-msgid ""
-"Check this box if you are selling WordPress plugins and wish to enable "
-"advanced ReadMe.txt file parsing."
-msgstr ""
-
-#: includes/settings.php:42
-msgid "Allow Renewals"
-msgstr "Salli uusiminen"
-
-#: includes/settings.php:43
-msgid ""
-"Check this box if you want customers to be able to renew their license keys."
-msgstr "Ruksita tämä, jos haluat että asiakas voi uusia lisenssiavaimen."
-
-#: includes/settings.php:48
-msgid "Renewal Discount"
-msgstr "Uusinnan alennus"
-
-#: includes/settings.php:49
-msgid ""
-"Enter a discount amount as a percentage, such as 10. Or enter 0 for no "
-"discount."
-msgstr ""
-"Syötä alennus prosenttina, esim. 10. Tai syötä 0 ja alennusta ei anneta."
-
-#: includes/settings.php:55
-msgid "Send Renewal Reminders"
-msgstr "Lähetä uusimisviestit"
-
-#: includes/settings.php:56
-msgid ""
-"Check this box if you want customers to receive a renewal reminder when "
-"their license key is about to expire."
-msgstr ""
-"Ruksita tämä, jos haluat asiakkaan saavan uusintamuistutuksia lisenssin "
-"vanhentumisesta."
-
-#: includes/settings.php:61
-#, fuzzy
-msgid "Renewal Notices"
-msgstr "Lähetä uusimisviesti"
-
-#: includes/settings.php:62
-msgid "Configure the renewal notice emails"
-msgstr ""
-
-#: includes/settings.php:88
-msgid "Subject"
-msgstr ""
-
-#: includes/settings.php:89
-msgid "Send Period"
-msgstr ""
-
-#: includes/settings.php:147 includes/settings.php:202
-#: includes/settings.php:261
-#, fuzzy
-msgid "You do not have permission to add renewal notices"
-msgstr "Sinulla ei ole oikeutta ladata tiedostoa"
-
-#: includes/settings.php:151 includes/settings.php:206
-#: includes/settings.php:265
-msgid "Nonce verification failed"
-msgstr ""
-
-#: includes/settings.php:210 includes/settings.php:269
-#, fuzzy
-msgid "No renewal notice ID was provided"
-msgstr "Lisenssiavainta ei ole syötetty"
-
-#: includes/upgrades.php:9
-msgid "EDD SL Upgrades"
-msgstr ""
-
-#: includes/upgrades.php:9
-msgid "EDD Upgrades"
-msgstr ""
-
-#: includes/upgrades.php:23
-#, fuzzy
-msgid "Software Licensing - Upgrades"
-msgstr "Ohjelmistolisensointi"
-
-#: includes/upgrades.php:25
-msgid ""
-"The upgrade process is running, please be patient. This could take several "
-"minutes to complete while license keys are upgraded in batches of 100."
-msgstr ""
-
-#: includes/upgrades.php:26
-msgid "Step %d of approximately %d running"
-msgstr ""
-
-#: includes/upgrades.php:55 includes/upgrades.php:62
-msgid ""
-"The License Keys in Easy Digital Downloads needs to be upgraded, click <a "
-"href=\"%s\">here</a> to start the upgrade."
-msgstr ""
-
-#: includes/upgrades.php:69
-msgid ""
-"The renewal notices in Easy Digital Downloads needs to be upgraded, click <a "
-"href=\"%s\">here</a> to start the upgrade."
-msgstr ""
-
-#: includes/upgrades.php:80
-msgid ""
-"Easy Digital Downloads - Software Licensing now supports Bundle Licenses. "
-"This is an opt-in upgrade, so please choose one of the following:"
-msgstr ""
-
-#: includes/upgrades.php:82
-msgid ""
-"If you want to read more on this new feature, <a href=\"%s\" target=\"_blank"
-"\">click here</a>."
-msgstr ""
-
-#: includes/upgrades.php:85
-msgid "<li>Make <a href=\"%s\">no changes</a></li>"
-msgstr ""
-
-#: includes/upgrades.php:86
-msgid ""
-"<li>After you enable licensing for the bundles of your choice, <a href=\"#\" "
-"onClick=\"jQuery('#generate-licenses-button-wrapper').toggle(); return false;"
-"\">generate licenses for bundles with Licensing enabled</a>.</li>"
-msgstr ""
-
-#: includes/upgrades.php:90
-msgid ""
-"Before clicking this button, verify that all bundles you want to generate "
-"licenses for have Licensing enabled, and their license length is correct."
-msgstr ""
-
-#: includes/upgrades.php:91
-msgid "<a href=\"%s\" class=\"button-primary\">"
-msgstr ""
-
-#: includes/upgrades.php:92
-#, fuzzy
-msgid "Generate Bundle Licenses"
-msgstr "Luo lisenssiavaimet"
-
-#: includes/upgrades.php:401
-#, fuzzy
-msgid "You do not have permission to do shop upgrades"
-msgstr "Sinulla ei ole oikeutta ladata tiedostoa"
-
-#: samples/edd-sample-plugin/EDD_SL_Plugin_Updater.php:179
-msgid ""
-"There is a new version of %1$s available. <a target=\"_blank\" class="
-"\"thickbox\" href=\"%2$s\">View version %3$s details</a>."
-msgstr ""
-
-#: samples/edd-sample-plugin/EDD_SL_Plugin_Updater.php:186
-msgid ""
-"There is a new version of %1$s available. <a target=\"_blank\" class="
-"\"thickbox\" href=\"%2$s\">View version %3$s details</a> or <a href=\"%4$s"
-"\">update now</a>."
-msgstr ""
-
-#: samples/edd-sample-plugin/EDD_SL_Plugin_Updater.php:328
+#: ../samples/edd-sample-plugin/EDD_SL_Plugin_Updater.php:376
 #, fuzzy
 msgid "You do not have permission to install plugin updates"
 msgstr "Sinulla ei ole oikeutta ladata tiedostoa"
 
-#: samples/edd-sample-plugin/edd-sample-plugin.php:57
+#: ../samples/edd-sample-plugin/edd-sample-plugin.php:63
 msgid "Plugin License Options"
 msgstr "Lisäosan lisenssivaihtoehdot"
 
-#: samples/edd-sample-plugin/edd-sample-plugin.php:76
-#: samples/edd-sample-plugin/edd-sample-plugin.php:85
-#: samples/edd-sample-theme/updater/theme-updater.php:34
+#: ../samples/edd-sample-plugin/edd-sample-plugin.php:82
+#: ../samples/edd-sample-plugin/edd-sample-plugin.php:91
+#: ../samples/edd-sample-theme/updater/theme-updater.php:35
 msgid "Activate License"
 msgstr "Aktivoi lisenssi"
 
-#: samples/edd-sample-plugin/edd-sample-plugin.php:80
+#: ../samples/edd-sample-plugin/edd-sample-plugin.php:86
 msgid "active"
 msgstr "aktivoi"
 
-#: samples/edd-sample-plugin/edd-sample-plugin.php:82
-#: samples/edd-sample-theme/updater/theme-updater.php:33
+#: ../samples/edd-sample-plugin/edd-sample-plugin.php:88
+#: ../samples/edd-sample-theme/updater/theme-updater.php:34
 msgid "Deactivate License"
 msgstr "Poista lisenssi käytöstä"
 
-#: samples/edd-sample-theme/updater/theme-updater.php:29
+#: ../samples/edd-sample-plugin/edd-sample-plugin.php:155
+#: ../samples/edd-sample-plugin/edd-sample-plugin.php:202
+#: ../samples/edd-sample-plugin/edd-sample-plugin.php:264
+#: ../samples/edd-sample-theme/updater/theme-updater-admin.php:271
+#: ../samples/edd-sample-theme/updater/theme-updater-admin.php:318
+#: ../samples/edd-sample-theme/updater/theme-updater-admin.php:371
+msgid "An error occurred, please try again."
+msgstr ""
+
+#: ../samples/edd-sample-plugin/edd-sample-plugin.php:169
+#: ../samples/edd-sample-theme/updater/theme-updater-admin.php:285
+#, php-format
+msgid "Your license key expired on %s."
+msgstr ""
+
+#: ../samples/edd-sample-plugin/edd-sample-plugin.php:176
+#: ../samples/edd-sample-theme/updater/theme-updater-admin.php:292
+msgid "Your license key has been disabled."
+msgstr ""
+
+#: ../samples/edd-sample-plugin/edd-sample-plugin.php:181
+#: ../samples/edd-sample-theme/updater/theme-updater-admin.php:297
+msgid "Invalid license."
+msgstr ""
+
+#: ../samples/edd-sample-plugin/edd-sample-plugin.php:187
+#: ../samples/edd-sample-theme/updater/theme-updater-admin.php:303
+msgid "Your license is not active for this URL."
+msgstr ""
+
+#: ../samples/edd-sample-plugin/edd-sample-plugin.php:192
+#: ../samples/edd-sample-theme/updater/theme-updater-admin.php:308
+#, php-format
+msgid "This appears to be an invalid license key for %s."
+msgstr ""
+
+#: ../samples/edd-sample-plugin/edd-sample-plugin.php:197
+#: ../samples/edd-sample-theme/updater/theme-updater-admin.php:313
+msgid "Your license key has reached its activation limit."
+msgstr ""
+
+#: ../samples/edd-sample-theme/updater/theme-updater.php:30
 #, fuzzy
 msgid "Theme License"
 msgstr "Teeman lisenssi"
 
-#: samples/edd-sample-theme/updater/theme-updater.php:30
+#: ../samples/edd-sample-theme/updater/theme-updater.php:31
 #, fuzzy
 msgid "Enter your theme license key."
 msgstr "Kirjoita teeman lisenssiavain."
 
-#: samples/edd-sample-theme/updater/theme-updater.php:32
+#: ../samples/edd-sample-theme/updater/theme-updater.php:33
 #, fuzzy
 msgid "License Action"
 msgstr "Lisenssiavaimen aktivointi"
 
-#: samples/edd-sample-theme/updater/theme-updater.php:35
-#: samples/edd-sample-theme/updater/theme-updater.php:47
+#: ../samples/edd-sample-theme/updater/theme-updater.php:36
+#: ../samples/edd-sample-theme/updater/theme-updater.php:49
 #, fuzzy
 msgid "License status is unknown."
 msgstr "Lisenssiavaimen tila on tuntematon."
 
-#: samples/edd-sample-theme/updater/theme-updater.php:36
+#: ../samples/edd-sample-theme/updater/theme-updater.php:37
 #, fuzzy
 msgid "Renew?"
 msgstr "Uusi lisenssi?"
 
-#: samples/edd-sample-theme/updater/theme-updater.php:37
+#: ../samples/edd-sample-theme/updater/theme-updater.php:38
 #, fuzzy
 msgid "unlimited"
 msgstr "Rajoittamaton"
 
-#: samples/edd-sample-theme/updater/theme-updater.php:38
+#: ../samples/edd-sample-theme/updater/theme-updater.php:39
 #, fuzzy
 msgid "License key is active."
 msgstr "Lisenssiavain on aktiivinen."
 
-#: samples/edd-sample-theme/updater/theme-updater.php:39
-#, fuzzy
+#: ../samples/edd-sample-theme/updater/theme-updater.php:40
+#, fuzzy, php-format
 msgid "Expires %s."
 msgstr "Vanhenee %s."
 
-#: samples/edd-sample-theme/updater/theme-updater.php:40
-#, fuzzy
+#: ../samples/edd-sample-theme/updater/theme-updater.php:41
+msgid "Lifetime License."
+msgstr ""
+
+#: ../samples/edd-sample-theme/updater/theme-updater.php:42
+#, fuzzy, php-format
 msgid "You have %1$s / %2$s sites activated."
 msgstr "Sinulla on %1$s / %2$s sivua aktiivisena."
 
-#: samples/edd-sample-theme/updater/theme-updater.php:41
-#, fuzzy
+#: ../samples/edd-sample-theme/updater/theme-updater.php:43
+#, fuzzy, php-format
 msgid "License key expired %s."
 msgstr "Lisenssiavain on vanhentunut %s."
 
-#: samples/edd-sample-theme/updater/theme-updater.php:42
+#: ../samples/edd-sample-theme/updater/theme-updater.php:44
 #, fuzzy
 msgid "License key has expired."
 msgstr "Lisenssiavain on vanhentunut."
 
-#: samples/edd-sample-theme/updater/theme-updater.php:43
+#: ../samples/edd-sample-theme/updater/theme-updater.php:45
 #, fuzzy
 msgid "License keys do not match."
 msgstr "Lisenssiavaimet eivät täsmää."
 
-#: samples/edd-sample-theme/updater/theme-updater.php:44
+#: ../samples/edd-sample-theme/updater/theme-updater.php:46
 #, fuzzy
 msgid "License is inactive."
 msgstr "Lisenssiavain ei ole toiminnassa."
 
-#: samples/edd-sample-theme/updater/theme-updater.php:45
+#: ../samples/edd-sample-theme/updater/theme-updater.php:47
 #, fuzzy
 msgid "License key is disabled."
 msgstr "Lisenssiavain on poissa käytöstä."
 
-#: samples/edd-sample-theme/updater/theme-updater.php:46
+#: ../samples/edd-sample-theme/updater/theme-updater.php:48
 #, fuzzy
 msgid "Site is inactive."
 msgstr "Sivusto ei ole aktiivinen."
 
-#: samples/edd-sample-theme/updater/theme-updater.php:48
+#: ../samples/edd-sample-theme/updater/theme-updater.php:50
 msgid ""
 "Updating this theme will lose any customizations you have made. 'Cancel' to "
 "stop, 'OK' to update."
@@ -1561,8 +2319,8 @@ msgstr ""
 "Teeman päivittäminen kadottaa kaikki räätälöinnit, joita olet tehnyt. Paina "
 "'Peruuta' peruuttaaksesi,  paina 'OK' päivittääksesi."
 
-#: samples/edd-sample-theme/updater/theme-updater.php:49
-#, fuzzy
+#: ../samples/edd-sample-theme/updater/theme-updater.php:51
+#, fuzzy, php-format
 msgid ""
 "<strong>%1$s %2$s</strong> is available. <a href=\"%3$s\" class=\"thickbox\" "
 "title=\"%4s\">Check out what's new</a> or <a href=\"%5$s\"%6$s>update now</"
@@ -1572,94 +2330,211 @@ msgstr ""
 "\" title=\"%4s\">Katso muutosloki</a> tai <a href=\"%5$s\"%6$s>päivitä nyt</"
 "a>."
 
-#: templates/licenses-manage-overview.php:14
-#: templates/licenses-manage-single.php:18 templates/licenses-upgrades.php:17
-msgid "Go back"
-msgstr ""
-
-#: templates/licenses-manage-overview.php:24
+#: ../templates/license-keys.php:15
+#: ../templates/licenses-manage-overview.php:24
 msgid "Item"
 msgstr ""
 
-#: templates/licenses-manage-overview.php:27
+#: ../templates/license-keys.php:39
+msgid "Bundle Licenses"
+msgstr ""
+
+#: ../templates/license-keys.php:71
+msgid "Expires:"
+msgstr ""
+
+#: ../templates/license-keys.php:73
+msgid "Never"
+msgstr ""
+
+#: ../templates/license-keys.php:78
+msgid "Activations:"
+msgstr ""
+
+#: ../templates/license-keys.php:85
+msgid "Renew to manage sites"
+msgstr ""
+
+#: ../templates/license-keys.php:87
+msgid "Unable to manage sites"
+msgstr ""
+
+#: ../templates/license-keys.php:91
+#: ../templates/licenses-manage-overview.php:78
+msgid "View Upgrades"
+msgstr ""
+
+#: ../templates/license-keys.php:94
+#: ../templates/licenses-manage-overview.php:80
+msgid "Renew to upgrade"
+msgstr ""
+
+#: ../templates/license-keys.php:99
+#: ../templates/licenses-manage-overview.php:66
+msgid "Renew license"
+msgstr ""
+
+#: ../templates/license-keys.php:102
+#: ../templates/licenses-manage-overview.php:69
+msgid "Extend license"
+msgstr ""
+
+#: ../templates/license-keys.php:106
+#, php-format
+msgid "Purchase #%d"
+msgstr ""
+
+#: ../templates/license-keys.php:119
+msgid "You currently have no licenses"
+msgstr ""
+
+#: ../templates/license-keys.php:126
+msgid "You must be logged in to view license keys."
+msgstr ""
+
+#: ../templates/licenses-manage-overview.php:14
+#: ../templates/licenses-manage-single.php:19
+#: ../templates/licenses-upgrades.php:17
+msgid "Go back"
+msgstr ""
+
+#: ../templates/licenses-manage-overview.php:27
 #, fuzzy
 msgid "Activations"
 msgstr "Aktivointiraja"
 
-#: templates/licenses-manage-overview.php:28
+#: ../templates/licenses-manage-overview.php:28
 #, fuzzy
 msgid "Expiration"
 msgstr "Pidennä lisenssiavaimen voimassaoloaikaa"
 
-#: templates/licenses-manage-overview.php:32
+#: ../templates/licenses-manage-overview.php:32
 msgid "Upgrades"
 msgstr ""
 
-#: templates/licenses-manage-overview.php:42
+#: ../templates/licenses-manage-overview.php:51
 msgid "Click to view license key"
 msgstr "Näytä lisenssiavain"
 
-#: templates/licenses-manage-overview.php:60
-msgid "View Upgrades"
-msgstr ""
-
-#: templates/licenses-manage-overview.php:62
-msgid "Renew to upgrade"
-msgstr ""
-
-#: templates/licenses-manage-overview.php:64
+#: ../templates/licenses-manage-overview.php:82
 msgid "No upgrades available"
 msgstr ""
 
-#: templates/licenses-manage-overview.php:72
+#: ../templates/licenses-manage-overview.php:90
 #, fuzzy
 msgid "There are no license keys for this purchase"
 msgstr "Käytä tätä lisenssiavaimien luonnissa tälle ostolle"
 
-#: templates/licenses-manage-single.php:24
-#, fuzzy
-msgid "Site URL"
-msgstr "Sivuston otsikon väri"
+#: ../templates/licenses-manage-single.php:21
+msgid "Manage License"
+msgstr ""
 
-#: templates/licenses-manage-single.php:41
+#: ../templates/licenses-manage-single.php:47
 msgid "No sites have been activated for this license"
 msgstr ""
 
-#: templates/licenses-manage-single.php:53
+#: ../templates/licenses-manage-single.php:59
 msgid ""
 "Use this form to authorize a new site URL for this license. Enter the full "
 "site URL."
 msgstr ""
 
-#: templates/licenses-upgrades.php:24
+#: ../templates/licenses-upgrades.php:24
 msgid "Upgrade Cost"
 msgstr ""
 
-#: templates/licenses-upgrades.php:40
+#: ../templates/licenses-upgrades.php:40
 #, fuzzy
 msgid "Upgrade License"
 msgstr "Muokkaa lisenssiä"
 
-#: templates/licenses-upgrades.php:47
+#: ../templates/licenses-upgrades.php:47
 msgid "No upgrades available for this license"
 msgstr ""
 
-#. Plugin Name of the plugin/theme
+#: ../tests/helpers/class-helper-payment.php:131
+#: ../tests/helpers/class-helper-payment.php:218
+#, php-format
+msgid "PayPal Transaction ID: %s"
+msgstr ""
+
+#~ msgid "License check failed"
+#~ msgstr "Lisenssin tarkistus epäonnistui"
+
+#~ msgid "Guest"
+#~ msgstr "Vieras"
+
+#~ msgid "License Log"
+#~ msgstr "Lisenssiloki"
+
+#~ msgid "User"
+#~ msgstr "Käyttäjä"
+
+#~ msgid "Site Count"
+#~ msgstr "Sivustojen lukumäärä"
+
 #, fuzzy
-msgid "Easy Digital Downloads - Software Licenses"
-msgstr "Easy Digital Download lisensointi"
+#~ msgid "Choose a new expiration date."
+#~ msgstr "Pidennä lisenssiavaimen voimassaoloaikaa"
 
-#. Description of the plugin/theme
-msgid "Adds a software licensing system to Easy Digital Downloads"
-msgstr ""
+#, fuzzy
+#~ msgid "Lifetime License"
+#~ msgstr "Teeman lisenssi"
 
-#. Author of the plugin/theme
-msgid "Pippin Williamson"
-msgstr ""
+#, fuzzy
+#~ msgid "One key was updated"
+#~ msgid_plural "%d keys were updated."
+#~ msgstr[0] "Lisenssiavain on vanhentunut."
+#~ msgstr[1] "Lisenssiavain on vanhentunut."
 
-#. Author URI of the plugin/theme
-msgid "http://pippinsplugins.com"
-msgstr ""
+#, fuzzy
+#~ msgid "Generate Licenses Now"
+#~ msgstr "Luo lisenssiavaimet"
+
+#, fuzzy
+#~ msgid "License Activation Limit"
+#~ msgstr "Lisenssiavaimen tila on tuntematon."
+
+#, fuzzy
+#~ msgid "You do not have permission to perform this action"
+#~ msgstr "Sinulla ei ole oikeutta ladata tiedostoa"
+
+#, fuzzy
+#~ msgctxt "post type general name"
+#~ msgid "Licenses"
+#~ msgstr "Lisenssit"
+
+#, fuzzy
+#~ msgctxt "post type singular name"
+#~ msgid "License"
+#~ msgstr "Lisenssi"
+
+#, fuzzy
+#~ msgid "License keys being renewed:"
+#~ msgstr "Uusittava lisenssiavain"
+
+#, fuzzy
+#~ msgid "Invalid license key provided"
+#~ msgstr "Lisenssiavainta ei ole syötetty"
+
+#, fuzzy
+#~ msgid "That license key appears to be invalid."
+#~ msgstr "Lisenssiavainta ei ole syötetty"
+
+#, fuzzy
+#~ msgid "License renewal discount: %s - %s"
+#~ msgstr "Lisenssin uusimisalennus"
+
+#~ msgid ""
+#~ "Check this box if your software is not tied to to URLs. If you sell "
+#~ "desktop software, check this."
+#~ msgstr ""
+#~ "Ruksita tämä, jos sovellus ei ole sidoksissa verkko-osoitteeseen. Jos "
+#~ "myyt työpöytäsovelluksia, ruksita tämä."
+
+#, fuzzy
+#~ msgid "Easy Digital Downloads - Software Licenses"
+#~ msgstr "Easy Digital Download lisensointi"
 
 #, fuzzy
 #~ msgid "License key expired"

@@ -16,6 +16,7 @@ $color = ( $color == 'inherit' ) ? '' : $color;
 // Retrieve all license keys for the specified payment
 $edd_sl = edd_software_licensing();
 $keys   = $edd_sl->get_licenses_of_purchase( $payment_id );
+$keys   = apply_filters( 'edd_sl_manage_template_payment_licenses', $keys, $payment_id );
 if ( $keys ) : ?>
 	<table id="edd_sl_license_keys" class="edd_sl_table">
 		<thead>
@@ -59,6 +60,15 @@ if ( $keys ) : ?>
 					<?php _e( 'Lifetime', 'edd_sl' ); ?>
 				<?php else: ?>
 					<?php echo date_i18n( 'F j, Y', $edd_sl->get_license_expiration( $license->ID ) ); ?>
+				<?php endif; ?>
+				<?php if( edd_sl_renewals_allowed() && $license->post_parent == 0 ) : ?>
+					<?php if( 'expired' === edd_software_licensing()->get_license_status( $license->ID ) && edd_software_licensing()->can_renew( $license->ID ) ) : ?>
+						<span class="edd_sl_key_sep">&nbsp;&ndash;&nbsp;</span>
+						<a href="<?php echo edd_software_licensing()->get_renewal_url( $license->ID ); ?>" title="<?php esc_attr_e( 'Renew license', 'edd_sl' ); ?>"><?php _e( 'Renew license', 'edd_sl' ); ?></a>
+					<?php elseif( ! edd_software_licensing()->is_lifetime_license( $license->ID ) && edd_software_licensing()->can_extend( $license->ID ) ) : ?>
+						<span class="edd_sl_key_sep">&nbsp;&ndash;&nbsp;</span>
+						<a href="<?php echo edd_software_licensing()->get_renewal_url( $license->ID ); ?>" title="<?php esc_attr_e( 'Extend license', 'edd_sl' ); ?>"><?php _e( 'Extend license', 'edd_sl' ); ?></a>
+					<?php endif; ?>
 				<?php endif; ?>
 				</td>
 				<?php if( ! $edd_sl->force_increase() ) : ?>

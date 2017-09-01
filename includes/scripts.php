@@ -1,5 +1,8 @@
 <?php
 
+// Exit if accessed directly
+if ( ! defined( 'ABSPATH' ) ) exit;
+
 /**
  * Enqueue admin scripts
  *
@@ -19,6 +22,7 @@ function edd_sl_admin_scripts() {
 		'download_page_edd-reports',
 		'download_page_edd-settings',
 		'download_page_edd-tools',
+		'download_page_edd-payment-history'
 	);
 
 	$allowed_screens = apply_filters( 'edd-sl-admin-script-screens', $allowed_screens );
@@ -27,15 +31,29 @@ function edd_sl_admin_scripts() {
 		return;
 	}
 
-	wp_enqueue_script( 'edd-sl-admin', plugins_url( '/js/edd-sl-admin.js', EDD_SL_PLUGIN_FILE ), array( 'jquery' ) );
+	wp_enqueue_script( 'edd-sl-admin', plugins_url( '/js/edd-sl-admin.js', EDD_SL_PLUGIN_FILE ), array( 'jquery' ), EDD_SL_VERSION );
 
 	if( $screen->id === 'download' ) {
-		wp_localize_script( 'edd-sl-admin', 'edd_sl', array( 'download' => get_the_ID(), 'no_prices' => __( 'N/A', 'edd_sl' ) ) );
+		wp_localize_script( 'edd-sl-admin', 'edd_sl', array(
+			'download'      => get_the_ID(),
+			'no_prices'     => __( 'N/A', 'edd_sl' ),
+			'add_banner'    => __( 'Add Banner', 'edd_sl' ),
+			'use_this_file' => __( 'Use This Image', 'edd_sl' ),
+			'new_media_ui'  => apply_filters( 'edd_use_35_media_ui', 1 )
+		) );
+	} else {
+		wp_localize_script( 'edd-sl-admin', 'edd_sl', array(
+			'ajaxurl'        => edd_get_ajax_url(),
+			'delete_license' => __( 'Are you sure you wish to delete this license?', 'edd_sl' ),
+			'action_edit'    => __( 'Edit', 'edd_sl' ),
+			'action_cancel'  => __( 'Cancel', 'edd_sl' ),
+			'send_notice'    => __( 'Send Renewal Notice', 'edd_sl' ),
+			'cancel_notice'  => __( 'Cancel Renewal Notice', 'edd_sl' )
+		) );
 	}
 
 	wp_enqueue_style( 'edd-sl-admin-styles', plugins_url( '/css/edd-sl-admin.css', EDD_SL_PLUGIN_FILE ), false, EDD_SL_VERSION );
 	wp_enqueue_style( 'edd-sl-styles', plugins_url( '/css/edd-sl.css', EDD_SL_PLUGIN_FILE ), false, EDD_SL_VERSION );
-
 }
 add_action( 'admin_enqueue_scripts', 'edd_sl_admin_scripts' );
 
@@ -59,7 +77,25 @@ function edd_sl_scripts() {
 
 	wp_register_style( 'edd-sl-styles', plugins_url( '/css/edd-sl.css', EDD_SL_PLUGIN_FILE ), false, EDD_SL_VERSION );
 
-	if ( is_admin() || edd_is_checkout() || has_shortcode( $post->post_content, 'purchase_history' ) || has_shortcode( $post->post_content, 'edd_license_keys' ) || true === $load_scripts_manually ) {
+	$should_load_styles = false;
+	if ( is_admin() || edd_is_checkout() ) {
+		$should_load_styles = true;
+	}
+
+	if ( has_shortcode( $post->post_content, 'purchase_history' ) || has_shortcode( $post->post_content, 'edd_license_keys' ) ) {
+		$should_load_styles = true;
+	}
+
+	$inline_upgrade_links_enabled = edd_get_option( 'edd_sl_inline_upgrade_links', false );
+	if ( $inline_upgrade_links_enabled && ( has_shortcode( $post->post_content, 'purchase_link' ) || has_shortcode( $post->post_content, 'downloads' ) ) ) {
+		$should_load_styles = true;
+	}
+
+	if ( $inline_upgrade_links_enabled && $post->post_type === 'download' ) {
+		$should_load_styles = true;
+	}
+
+	if ( true === $should_load_styles || true === $load_scripts_manually ) {
 		wp_enqueue_style( 'edd-sl-styles' );
 	}
 
