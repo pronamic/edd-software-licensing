@@ -1,9 +1,9 @@
 <?php
 /*
-Plugin Name: Easy Digital Downloads - Software Licenses
+Plugin Name: Easy Digital Downloads - Software Licensing
 Plugin URL: https://easydigitaldownloads.com/downloads/software-licensing/
 Description: Adds a software licensing system to Easy Digital Downloads
-Version: 3.5.18
+Version: 3.5.19
 Author: Easy Digital Downloads
 Author URI: https://easydigitaldownloads.com
 Contributors: easydigitaldownloads, mordauk, cklosows
@@ -24,7 +24,7 @@ if ( ! defined( 'EDD_SL_PLUGIN_FILE' ) ) {
 }
 
 if ( ! defined( 'EDD_SL_VERSION' ) ) {
-	define( 'EDD_SL_VERSION', '3.5.18' );
+	define( 'EDD_SL_VERSION', '3.5.19' );
 }
 
 class EDD_Software_Licensing {
@@ -317,7 +317,7 @@ class EDD_Software_Licensing {
 
 		$cache_key = $id . '_' . $last_changed;
 		$license   = wp_cache_get( $cache_key, 'licenses' );
-		if( false === $license ) {
+		if( false === $license || ( defined( 'EDD_SL_SKIP_CACHE' ) && EDD_SL_SKIP_CACHE ) ) {
 			$license = new EDD_SL_License( $id );
 		}
 
@@ -1005,6 +1005,7 @@ class EDD_Software_Licensing {
 		if ( 'publish' !== $payment->status ) {
 			$ret = false;
 		}
+
 		return apply_filters( 'edd_sl_can_renew_license', $ret, $license_id );
 	}
 
