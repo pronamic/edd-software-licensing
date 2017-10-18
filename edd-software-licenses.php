@@ -3,7 +3,7 @@
 Plugin Name: Easy Digital Downloads - Software Licensing
 Plugin URL: https://easydigitaldownloads.com/downloads/software-licensing/
 Description: Adds a software licensing system to Easy Digital Downloads
-Version: 3.5.19
+Version: 3.5.21
 Author: Easy Digital Downloads
 Author URI: https://easydigitaldownloads.com
 Contributors: easydigitaldownloads, mordauk, cklosows
@@ -24,7 +24,7 @@ if ( ! defined( 'EDD_SL_PLUGIN_FILE' ) ) {
 }
 
 if ( ! defined( 'EDD_SL_VERSION' ) ) {
-	define( 'EDD_SL_VERSION', '3.5.19' );
+	define( 'EDD_SL_VERSION', '3.5.21' );
 }
 
 class EDD_Software_Licensing {
@@ -307,21 +307,8 @@ class EDD_Software_Licensing {
 			return false;
 		}
 
-		$id = $id_or_key;
-
-		$last_changed = wp_cache_get( 'last_changed', 'licenses' );
-		if ( ! $last_changed ) {
-			$last_changed = microtime();
-			wp_cache_set( 'last_changed', $last_changed, 'licenses' );
-		}
-
-		$cache_key = $id . '_' . $last_changed;
-		$license   = wp_cache_get( $cache_key, 'licenses' );
-		if( false === $license || ( defined( 'EDD_SL_SKIP_CACHE' ) && EDD_SL_SKIP_CACHE ) ) {
-			$license = new EDD_SL_License( $id );
-		}
-
-		wp_cache_add( $cache_key, $license, 'licenses', HOUR_IN_SECONDS );
+		$id      = $id_or_key;
+		$license = new EDD_SL_License( $id );
 
 		return $license;
 	}
@@ -1005,7 +992,6 @@ class EDD_Software_Licensing {
 		if ( 'publish' !== $payment->status ) {
 			$ret = false;
 		}
-
 		return apply_filters( 'edd_sl_can_renew_license', $ret, $license_id );
 	}
 
@@ -1024,9 +1010,6 @@ class EDD_Software_Licensing {
 	function revoke_license( $payment_id, $new_status, $old_status ) {
 
 		$payment = new EDD_Payment( $payment_id );
-
-		if ( $old_status != 'publish' && $old_status != 'complete' )
-			return; // Make sure that licenses are only generated once
 
 		// Revoke license keys when the payment is refunded or revoked
 		if ( ! in_array( $new_status, apply_filters( 'edd_sl_revoke_license_statuses', array( 'revoked', 'refunded' ) ) ) ) {
@@ -2115,11 +2098,18 @@ class EDD_Software_Licensing {
 	 * @since 2.5
 	 */
 	function check_item_name( $download_id = 0, $item_name = 0, $license = null ) {
-		$post      = get_post( $download_id );
-		$tmp_name  = sanitize_title( urldecode( $item_name ) );
-		$tmp_title = sanitize_title( $post->post_title );
+		$download  = new EDD_SL_Download( $download_id );
 
-		return apply_filters( 'edd_sl_check_item_name', $tmp_title == $tmp_name, $download_id, $item_name, $license );
+		$match = false;
+
+		if ( $download->ID > 0 ) {
+			$tmp_name  = sanitize_title( urldecode( $item_name ) );
+			$tmp_title = sanitize_title( $download->get_name() );
+
+			$match = $tmp_title == $tmp_name;
+		}
+
+		return apply_filters( 'edd_sl_check_item_name', $match, $download_id, $item_name, $license );
 	}
 
 	/**
@@ -2355,20 +2345,20 @@ class EDD_Software_Licensing {
 
 		$url = strtolower( $url );
 
-		if( apply_filters( 'edd_sl_strip_www', true ) ) {
+		if ( apply_filters( 'edd_sl_strip_www', true ) ) {
 
 			// strip www subdomain
 			$url = str_replace( array( '://www.', ':/www.' ), '://', $url );
 
 		}
 
-		if( apply_filters( 'edd_sl_strip_protocal', true ) ) {
+		if ( apply_filters( 'edd_sl_strip_protocol', apply_filters( 'edd_sl_strip_protocal', true ) ) ) {
 			// strip protocol
 			$url = str_replace( array( 'http://', 'https://', 'http:/', 'https:/' ), '', $url );
 
 		}
 
-		if( apply_filters( 'edd_sl_strip_port_number', true ) ) {
+		if ( apply_filters( 'edd_sl_strip_port_number', true ) ) {
 
 			$port = parse_url( $url, PHP_URL_PORT );
 
@@ -2420,7 +2410,9 @@ class EDD_Software_Licensing {
 	 * Check if a URL is considered a local one
 	 *
 	 * @since  3.2.7
-	 * @param  string  $url The URL Provided
+	 *
+	 * @param  string $url The URL Provided
+	 *
 	 * @return boolean      If we're considering the URL local or not
 	 */
 	function is_local_url( $url = '' ) {
@@ -2463,11 +2455,14 @@ class EDD_Software_Licensing {
 
 			if ( substr_count( $host, '.' ) > 1 ) {
 				$subdomains_to_check = apply_filters( 'edd_sl_url_subdomains', array(
-					'dev.', 'staging.',
+					'dev.', '*.staging.',
 				) );
 
 				foreach ( $subdomains_to_check as $subdomain ) {
-					if ( 0 === strpos( $host, $subdomain ) ) {
+					$subdomain = str_replace( $subdomain, '.', '(.)' );
+					$subdomain = str_replace( $subdomain, '*', '(.*)' );
+
+					if ( preg_match( '/^(' . $subdomain . ')/', $host ) ) {
 						$is_local_url = true;
 						continue;
 					}

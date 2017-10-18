@@ -129,7 +129,6 @@ final class EDD_SL_License {
 			$this->$key = $value;
 		}
 
-		$this->reset_cache();
 	}
 
 	/**
@@ -173,9 +172,10 @@ final class EDD_SL_License {
 		$this->customer_id = $this->get_customer_id();
 
 		$this->download_id = $this->get_download_id();
+		$this->download    = new EDD_SL_Download( $this->download_id );
 
 		// Need top get the fallback code from edd_software_licensing()->get_price_id() into here.
-		$this->price_id = $this->get_download()->has_variable_prices() ? $this->get_price_id() : false;
+		$this->price_id = $this->download->has_variable_prices() ? $this->get_price_id() : false;
 
 		$this->key         = $this->get_key();
 		$this->expiration  = $this->get_expiration();
@@ -290,6 +290,7 @@ final class EDD_SL_License {
 
 				$this->key         = $license_key;
 				$this->download_id = $download_id;
+				$this->download    = $purchased_download;
 				$this->cart_index  = $cart_index;
 
 				// Setup post meta.
@@ -449,8 +450,6 @@ final class EDD_SL_License {
 			$updated[ $key ] = $this->update_meta( $key, $value );
 		}
 
-		$this->reset_cache();
-
 		return $updated;
 	}
 
@@ -469,7 +468,7 @@ final class EDD_SL_License {
 
 		do_action( 'edd_sl_pre_license_renewal', $this->ID );
 
-		if ( $this->get_download()->is_lifetime() ) {
+		if ( $this->download->is_lifetime() ) {
 			$new_expiration = 'lifetime';
 			$updated        = $this->set_is_lifetime( true );
 		} else {
@@ -518,8 +517,6 @@ final class EDD_SL_License {
 
 		}
 
-		$this->reset_cache();
-
 		do_action( 'edd_sl_post_license_renewal', $this->ID, $new_expiration );
 
 		return $updated;
@@ -555,6 +552,7 @@ final class EDD_SL_License {
 	 */
 	public function disable() {
 		$updated = wp_update_post( array( 'ID' => $this->ID, 'post_status' => 'draft' ) );
+
 		if ( $updated ) {
 			$this->update_meta( '_edd_sl_status', 'inactive' );
 			$this->set_status( 'inactive' );
@@ -604,6 +602,7 @@ final class EDD_SL_License {
 
 		// If the meta_key isn't in the array of matched meta keys, look up by property name.
 		if ( ! in_array( $meta_key, $meta_keys ) ) {
+
 			$property_key = $this->get_property_meta_key( $meta_key );
 
 			// If the we cannot find a meta key from a property name, we don't have a valid meta key to update.
@@ -617,8 +616,6 @@ final class EDD_SL_License {
 		} else {
 			$updated = update_post_meta( $this->ID, $meta_key, $value );
 		}
-
-		$this->reset_cache();
 
 		return $updated;
 	}
@@ -815,7 +812,7 @@ final class EDD_SL_License {
 
 		}
 
-		$prices = $this->get_download()->get_prices();
+		$prices = $this->download->get_prices();
 		if ( ! isset( $prices[ $price_id ] ) ) {
 			// Price ID no longer exists, fallback to default
 			$price_id = edd_get_default_variable_price( $this->download_id );
@@ -871,8 +868,8 @@ final class EDD_SL_License {
 	 * @since 3.5
 	 * @return int
 	 */
-	private function get_activation_limit() {
-		if ( ! is_null( $this->activation_limit ) ) {
+	private function get_activation_limit( $force_lookup = false ) {
+		if ( ! is_null( $this->activation_limit ) && ! $force_lookup ) {
 			return $this->activation_limit;
 		} else {
 			$limit = $this->get_meta( '_edd_sl_limit' );
@@ -883,7 +880,7 @@ final class EDD_SL_License {
 				$parent_license = edd_software_licensing()->get_license( $this->parent );
 				$limit          = $parent_license->get_activation_limit();
 			} else {
-				$limit    = $this->get_download()->get_activation_limit( $this->price_id );
+				$limit    = $this->download->get_activation_limit( $this->price_id );
 			}
 		}
 
@@ -922,8 +919,6 @@ final class EDD_SL_License {
 			}
 		}
 
-		$this->reset_cache();
-
 		return true;
 	}
 
@@ -941,10 +936,8 @@ final class EDD_SL_License {
 			$this->activation_limit = null;
 
 			// Now let the logic handle what the new limit should be.
-			$this->activation_limit = $this->get_activation_limit();
+			$this->activation_limit = $this->get_activation_limit( true );
 		}
-
-		$this->reset_cache();
 
 		return $updated;
 	}
@@ -965,9 +958,7 @@ final class EDD_SL_License {
 		$count = $count > 0 ? absint( $count ) : 0;
 
 		$this->activation_count = $count;
-		$ret = $this->update_meta( '_edd_sl_activation_count', $count );
-		$this->reset_cache();
-		return $ret;
+		return $this->update_meta( '_edd_sl_activation_count', $count );
 	}
 
 	/**
@@ -1197,22 +1188,6 @@ final class EDD_SL_License {
 	}
 
 	/**
-	 * Retrieve the EDD_SL_Download object for the license
-	 *
-	 * @since 3.5.19
-	 *
-	 * @return object EDD_SL_Download
-	 */
-	public function get_download() {
-
-		if( empty( $this->download ) || ! is_a( $this->download, 'EDD_SL_Download' ) ) {
-			$this->download = new EDD_SL_Download( $this->download_id );
-		}
-
-		return $this->download;
-	}
-
-	/**
 	 * Given a site URL, see if it's been activated for the license
 	 *
 	 * @since 3.5
@@ -1382,8 +1357,6 @@ final class EDD_SL_License {
 
 		$added = ! empty( $this->sites );
 
-		$this->reset_cache();
-
 		return $added;
 	}
 
@@ -1421,8 +1394,6 @@ final class EDD_SL_License {
 			$removed = true;
 
 		}
-
-		$this->reset_cache();
 
 		return $removed;
 	}
@@ -1470,9 +1441,6 @@ final class EDD_SL_License {
 			$this->parent      = $parent_id;
 			$this->post_parent = $parent_id;
 			$updated = true;
-
-			$this->reset_cache();
-
 		} else {
 			$updated = false;
 		}
@@ -1489,9 +1457,7 @@ final class EDD_SL_License {
 	 * @return bool
 	 */
 	private function set_post_parent( $parent_id = 0 ) {
-		$parent = $this->set_parent( $parent_id );
-		$this->reset_cache();
-		return $parent;
+		return $this->set_parent( $parent_id );
 	}
 
 	/**
@@ -1530,8 +1496,6 @@ final class EDD_SL_License {
 			}
 		}
 
-		$this->reset_cache();
-
 		do_action( 'edd_sl_post_set_lifetime', $this->ID );
 
 		return $updated;
@@ -1547,9 +1511,7 @@ final class EDD_SL_License {
 	 * @return int|WP_Error
 	 */
 	private function set_post_status( $post_status = 'publish' ) {
-		$ret = wp_update_post( array( 'ID' => $this->ID, 'post_status' => $post_status ) );
-		$this->reset_cache();
-		return $ret;
+		return wp_update_post( array( 'ID' => $this->ID, 'post_status' => $post_status ) );
 	}
 
 	/**
@@ -1573,7 +1535,15 @@ final class EDD_SL_License {
 
 			$this->status = $status;
 
-			if( 'expired' == $status ) {
+			if ( 'active' == $status ) {
+				edd_software_licensing()->log_license_activation( $this->ID, $_SERVER );
+			}
+
+			if ( 'inactive' == $status ) {
+				edd_software_licensing()->log_license_deactivation( $this->ID, $_SERVER );
+			}
+
+			if ( 'expired' == $status ) {
 				// Determine if we should send an email when a license key is marked as expired
 				$notice_on_expired = false;
 				$notices = edd_sl_get_renewal_notices();
@@ -1596,8 +1566,6 @@ final class EDD_SL_License {
 			}
 
 		}
-
-		$this->reset_cache();
 
 		do_action( 'edd_sl_post_set_status', $this->ID, $status );
 
@@ -1634,8 +1602,6 @@ final class EDD_SL_License {
 		$this->expiration  = $expiration;
 		$this->is_lifetime = false;
 
-		$this->reset_cache();
-
 		do_action( 'edd_sl_post_set_expiration', $this->ID, $expiration );
 
 		$child_licenses = $this->get_child_licenses();
@@ -1645,7 +1611,6 @@ final class EDD_SL_License {
 				$child_license->update_meta( '_edd_sl_expiration', $expiration );
 			}
 		}
-
 	}
 
 	/**
@@ -1663,8 +1628,6 @@ final class EDD_SL_License {
 			$this->download_id = $download_id;
 			$this->download    = new EDD_SL_Download( $download_id );
 		}
-
-		$this->reset_cache();
 
 		return $updated;
 	}
@@ -1684,8 +1647,6 @@ final class EDD_SL_License {
 			$this->price_id = $price_id;
 		}
 
-		$this->reset_cache();
-
 		return $updated;
 	}
 
@@ -1702,8 +1663,6 @@ final class EDD_SL_License {
 			$this->post_title = $name;
 			$this->name       = $name;
 		}
-
-		$this->reset_cache();
 
 		return $updated;
 	}
@@ -1753,22 +1712,4 @@ final class EDD_SL_License {
 
 		return $properties[ $property ];
 	}
-
-	/**
-	 * Invalidates any caching of the licenses that we've done
-	 *
-	 * @since 2.5.19
-	 */
-	private function reset_cache() {
-		// Since we're updating a cache item, invalidate the overall one.
-		$last_changed = microtime();
-
-		// Generate the cache key for this license.
-		$cache_key = $this->ID . '_' . $last_changed;
-
-		// Set a new cache for this license.
-		wp_cache_set( $cache_key, $this, 'licenses', HOUR_IN_SECONDS );
-		wp_cache_set( 'last_changed', $last_changed, 'licenses' );
-	}
-
 }

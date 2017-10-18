@@ -210,7 +210,7 @@ function edd_sl_render_license_upgrade_paths_meta_box()	{
 				if ( ! empty( $paths ) && is_array( $paths ) ) :
 					foreach ( $paths as $key => $value ) :
 			?>
-					<tr class="edd_repeatable_upload_wrapper edd_repeatable_row" data-key="<?php echo esc_attr( $key ); ?>">
+					<tr class="edd-repeatable-upgrade-wrapper edd_repeatable_row" data-key="<?php echo esc_attr( $key ); ?>">
 						<td>
 							<?php
 							echo EDD()->html->product_dropdown( array(
@@ -272,7 +272,7 @@ function edd_sl_render_license_upgrade_paths_meta_box()	{
 					endforeach;
 				else :
 			?>
-				<tr class="edd_repeatable_upload_wrapper edd_repeatable_row" data-key="1">
+				<tr class="edd-repeatable-upgrade-wrapper edd_repeatable_row" data-key="1">
 					<td>
 						<?php
 						echo EDD()->html->product_dropdown( array(
