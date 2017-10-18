@@ -338,6 +338,14 @@ function edd_sl_get_cost_based_pro_rated_upgrade_cost( $license_id = 0, $old_pri
  * @return float The prorated cost to upgrade the license
  */
 function edd_sl_get_time_based_pro_rated_upgrade_cost( $license_id = 0, $old_price, $new_price ) {
+
+	$license = edd_software_licensing()->get_license( $license_id );
+
+	// If the license is lifetime, we cannot use time based pro-ration, so fall back to cost based.
+	if ( $license->is_lifetime ) {
+		return edd_sl_get_cost_based_pro_rated_upgrade_cost( $license_id, $old_price, $new_price );
+	}
+
 	$download_id = edd_software_licensing()->get_download_id( $license_id );
 	$payment_id  = edd_software_licensing()->get_payment_id( $license_id );
 
@@ -364,6 +372,7 @@ function edd_sl_get_time_based_pro_rated_upgrade_cost( $license_id = 0, $old_pri
 	$prorated = round( $prorated, edd_currency_decimal_filter() );
 
 	return apply_filters( 'edd_sl_get_time_based_pro_rated_upgrade_cost', $prorated, $license_id, $old_price, $new_price );
+
 }
 
 /**
@@ -576,19 +585,17 @@ function edd_sl_process_license_upgrade( $download_id = 0, $payment_id = 0, $typ
 
 	// Setup some checks if we need to modify the expiration date of the upgraded license.
 	$expiration_change = false;
-	if ( $download_id !== $old_download_id ) {
-		$old_length = $license->license_length();
-		$new_length = '+' . $new_download->get_expiration_length() . ' ' . $new_download->get_expiration_unit();
+	$old_length = $license->license_length();
+	$new_length = '+' . $new_download->get_expiration_length() . ' ' . $new_download->get_expiration_unit();
 
-		// Normalize to numerical differences for easier comparision.
-		$lengths = array(
-			'old' => strtotime( $old_length ),
-			'new' => strtotime( $new_length ),
-		);
+	// Normalize to numerical differences for easier comparision.
+	$lengths = array(
+		'old' => 'lifetime' !== $old_length ? strtotime( $old_length ) : 'lifetime',
+		'new' => 'lifetime' !== $new_length ? strtotime( $new_length ) : 'lifetime',
+	);
 
-		if ( $lengths['old'] !== $lengths['new'] ) {
-			$expiration_change = true;
-		}
+	if ( $lengths['old'] !== $lengths['new'] ) {
+		$expiration_change = true;
 	}
 
 	if( $new_download->is_bundled_download() && ! $old_download->is_bundled_download() ) {
@@ -645,7 +652,6 @@ function edd_sl_process_license_upgrade( $download_id = 0, $payment_id = 0, $typ
 
 			$license->create( $new_download->ID, $payment_id, $price_id, $cart_index, $options );
 
-			// Only change the dates if we're changing downloads, since that's only when license lengths will change.
 			if ( $expiration_change || empty( $license->expiration ) ) {
 				$license_length = '+' . $new_download->get_expiration_length() . ' ' . $new_download->get_expiration_unit();
 				$license->expiration = strtotime( $license_length, strtotime( $purchase_date ) );
@@ -771,22 +777,21 @@ function edd_sl_process_license_upgrade( $download_id = 0, $payment_id = 0, $typ
 
 		if( $new_download->has_variable_prices() ) {
 
-			$limit       = $new_download->get_price_activation_limit( $upgrade['price_id'] );
-			$is_lifetime = $new_download->is_price_lifetime( $upgrade['price_id'] );
+			$limit = $new_download->get_price_activation_limit( $upgrade['price_id'] );
+			$license->activation_limit = $limit;
 
+			$is_lifetime = $new_download->is_price_lifetime( $upgrade['price_id'] );
 			$license->price_id = $upgrade['price_id'];
 
 		} else {
 
 			$license->reset_activation_limit();
-			$limit       = $license->activation_limit;
 			$is_lifetime = $new_download->is_lifetime();
 
 		}
 
-		$license->activation_limit = $limit;
-
 		if ( ! $is_lifetime ) {
+
 			// Set license expiration date
 			delete_post_meta( $license_id, '_edd_sl_is_lifetime' );
 
@@ -794,7 +799,11 @@ function edd_sl_process_license_upgrade( $download_id = 0, $payment_id = 0, $typ
 			if ( ( $old_download_id !== $download_id && $expiration_change ) || empty( $license->expiration ) ) {
 				$license_length = '+' . $new_download->get_expiration_length() . ' ' . $new_download->get_expiration_unit();
 				$license->expiration = strtotime( $license_length, strtotime( $purchase_date ) );
+			} else if ( $lengths['old'] == 'lifetime' && $lengths['new'] !== 'lifetime' ) {
+				$license_length = '+' . $new_download->get_expiration_length() . ' ' . $new_download->get_expiration_unit();
+				$license->expiration = strtotime( $license_length );
 			}
+
 		} else {
 			$license->is_lifetime = true;
 		}
