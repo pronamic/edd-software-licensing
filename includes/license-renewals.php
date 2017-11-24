@@ -473,6 +473,10 @@ function edd_sl_get_renewal_discount_amount( $item = array(), $license_key = '' 
 	$discount = 0.00;
 	$license  = edd_software_licensing()->get_license( $license_key, true );
 
+	if ( false == $license ) {
+		return;
+	}
+
 	if( false !== $license && ! empty( $item['options']['is_renewal'] ) ) {
 
 		if( $license->download->has_variable_prices() ) {
