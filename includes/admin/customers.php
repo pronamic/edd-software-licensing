@@ -10,7 +10,7 @@
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
 /**
- * Add the commissions tab to the customer interface if the customer has commissions
+ * Add the licenses tab to the customer interface if the customer has licenses
  *
  * @since  3.3
  * @param  array $tabs The tabs currently added to the customer view
@@ -34,10 +34,9 @@ function edd_sl_customer_tab( $tabs ) {
 		)
 	) );
 
-	// Check for both commissions OR if they have downloads associated with them for commissions
+	// If they have licenses show the tab.
 	if ( $licenses ) {
 
-		// This makes it so former commission recievers get the tab and new commission users with no sales see it
 		$tabs['licenses'] = array( 'dashicon' => 'dashicons-lock', 'title' => __( 'License Keys', 'edd_sl' ) );
 
 	}
@@ -48,7 +47,7 @@ function edd_sl_customer_tab( $tabs ) {
 add_filter( 'edd_customer_tabs', 'edd_sl_customer_tab', 10, 1 );
 
 /**
- * Register the commissions view for the customer interface
+ * Register the licenses view for the customer interface
  *
  * @since  3.3
  * @param  array $tabs The tabs currently added to the customer views
@@ -83,7 +82,7 @@ function edd_sl_customer_view( $views ) {
 add_filter( 'edd_customer_views', 'edd_sl_customer_view', 10, 1 );
 
 /**
- * Display the commissions area for the customer view
+ * Display the licenses area for the customer view
  *
  * @since  3.3
  * @param  object $customer The Customer being displayed

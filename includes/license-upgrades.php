@@ -960,9 +960,12 @@ function edd_sl_add_upgrade_link( $download_id = 0, $args ) {
 
 	foreach( $licenses as $index => $license ) {
 		if( ! edd_sl_license_has_upgrades( $license->ID ) ) {
-			unset( $licenses[$index] );
+			unset( $licenses[ $index ] );
 		}
 	}
+
+	// Reset the array keys to 0 based after using unset on licenses without upgrades.
+	$licenses = array_values( $licenses );
 
 	if( count( $licenses ) == 1 ) {
 		echo '<span class="edd-sl-upgrade-link"><a href="' . esc_url( edd_sl_get_license_upgrade_list_url( $licenses[0]->ID ) ) . '">' . __( 'Upgrade your existing license', 'edd_sl' ) . '</a></span>';
