@@ -254,7 +254,11 @@ function edd_sl_render_license_upgrade_paths_meta_box()	{
 								'name'    => 'edd_sl_upgrade_paths[' . $key . '][pro_rated]',
 								'value'   => '1',
 								'current' => ! empty( $value['pro_rated'] ) ? 1 : 0
-							) ); ?>
+							) );
+
+							do_action( 'sl_after_prorate_checkbox', $key, $value );
+
+							?>
 						</td>
 						<td>
 							<?php echo EDD()->html->text( array(
