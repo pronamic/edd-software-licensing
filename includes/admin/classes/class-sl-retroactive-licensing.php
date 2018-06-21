@@ -27,7 +27,7 @@ class EDD_SL_Retroactive_Licensing {
 	*/
 	public function tool_box() {
 		// Capability check
-		if ( ! current_user_can( 'manage_shop_settings' ) ) {
+		if ( ! current_user_can( 'manage_licenses' ) ) {
 			wp_die( $this->post_id, esc_html__( 'Your user account doesn\'t have permission to access this.', 'edd_sl' ), array( 'response' => 401 ) );
 		}
 ?>
@@ -35,6 +35,9 @@ class EDD_SL_Retroactive_Licensing {
 			<h3><span><?php _e( 'Software Licensing - Retroactive Licensing Processor', 'edd_sl' ); ?></span></h3>
 			<div class="inside">
 <?php
+				// To prevent the script from showing errors and breaking the JSON, disable the backcompat notices.
+				add_filter( 'eddsl_show_deprecated_notices', '__return_false' );
+
 				// If the button was clicked
 				if ( ! empty( $_POST[ 'edd-retroactive-licensing' ] ) || ! empty( $_REQUEST['posts'] ) ) {
 					if ( ! wp_verify_nonce( $_REQUEST['edd_sl_retroactive'], 'edd_sl_retroactive' ) ) {
@@ -307,10 +310,10 @@ class EDD_SL_Retroactive_Licensing {
 	*/
 	public function edd_sl_process_retroactive_post() {
 
-		error_reporting( 0 ); // Don't break the JSON result
+		add_filter( 'eddsl_show_deprecated_notices', '__return_false' );
 		header( 'Content-type: application/json' );
 
-		if ( ! current_user_can( 'edit_shop_payments' ) ) {
+		if ( ! current_user_can( 'manage_licenses' ) ) {
 			die( json_encode( array( 'error' => __( 'Failed Licensing: You do not have permission to perform this action.', 'edd_sl' ) ) ) );
 		}
 
@@ -318,8 +321,9 @@ class EDD_SL_Retroactive_Licensing {
 		$post       = get_post( $payment_id );
 		$download   = intval( $_REQUEST['dl'] );
 
-		if ( ! $post || $post->post_type != 'edd_payment' )
+		if ( ! $post || $post->post_type != 'edd_payment' ) {
 			die( json_encode( array( 'error' => sprintf( esc_html__( 'Failed Licensing: %s is incorrect post type.', 'edd_sl' ), esc_html( $payment_id ) ) ) ) );
+		}
 
 		$number_generated = self::generate_license_keys( $payment_id, $download );
 
@@ -369,8 +373,15 @@ class EDD_SL_Retroactive_Licensing {
 
 				if ( 'bundle' === $type ) {
 
-					$price_id = isset( $download['item_number']['options']['price_id'] ) ? $download['item_number']['options']['price_id'] : false;
-					$keys     = $license->create( $download['id'], $payment_id, $price_id , $cart_key );
+					$price_id = is_numeric( $license->price_id ) ? $license->price_id : false;
+
+					// Pass in the expiration date so generated licenses have the correct expiration date.
+					$options = array(
+						'expiration_date' => $license->expiration,
+					);
+
+					// Always generate bundle license keys from the initial payment ID.
+					$keys = $license->create( $download['id'], $license->payment_id, $price_id , $license->cart_index, $options );
 
 				} else {
 					continue; // This product already has keys

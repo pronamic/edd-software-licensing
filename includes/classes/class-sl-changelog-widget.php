@@ -86,6 +86,8 @@ final class EDD_SL_Changelog_Widget extends WP_Widget {
 
 		extract( $args, EXTR_SKIP );
 
+		$download = new EDD_SL_Download( $post_id );
+
 		// Get cached items if they exist
 		$cache = wp_cache_get( 'widget_sl_changelog', 'widget' );
 		$cache_arr_key = $args['widget_id'] . '_' . $post_id;
@@ -106,7 +108,7 @@ final class EDD_SL_Changelog_Widget extends WP_Widget {
 		// Otherwise generate the information
 		$title = apply_filters( 'widget_title', $instance['title'], $instance, $this->id_base );
 
-		$changelog 	= get_post_meta( $post_id, '_edd_sl_changelog', true );
+		$changelog 	= $download->get_changelog();
 
 		if ( ! empty( $changelog ) ) {
 			$output .= $before_widget;

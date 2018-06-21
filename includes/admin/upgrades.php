@@ -11,28 +11,16 @@ function edd_sl_register_upgrades_page() {
 add_action( 'admin_menu', 'edd_sl_register_upgrades_page', 10 );
 
 function edd_sl_upgrades_screen() {
-	$step   = isset( $_GET['step'] ) ? absint( $_GET['step'] ) : 1;
-	$counts = wp_count_posts( 'edd_license' );
-	$total  = 0;
-	foreach ( $counts as $count ) {
-		$total += $count;
-	}
-	$total_steps = round( ( $total / 100 ), 0 );
-	if ( ( $total_steps * 100 ) < $total ) {
-		$total_steps++;
-	}
-?>
+	add_filter( 'edd_load_admin_scripts', '__return_true' );
+	?>
 	<div class="wrap">
 		<h2><?php _e( 'Software Licensing - Upgrades', 'edd_sl' ); ?></h2>
-		<div id="edd-upgrade-status">
-			<p><?php _e( 'The upgrade process is running, please be patient. This could take several minutes to complete while license keys are upgraded in batches of 100.', 'edd_sl' ); ?></p>
-			<p><strong><?php printf( __( 'Step %d of approximately %d running', 'edd_sl' ), $step, $total_steps ); ?>
-		</div>
-		<script type="text/javascript">
-			document.location.href = "index.php?edd_action=<?php echo esc_html( $_GET['edd_upgrade'] ); ?>&step=<?php echo absint( $_GET['step'] ); ?>";
-		</script>
+		<?php
+		$routine = sanitize_key( $_GET['edd-upgrade'] );
+		do_action( 'edd_sl_render_' . $routine );
+		?>
 	</div>
-<?php
+	<?php
 }
 
 /**
@@ -42,634 +30,401 @@ function edd_sl_upgrades_screen() {
  * @return void
 */
 function edd_sl_show_upgrade_notice() {
+	global $wpdb;
 
 	if( ! function_exists( 'EDD' ) ) {
 		return;
 	}
 
+	if ( ! current_user_can( 'manage_options' ) ) {
+		return;
+	}
+
+	$current_screen = get_current_screen();
+	if ( 'dashboard_page_edd-sl-upgrades' === $current_screen->id ) {
+		return;
+	}
+
 	$edd_sl_version = get_option( 'edd_sl_version' );
-
-	if( ! $edd_sl_version ){
-		edd_sl_v22_upgrades();
+	if ( version_compare( $edd_sl_version, '3.6 ', '<' ) ) {
+		edd_software_licensing()->roles->add_caps();
 	}
 
-	if ( version_compare( $edd_sl_version, '2.4', '<' ) && ! isset( $_GET['edd_upgrade'] ) ) {
-		printf(
-			'<div class="updated"><p>' . __( 'The License Keys in Easy Digital Downloads needs to be upgraded, click <a href="%s">here</a> to start the upgrade.', 'edd_sl' ) . '</p></div>',
-			esc_url( add_query_arg( array( 'edd_action' => 'upgrade_site_urls' ), admin_url() ) )
-		);
-	}
+	$licenses_migrated       = edd_has_upgrade_completed( 'migrate_licenses' );
+	$bundle_licenses_updated = edd_has_upgrade_completed( 'migrate_license_parent_child' );
+	$license_logs_updated    = edd_has_upgrade_completed( 'migrate_license_logs' );
+	$removed_legacy_licenses = edd_has_upgrade_completed( 'remove_legacy_licenses' );
 
-	if ( version_compare( $edd_sl_version, '2.5', '<' ) && ! isset( $_GET['edd_upgrade'] ) ) {
-		printf(
-			'<div class="updated"><p>' . __( 'The License Keys in Easy Digital Downloads needs to be upgraded, click <a href="%s">here</a> to start the upgrade.', 'edd_sl' ) . '</p></div>',
-			esc_url( add_query_arg( array( 'edd_action' => 'upgrade_license_price_ids' ), admin_url() ) )
-		);
-	}
+	if ( ! $licenses_migrated ) {
 
-	if ( version_compare( $edd_sl_version, '3.0', '<' ) && ! isset( $_GET['edd_upgrade'] ) && edd_get_option( 'edd_sl_send_renewal_reminders' ) ) {
-		printf(
-			'<div class="updated"><p>' . __( 'The renewal notices in Easy Digital Downloads needs to be upgraded, click <a href="%s">here</a> to start the upgrade.', 'edd_sl' ) . '</p></div>',
-			esc_url( add_query_arg( array( 'edd_action' => 'upgrade_renewal_notices' ), admin_url() ) )
-		);
-	}
 
-	if( function_exists( 'edd_has_upgrade_completed' ) && function_exists( 'edd_maybe_resume_upgrade' ) ) {
-		$resume_upgrade = edd_maybe_resume_upgrade();
-		if ( empty( $resume_upgrade ) ) {
+		// Check to see if we have licenses in the Database
+		$results      = $wpdb->get_row( "SELECT count(ID) as has_licenses FROM $wpdb->posts WHERE post_type = 'edd_license' LIMIT 0, 1" );
+		$has_licenses = ! empty( $results->has_licenses ) ? true : false;
 
-			if ( version_compare( $edd_sl_version, '3.2', '<' ) || ! edd_has_upgrade_completed( 'sl_add_bundle_licenses' ) ) {
-				$notice  = '<div class="notice notice-info"><p>';
-				$notice .= __( 'Easy Digital Downloads - Software Licensing now supports Bundle Licenses. This is an opt-in upgrade, so please choose one of the following:', 'edd_sl' );
-				$notice .= '<p>';
-				$notice .= sprintf( __( 'If you want to read more on this new feature, <a href="%s" target="_blank">click here</a>.', 'edd_sl' ), 'http://docs.easydigitaldownloads.com/article/698-bundle-licensing' );
-				$notice .= '</p>';
-				$notice .= '<ol>';
-				$notice .= sprintf( __( '<li>Make <a href="%s">no changes</a></li>', 'edd_sl' ), esc_url( admin_url( 'index.php?page=edd-upgrades&edd-upgrade=sl_add_bundle_licenses&custom=0' ) ) );
-				$notice .= __( '<li>After you enable licensing for the bundles of your choice, <a href="#" onClick="jQuery(\'#generate-licenses-button-wrapper\').toggle(); return false;">generate licenses for bundles with Licensing enabled</a>.</li>', 'edd_sl' );
-				$notice .= '</ol>';
-				$notice .= '</p></div>';
-				$notice .= '<div class="notice notice-info" style="display:none;" id="generate-licenses-button-wrapper">';
-				$notice .= '<p>' . __( 'Before clicking this button, verify that all bundles you want to generate licenses for have Licensing enabled, and their license length is correct.', 'edd_sl' ) . '</p>';
-				$notice .= sprintf( __( '<a href="%s" class="button-primary">', 'edd_sl' ), esc_url( admin_url( 'index.php?page=edd-upgrades&edd-upgrade=sl_add_bundle_licenses&custom=1' ) ) );
-				$notice .= __( 'Generate Bundle Licenses', 'edd_sl' );
-				$notice .= '</a>';
-				$notice .= '</p></div>';
-				echo $notice;
-			}
-
-			if ( version_compare( $edd_sl_version, '3.4.8', '<' ) || ! edd_has_upgrade_completed( 'sl_deprecate_site_count_meta' ) ) {
-				printf(
-					'<div class="updated"><p>' . __( 'The Software Licensing post meta needs to be upgraded, click <a href="%s">here</a> to start the upgrade.', 'edd_sl' ) . '</p></div>',
-					esc_url( add_query_arg( array( 'edd_action' => 'sl_deprecate_site_count_meta' ), admin_url() ) )
-				);
-			}
-
+		if ( ! $has_licenses ) {
+			edd_set_upgrade_complete( 'migrate_licenses' );
+			edd_set_upgrade_complete( 'migrate_license_parent_child' );
+			edd_set_upgrade_complete( 'migrate_license_logs' );
+			edd_set_upgrade_complete( 'remove_legacy_licenses' );
+		} else {
+			printf(
+				'<div class="updated">' .
+				'<p>' .
+				__( 'Easy Digital Downloads - Software Licensing needs to upgrade the licenses database, click <a href="%s">here</a> to start the upgrade. <a href="#" onClick="jQuery(this).parent().next(\'p\').slideToggle()">Learn more about this upgrade</a>.', 'edd_sl' ) .
+				'</p>' .
+				'<p style="display: none;">' .
+				__( '<strong>About this upgrade:</strong><br />This is a <strong><em>mandatory</em></strong> update that will migrate all licenses and their meta data to a new custom database table. This upgrade should provide better performance and scalability.', 'edd_sl' ) .
+				'<br /><br />' .
+				__( '<strong>Please back up your database before starting this upgrade.</strong> This upgrade routine will make irreversible changes to the database.', 'edd_sl' ) .
+				'<br /><br />' .
+				__( '<strong>Advanced User?</strong><br />This upgrade can also be run via WP-CLI with the following command:<br /><code>wp edd-sl migrate_licenses</code>', 'edd_sl' ) .
+				'<br /><br />' .
+				__( 'For large sites, this is the recommended method of upgrading.', 'edd_sl' ) .
+				'</p>' .
+				'</div>',
+				esc_url( admin_url( 'index.php?page=edd-sl-upgrades&edd-upgrade=licenses_migration' ) )
+			);
 		}
+	}
+
+	if ( $licenses_migrated && ( ! $bundle_licenses_updated || ! $license_logs_updated ) ) {
+
+		printf(
+			'<div class="error">' .
+			'<p>' .
+			__( 'Easy Digital Downloads - Software Licensing still needs to complete the upgrade to the licenses database, click <a href="%s">here</a> to continue the upgrade.', 'edd_sl' ) .
+			'</p>' .
+			'</div>',
+			esc_url( admin_url( 'index.php?page=edd-sl-upgrades&edd-upgrade=licenses_migration' ) )
+		);
+
+	}
+
+	if ( ( $licenses_migrated && $bundle_licenses_updated && $license_logs_updated ) && ! $removed_legacy_licenses ) {
+		printf(
+			'<div class="updated">' .
+			'<p>' .
+			__( 'Easy Digital Downloads - Software Licensing has <strong>finished upgrading the licenses database</strong>. The final step is to <a href="%s">remove the legacy data</a>. <a href="#" onClick="jQuery(this).parent().next(\'p\').slideToggle()">Learn more about this process</a>.', 'edd_sl' ) .
+			'</p>' .
+			'<p style="display: none;">' .
+			__( '<strong>Removing legacy data:</strong><br />All licenses have been migrated to their own custom table. Now all old data needs to be removed.', 'edd_sl' ) .
+			'<br /><br />' .
+			__( '<strong>If you have not already, back up your database</strong> as this upgrade routine will be making changes to the database that are not reversible.', 'edd_sl' ) .
+			'</p>' .
+			'</div>',
+			esc_url( admin_url( 'index.php?page=edd-sl-upgrades&edd-upgrade=licenses_migration' ) )
+		);
 	}
 }
 add_action( 'admin_notices', 'edd_sl_show_upgrade_notice' );
 
-/**
- * Sets renewal flags on all renewal purchases, if any
- *
- * @since 2.2
- * @return void
- */
-function edd_sl_v22_upgrades() {
-
+function edd_sl_render_licenses_migration() {
 	global $wpdb;
 
-	if ( get_option( 'edd_sl_renewals_upgraded' ) )
-		return;
+	$migration_complete = edd_has_upgrade_completed( 'migrate_licenses' );
 
-	ignore_user_abort( true );
-
-	if ( ! edd_is_func_disabled( 'set_time_limit' ) ) {
-		set_time_limit( 0 );
+	$has_child_licenses     = $wpdb->get_var( "SELECT ID FROM $wpdb->posts WHERE post_type = 'edd_license' AND post_parent != 0 LIMIT 1" );
+	$relationships_complete = edd_has_upgrade_completed( 'migrate_license_parent_child' );
+	if ( empty( $has_child_licenses ) ) {
+		edd_set_upgrade_complete( 'migrate_license_parent_child' );
+		$relationships_complete = true;
 	}
 
-	// Select all payments that had a renewal discount and update their post meta
-	$payments = $wpdb->get_col( "SELECT post_id FROM $wpdb->postmeta WHERE meta_value LIKE '%edd_sl_renewal%';" );
-	if( $payments ) {
-		foreach( $payments as $payment ) {
-
-			if( edd_get_payment_meta( $payment, '_edd_sl_is_renewal', true ) ) {
-				continue;
-			}
-
-			$args = array(
-				'posts_per_page' => -1,
-				'meta_key'       => '_edd_sl_payment_id',
-				'meta_value'     => $payment,
-				'post_type'      => 'edd_license',
-				'fields'         => 'ids',
-			);
-
-			$keys = get_posts( $args );
-			if( $keys ) {
-				add_post_meta( $payment, '_edd_sl_is_renewal', '1', true );
-				add_post_meta( $payment, '_edd_sl_renewal_key', edd_software_licensing()->get_license_key( $keys[0] ), true );
-			}
-		}
+	$has_license_logs = $wpdb->get_var( "SELECT meta_id FROM $wpdb->postmeta WHERE meta_key = '_edd_sl_log_license_id' LIMIT 1" );
+	$logs_complete    = edd_has_upgrade_completed( 'migrate_license_logs' );
+	if ( empty( $has_license_logs ) ) {
+		edd_set_upgrade_complete( 'migrate_license_logs' );
+		$logs_complete = true;
 	}
 
-	add_option( 'edd_sl_renewals_upgraded', '1' );
-}
-
-/**
- * Upgrades old license keys with the new site URL store
- *
- * @since 2.4
- * @return void
- */
-function edd_sl_24_upgrade_site_urls() {
-
-	$edd_sl_version = get_option( 'edd_sl_version' );
-
-	if ( version_compare( $edd_sl_version, '2.4', '>=' ) ) {
-		return;
-	}
-
-	ignore_user_abort( true );
-
-	if ( ! edd_is_func_disabled( 'set_time_limit' ) ) {
-		set_time_limit( 0 );
-	}
-
-	$step   = isset( $_GET['step'] ) ? absint( $_GET['step'] ) : 1;
-	$offset = $step == 1 ? 0 : $step * 100;
-
-	$args   = array(
-		'post_type'      => 'edd_license_log',
-		'posts_per_page' => 100,
-		'offset'         => $offset
-	);
-
-	$logs = get_posts( $args );
-
-	if( $logs ) {
-		foreach( $logs as $log ) {
-
-			$license_id = get_post_meta( $log->ID, '_edd_sl_log_license_id', true );
-			$urls       = wp_extract_urls( $log->post_content );
-			$urls       = edd_sl_sanitize_urls( $urls );
-
-			if( strpos( $log->post_title, 'License Activated' ) ) {
-
-				foreach( $urls as $url ) {
-					edd_software_licensing()->insert_site( $license_id, $url );
-				}
-
-			} else {
-
-				foreach( $urls as $url ) {
-					edd_software_licensing()->delete_site( $license_id, $url );
-				}
-
-			}
-
-		}
-
-		// Keys found so upgrade them
-		$step++;
-		$redirect = add_query_arg( array(
-			'page'        => 'edd-sl-upgrades',
-			'edd_upgrade' => 'upgrade_site_urls',
-			'step'        => $step
-		), admin_url( 'index.php' ) );
-		wp_safe_redirect( $redirect ); exit;
-
-	} else {
-
-		// No more keys found, update the DB version and finish up
-		update_option( 'edd_sl_version', EDD_SL_VERSION );
-		wp_redirect( admin_url() ); exit;
-	}
-
-}
-add_action( 'edd_upgrade_site_urls', 'edd_sl_24_upgrade_site_urls' );
-
-/**
- * Upgrades old license keys with the purchased price IDs
- *
- * @since 2.5
- * @return void
- */
-function edd_sl_25_upgrade_license_ids() {
-
-	$edd_sl_version = get_option( 'edd_sl_version' );
-
-	if ( version_compare( $edd_sl_version, '2.5', '>=' ) ) {
-		return;
-	}
-
-	ignore_user_abort( true );
-
-	if ( ! edd_is_func_disabled( 'set_time_limit' ) ) {
-		set_time_limit( 0 );
-	}
-
-	$step   = isset( $_GET['step'] ) ? absint( $_GET['step'] ) : 1;
-	$offset = $step == 1 ? 0 : $step * 100;
-
-	$args   = array(
-		'post_type'      => 'edd_license',
-		'posts_per_page' => 100,
-		'offset'         => $offset,
-		'fields'         => 'ids'
-	);
-
-	$license_keys = get_posts( $args );
-
-	if( $license_keys ) {
-
-		foreach( $license_keys as $license ) {
-
-			$price_id    = (int) edd_software_licensing()->get_price_id( $license );
-			$download_id = (int) edd_software_licensing()->get_download_id( $license );
-			$payment_id  = get_post_meta( $license, '_edd_sl_payment_id', true );
-			$cart_items  = edd_get_payment_meta_cart_details( $payment_id );
-			if( $cart_items ) {
-				foreach( $cart_items as $cart_item ) {
-
-					if( $download_id !== $cart_item['id'] )
-						continue;
-
-					$price_id = isset( $cart_item['item_number']['options']['price_id'] ) ? (int) $cart_item['item_number']['options']['price_id'] : false;
-
-					if( false !== $price_id ) {
-						update_post_meta( $license, '_edd_sl_download_price_id', $price_id );
-					}
-				}
-			}
-
-		}
-
-		// Keys found so upgrade them
-		$step++;
-		$redirect = add_query_arg( array(
-			'page'        => 'edd-sl-upgrades',
-			'edd_upgrade' => 'upgrade_license_price_ids',
-			'step'        => $step
-		), admin_url( 'index.php' ) );
-		wp_safe_redirect( $redirect ); exit;
-
-	} else {
-
-		// No more keys found, update the DB version and finish up
-		update_option( 'edd_sl_version', EDD_SL_VERSION );
-		wp_redirect( admin_url() ); exit;
-	}
-
-}
-add_action( 'edd_upgrade_license_price_ids', 'edd_sl_25_upgrade_license_ids' );
-
-/**
- * Upgrades the renewal notice for the new renewal notices system in 3.0
- *
- * @since 3.0
- * @return void
- */
-function edd_sl_30_upgrade_renewal_notices() {
-
-	$edd_sl_version = get_option( 'edd_sl_version' );
-
-	if ( version_compare( $edd_sl_version, '3.0', '>=' ) ) {
-		return;
-	}
-
-	@ignore_user_abort( true );
-
-	if ( ! edd_is_func_disabled( 'set_time_limit' ) ) {
-		@set_time_limit( 0 );
-	}
-
-	$subject = edd_get_option( 'edd_sl_renewal_reminder_subject' );
-	$message = edd_get_option( 'edd_sl_renewal_reminder' );
-
-	$subject = ! empty( $subject ) ? $subject : __( 'Your License Key is About to Expire', 'edd_sl' );
-	$period  = '+1month';
-	$message = ! empty( $message ) ? $message : false;
-
-	if( empty( $message ) ) {
-		$message = 'Hello {name},
-
-Your license key for {product_name} is about to expire.
-
-If you wish to renew your license, simply click the link below and follow the instructions.
-
-Your license expires on: {expiration}.
-
-Your expiring license key is: {license_key}.
-
-Renew now: {renewal_link}.';
-	}
-
-	$notices = array();
-	$notices[0] = array(
-		'subject'     => $subject,
-		'message'     => $message,
-		'send_period' => $period
-	);
-
-	update_option( 'edd_sl_renewal_notices', $notices );
-
-	// Notices upgraded, redirect back to the dashboard
-	update_option( 'edd_sl_version', EDD_SL_VERSION );
-	wp_redirect( admin_url( 'edit.php?post_type=download&page=edd-settings&tab=extensions&section=software-licensing' ) ); exit;
-
-}
-add_action( 'edd_upgrade_renewal_notices', 'edd_sl_30_upgrade_renewal_notices' );
-
-
-/**
- * Sanitize the URLs extracted from the server data
- * *
- * @access      private
- * @since       2.4
- * @return      array
-*/
-function edd_sl_sanitize_urls( $urls = array() ) {
-
-	if( empty( $urls ) ) {
-		return false;
-	}
-
-	foreach( $urls as $key => $url ) {
-
-		// Exclude URLs that match the current site
-		if( strpos( home_url(), $url ) !== false ) {
-			unset( $urls[ $key ] );
-			continue;
-		}
-
-		// Look for quotation marks and remove them
-		$dirty  = strpos( $url, '"' );
-		if( false !== $dirty ) {
-			$url = substr( $url, 0, $dirty );
-		}
-
-		$urls[ $key ] = $url;
-
-		if( strpos( $url, 'http' ) === false ) {
-			unset( $urls[ $key ] );
-		}
-
-	}
-
-	return $urls;
-
-}
-
-/**
- * Run the upgrade to generate licenses for past bundle purchases
- *
- * @since  3.2
- * @return void
- */
-function edd_sl_v32_add_bundle_licenses() {
-	global $wpdb;
-
-	if( ! current_user_can( 'manage_shop_settings' ) ) {
-		wp_die( __( 'You do not have permission to do shop upgrades', 'edd' ), __( 'Error', 'edd' ), array( 'response' => 403 ) );
-	}
-
-	ignore_user_abort( true );
-
-	if ( ! edd_is_func_disabled( 'set_time_limit' ) ) {
-		@set_time_limit(0);
-	}
-
-	$step   = isset( $_GET['step'] ) ? absint( $_GET['step'] ) : 1;
-	$number = 25;
-	$offset = $step == 1 ? 0 : ( $step - 1 ) * $number;
-
-	// Get the upgrade type...if none provided, dismiss is used and no further action is taken
-	$custom = isset( $_GET['custom'] ) ? absint( $_GET['custom'] ) : 0;
-
-	if ( $step < 2 ) {
-
-		// User chose to not run any upgrades
-		if ( 0 === $custom ) {
-			update_option( 'edd_sl_version', preg_replace( '/[^0-9.].*/', '', EDD_SL_VERSION ) );
-			edd_set_upgrade_complete( 'sl_add_bundle_licenses' );
-			delete_option( 'edd_doing_upgrade' );
-			wp_redirect( admin_url() ); exit;
-		}
-
-		// Check if we have any payments before moving on
-		$sql = "SELECT ID FROM $wpdb->posts WHERE post_type = 'edd_payment' LIMIT 1";
-		$has_payments = $wpdb->get_col( $sql );
-
-		if( empty( $has_payments ) ) {
-			// We had no payments, just complete
-			update_option( 'edd_sl_version', preg_replace( '/[^0-9.].*/', '', EDD_SL_VERSION ) );
-			edd_set_upgrade_complete( 'sl_add_bundle_licenses' );
-			delete_option( 'edd_doing_upgrade' );
-			wp_redirect( admin_url() ); exit;
-		}
-
-		// Check if we have any bundle products as well
-		$sql = "SELECT post_id FROM $wpdb->postmeta WHERE meta_key = '_edd_bundled_products' LIMIT 1";
-		$has_bundles = $wpdb->get_col( $sql );
-
-		if ( empty( $has_bundles ) ) {
-			// We had no bundles, just complete
-			update_option( 'edd_sl_version', preg_replace( '/[^0-9.].*/', '', EDD_SL_VERSION ) );
-			edd_set_upgrade_complete( 'sl_add_bundle_licenses' );
-			delete_option( 'edd_doing_upgrade' );
-			wp_redirect( admin_url() ); exit;
-		}
-
-	}
-
-	$sql = "SELECT post_id FROM $wpdb->postmeta WHERE meta_key = '_edd_bundled_products'";
-	$bundle_download_ids = $wpdb->get_col( $sql );
-
-	foreach ( $bundle_download_ids as $key => $bundle_id ) {
-
-		$licenses_enabled = get_post_meta( $bundle_id, '_edd_sl_enabled', false );
-		if ( empty( $licenses_enabled ) ) {
-			unset( $bundle_download_ids[ $key ] );
-		}
-
-	}
-
-	// If we ended up with no bundles that have licensing enabled, just exit as well
-	if ( empty( $bundle_download_ids ) ) {
-		update_option( 'edd_sl_version', preg_replace( '/[^0-9.].*/', '', EDD_SL_VERSION ) );
-		edd_set_upgrade_complete( 'sl_add_bundle_licenses' );
-		delete_option( 'edd_doing_upgrade' );
-		wp_redirect( admin_url() ); exit;
-	}
-
-	$total = isset( $_GET['total'] ) ? absint( $_GET['total'] ) : false;
-	if ( empty( $total ) || $total <= 1 ) {
-		$args = array(
-			'number'   => -1,
-			'download' => $bundle_download_ids
-		);
-
-		$all_payments = new EDD_Payments_Query( $args );
-		$all_payments = $all_payments->get_payments();
-
-		$total        = count( $all_payments );
-	}
-
-	$payment_args = array(
-		'order'    => 'ASC',
-		'orderby'  => 'ID',
-		'number'   => $number,
-		'page'     => $step,
-		'download' => $bundle_download_ids,
-
-	);
-
-	$payments = new EDD_Payments_Query( $payment_args );
-	$payments = $payments->get_payments();
-
-	$bundle_contents = array();
-	if( ! empty( $payments ) ) {
-
-		foreach( $payments as $payment ) {
-
-			$cart_details = edd_get_payment_meta_downloads( $payment->ID );
-
-			foreach ( $cart_details as $cart_index => $cart_item ) {
-
-				if ( ! in_array( $cart_item['id'], $bundle_download_ids ) ) {
-					// Item is not a bundled product, move along
-					continue;
-				}
-
-				// See if there is a bundle license already
-				$bundle_license = edd_software_licensing()->get_license_by_purchase( $payment->ID, $cart_item['id'] );
-
-				// It not create the bundle license
-				if ( empty( $bundle_license ) ) {
-					$bundle_license = edd_software_licensing()->generate_license( $cart_item['id'], $payment->ID, 'default', $cart_item, $cart_index );
-					$bundle_license = edd_software_licensing()->get_license_by_purchase( $payment->ID, $cart_item['id'], $cart_index );
-				}
-
-				// If we haven't retrieved the bundle contents yet, get them
-				if ( ! isset( $bundle_contents[ $cart_item['id'] ] ) ) {
-					$bundle_contents[ $cart_item['id'] ] = edd_get_bundled_products( $cart_item['id'] );
-				}
-
-				// Get the products in the bundle
-				$bundle_products = $bundle_contents[ $cart_item['id'] ];
-
-				// For every bundle in the download, get the license for this payment, and update it's post_parent
-				foreach ( $bundle_products as $license_download_id ) {
-					$license = edd_software_licensing()->get_license_by_purchase( $payment->ID, $license_download_id );
-
-					if ( empty ( $license ) ) {
-						continue;
+	$removal_complete   = edd_has_upgrade_completed( 'remove_legacy_licenses' );
+
+	if ( $migration_complete && $removal_complete && $logs_complete && $removal_complete ) : ?>
+		<div id="edd-sl-migration-complete" class="notice notice-success">
+			<p>
+				<?php _e( '<strong>Migration complete:</strong> You have already completed the migration of licenses to custom database tables.', 'edd_sl' ); ?>
+			</p>
+		</div>
+		<?php return; ?>
+	<?php endif; ?>
+
+	<div id="edd-sl-migration-ready" class="notice notice-success" style="display: none;">
+		<p>
+			<?php _e( '<strong>Database Upgrade Complete:</strong> All database upgrades have been completed. We recommended you now verify your store\'s operations are functioning as expected.', 'edd_sl' ); ?>
+			<br /><br />
+			<?php _e( 'You may now leave this page.', 'edd_sl' ); ?>
+		</p>
+	</div>
+	<?php
+
+	$step = 1;
+	?>
+	<div id="edd-sl-migration-nav-warn" class="notice notice-info">
+		<p>
+			<?php _e( '<strong>Important:</strong> Please leave this screen open and do not navigate away until the process completes.', 'edd_sl' ); ?>
+		</p>
+	</div>
+
+	<style>
+		.dashicons.dashicons-yes { display: none; color: rgb(0, 128, 0); vertical-align: middle; }
+	</style>
+	<?php if ( ! $removal_complete ) : ?>
+	<script>
+		$( document ).ready(function() {
+			$(document).on("DOMNodeInserted", function (e) {
+				var element = e.target;
+
+				if ( element.id === 'edd-batch-success' ) {
+					element = $(element);
+
+					element.parent().prev().find('.edd-sl-migration.allowed').hide();
+					element.parent().prev().find('.edd-sl-migration.unavailable').show();
+					var element_wrapper = element.parents().eq(4);
+					element_wrapper.find('.dashicons.dashicons-yes').show();
+
+					var auto_start_next_step = true;
+
+					if (element.find('.edd-sl-new-count')) {
+						var new_count = element.find('.edd-sl-new-count').text(),
+							old_count = element.find('.edd-sl-old-count').text();
+
+						auto_start_next_step = new_count === old_count;
 					}
 
-					$update_args = array(
-						'ID'          => $license->ID,
-						'post_parent' => $bundle_license->ID
-					);
+					var next_step_wrapper = element_wrapper.next();
+					if ( next_step_wrapper.find('.postbox').length) {
+						next_step_wrapper.find('.edd-sl-migration.allowed').show();
+						next_step_wrapper.find('.edd-sl-migration.unavailable').hide();
 
-					wp_update_post( $update_args );
+						if ( auto_start_next_step ) {
+							next_step_wrapper.find('.edd-export-form').submit();
+						}
+					} else {
+						$('#edd-sl-migration-nav-warn').hide();
+						$('#edd-sl-migration-ready').slideDown();
+					}
 
 				}
+			});
+		});
+	</script>
+	<?php endif; ?>
 
-			}
+	<div class="metabox-holder">
+		<div class="postbox">
+			<h2 class="hndle">
+				<span><?php printf( __( 'Step %d: Upgrade Licenses Database', 'edd_sl' ), $step ); ?></span>
+				 <span class="dashicons dashicons-yes"></span>
+			</h2>
+			<div class="inside migrate-licenses-control">
+				<p>
+					<?php _e( 'This will upgrade the licenses database for improved performance and reliability.', 'edd_sl' ); ?>
+				</p>
+				<form method="post" id="edd-sl-migrate-licenses-form" class="edd-export-form edd-import-export-form">
+					<span class="step-instructions-wrapper">
 
-		}
+						<?php wp_nonce_field( 'edd_ajax_export', 'edd_ajax_export' ); ?>
 
-		// More Payments found so upgrade them
-		$step++;
-		$redirect = add_query_arg( array(
-			'page'        => 'edd-upgrades',
-			'edd-upgrade' => 'sl_add_bundle_licenses',
-			'step'        => $step,
-			'number'      => $number,
-			'total'       => $total,
-			'custom'      => $custom
-		), admin_url( 'index.php' ) );
-		wp_safe_redirect( $redirect ); exit;
+						<?php if ( ! $removal_complete ) : ?>
+							<span class="edd-sl-migration allowed" style="<?php echo ! $migration_complete ? '' : 'display: none'; ?>">
+								<input type="submit" id="migrate-licenses-submit" value="<?php _e( 'Upgrade Database', 'edd_sl' ); ?>" class="button-primary"/>
+							</span>
 
-	} else {
+							<span class="edd-sl-migration unavailable" style="<?php echo $migration_complete ? '' : 'display: none'; ?>">
+								<input type="submit" disabled="disabled" id="migrate-licenses-submit" value="<?php _e( 'Upgrade Database', 'edd_sl' ); ?>" class="button-secondary"/>
+								&mdash; <?php _e( 'Your licenses database has been upgraded.', 'edd_sl' ); ?>
+							</span>
+						<?php else: ?>
+							<input type="submit" disabled="disabled" id="migrate-licenses-submit" value="<?php _e( 'Upgrade Database', 'edd_sl' ); ?>" class="button-secondary"/>
+							&mdash; <?php _e( 'Legacy data has already been removed, migration is not possible at this time.', 'edd_sl' ); ?>
+						<?php endif; ?>
 
-		// No more data to update. Downloads have been altered or dismissed
-		update_option( 'edd_sl_version', preg_replace( '/[^0-9.].*/', '', EDD_SL_VERSION ) );
-		edd_set_upgrade_complete( 'sl_add_bundle_licenses' );
-		delete_option( 'edd_doing_upgrade' );
+						<input type="hidden" name="edd-export-class" value="EDD_SL_License_Migration" />
+						<span class="spinner"></span>
 
-		wp_redirect( admin_url() ); exit;
-	}
+					</span>
+				</form>
+			</div><!-- .inside -->
+		</div><!-- .postbox -->
+	</div>
+	<?php $step++; ?>
+
+	<?php if ( ! empty( $has_child_licenses ) ) : ?>
+	<div class="metabox-holder">
+		<div class="postbox">
+			<h2 class="hndle">
+				<span><?php printf( __( 'Step %d: Update Bundled Licenses', 'edd_sl' ), $step ); ?></span>
+				 <span class="dashicons dashicons-yes"></span>
+			</h2>
+			<div class="inside migrate-licenses-control">
+				<p>
+					<?php _e( 'This restores child licenses with their new parent license IDs.', 'edd_sl' ); ?>
+				</p>
+				<form method="post" id="edd-sl-fix-bundle-form" class="edd-export-form edd-import-export-form">
+				<span class="step-instructions-wrapper">
+
+					<?php wp_nonce_field( 'edd_ajax_export', 'edd_ajax_export' ); ?>
+
+					<?php if ( ! $relationships_complete ) : ?>
+						<span class="edd-sl-migration allowed" style="<?php echo $migration_complete ? '' : 'display: none'; ?>">
+							<input type="submit" id="migrate-bundles-submit" value="<?php _e( 'Update Bundles', 'edd_sl' ); ?>" class="button-primary"/>
+						</span>
+
+						<span class="edd-sl-migration unavailable" style="<?php echo ! $migration_complete ? '' : 'display: none'; ?>">
+							<input type="submit" disabled="disabled" id="migrate-bundles-submit" value="<?php _e( 'Update Bundles', 'edd_sl' ); ?>" class="button-secondary"/>
+							&mdash; <?php _e( 'Please complete the previous step before updating bundled licenses.', 'edd_sl' ); ?>
+						</span>
+					<?php else : ?>
+						<input type="submit" disabled="disabled" id="migrate-bundles-submit" value="<?php _e( 'Update Bundles', 'edd_sl' ); ?>" class="button-secondary"/>
+						&mdash; <?php _e( 'Bundled licenses already updated.', 'edd_sl' ); ?>
+					<?php endif; ?>
+
+					<input type="hidden" name="edd-export-class" value="EDD_SL_Bundle_License_Migration" />
+					<span class="spinner"></span>
+
+				</span>
+				</form>
+			</div><!-- .inside -->
+		</div><!-- .postbox -->
+	</div>
+	<?php $step++; ?>
+	<?php endif; ?>
+
+	<?php if ( ! empty( $has_license_logs ) ) : ?>
+	<div class="metabox-holder">
+		<div class="postbox">
+			<h2 class="hndle">
+				<span><?php printf( __( 'Step %d: Update License Logs', 'edd_sl' ), $step ); ?></span>
+				 <span class="dashicons dashicons-yes"></span>
+			</h2>
+			<div class="inside migrate-licenses-control">
+				<p>
+					<?php _e( 'This updates the license logs with the new license data.', 'edd_sl' ); ?>
+				</p>
+				<form method="post" id="edd-sl-fix-license-logs-form" class="edd-export-form edd-import-export-form">
+				<span class="step-instructions-wrapper">
+
+					<?php wp_nonce_field( 'edd_ajax_export', 'edd_ajax_export' ); ?>
+
+					<?php if ( ! $logs_complete ) : ?>
+						<span class="edd-sl-migration allowed" style="<?php echo $migration_complete ? '' : 'display: none'; ?>">
+							<input type="submit" id="migrate-logs-submit" value="<?php _e( 'Update License Logs', 'edd_sl' ); ?>" class="button-primary"/>
+						</span>
+
+						<span class="edd-sl-migration unavailable" style="<?php echo ! $migration_complete ? '' : 'display: none'; ?>">
+							<input type="submit" disabled="disabled" id="migrate-logs-submit" value="<?php _e( 'Update License Logs', 'edd_sl' ); ?>" class="button-secondary"/>
+							&mdash; <?php _e( 'Please complete the previous steps before updating the license logs.', 'edd_sl' ); ?>
+						</span>
+					<?php else: ?>
+						<input type="submit" disabled="disabled" id="migrate-logs-submit" value="<?php _e( 'Update License Logs', 'edd_sl' ); ?>" class="button-secondary"/>
+						&mdash; <?php _e( 'License logs have already been updated.', 'edd_sl' ); ?>
+					<?php endif; ?>
+
+					<input type="hidden" name="edd-export-class" value="EDD_SL_License_Log_Migration" />
+					<span class="spinner"></span>
+
+				</span>
+				</form>
+			</div><!-- .inside -->
+		</div><!-- .postbox -->
+	</div>
+	<?php $step++; ?>
+	<?php endif; ?>
+
+	<?php if ( $migration_complete && $relationships_complete && $logs_complete ) : ?>
+	<div class="metabox-holder">
+		<div class="postbox">
+			<h2 class="hndle">
+				<span><?php printf( __( 'Step %d: Remove Legacy Data', 'edd_sl' ), $step ); ?></span>
+				 <span class="dashicons dashicons-yes"></span>
+			</h2>
+			<div class="inside migrate-licenses-control">
+				<p>
+					<?php _e( 'This will remove all legacy license data.', 'edd_sl' ); ?>
+				</p>
+				<p>
+					<?php _e( '<strong>Important:</strong> Please be sure to back up your database prior to completing this step. The actions taken during this step are irreversible.', 'edd_sl' ); ?>
+				</p>
+				<form method="post" id="edd-sl-remove-legacy-licenses-form" class="edd-export-form edd-import-export-form">
+					<span class="step-instructions-wrapper">
+
+						<?php wp_nonce_field( 'edd_ajax_export', 'edd_ajax_export' ); ?>
+
+						<?php if ( ! $removal_complete ) : ?>
+							<span class="edd-sl-migration allowed">
+								<input type="submit" id="remove-legacy-licenses-submit" value="<?php _e( 'Remove Legacy Data', 'edd_sl' ); ?>" class="button-primary"/>
+							</span>
+						<?php elseif ( $removal_complete ): ?>
+							<input type="submit" disabled="disabled" id="remove-legacy-licenses-submit" value="<?php _e( 'Remove Legacy Data', 'edd_sl' ); ?>" class="button-secondary"/>
+							&mdash; <?php _e( 'Legacy data has already been removed.', 'edd_sl' ); ?>
+						<?php endif; ?>
+
+						<input type="hidden" name="edd-export-class" value="EDD_SL_Remove_Legacy_Licenses" />
+					<span class="spinner"></span>
+
+					</span>
+				</form>
+			</div><!-- .inside -->
+		</div><!-- .postbox -->
+	</div>
+	<?php
+	endif;
 }
-add_action( 'edd_sl_add_bundle_licenses', 'edd_sl_v32_add_bundle_licenses' );
+add_action( 'edd_sl_render_licenses_migration', 'edd_sl_render_licenses_migration' );
 
-/**
- * Runs an upgrade routine to remove old _edd_sl_site_count meta in favor of the helper method in the main class:
- * edd_software_licensing->get_site_count( $license_id )
- *
- * @since  3.4.8
- * @return void
- */
-function edd_sl_348_remove_site_count_meta() {
-	global $wpdb;
-
-	if( ! current_user_can( 'manage_shop_settings' ) ) {
-		wp_die( __( 'You do not have permission to do shop upgrades', 'edd' ), __( 'Error', 'edd' ), array( 'response' => 403 ) );
-	}
-
-	ignore_user_abort( true );
-
-	if ( ! edd_is_func_disabled( 'set_time_limit' ) ) {
-		@set_time_limit(0);
-	}
-
-	$step   = isset( $_GET['step'] ) ? absint( $_GET['step'] ) : 1;
-	$number = 25;
-	$total  = isset( $_GET['total'] ) ? absint( $_GET['total'] ) : false;
-	if ( $step < 2 ) {
-
-		// Check if we have any licenses before moving on
-		$sql = "SELECT ID FROM $wpdb->posts WHERE post_type = 'edd_license' LIMIT 1";
-		$has_licenses = $wpdb->get_col( $sql );
-
-		if( empty( $has_licenses ) ) {
-			// We had no licenses, just complete
-			update_option( 'edd_sl_version', preg_replace( '/[^0-9.].*/', '', EDD_SL_VERSION ) );
-			edd_set_upgrade_complete( 'sl_deprecate_site_count_meta' );
-			delete_option( 'edd_doing_upgrade' );
-			wp_redirect( admin_url() ); exit;
-		}
-
-		// Check if we have any _edd_sl_site_count meta items as well
-		$sql = "SELECT post_id FROM $wpdb->postmeta WHERE meta_key = '_edd_sl_site_count' LIMIT 1";
-		$has_site_counts = $wpdb->get_col( $sql );
-
-		if ( empty( $has_site_counts ) ) {
-			// We had no site count meta, just complete
-			update_option( 'edd_sl_version', preg_replace( '/[^0-9.].*/', '', EDD_SL_VERSION ) );
-			edd_set_upgrade_complete( 'sl_deprecate_site_count_meta' );
-			delete_option( 'edd_doing_upgrade' );
-			wp_redirect( admin_url() ); exit;
-		}
-
-	}
-
-	if ( false === $total ) {
-		$sql   = "SELECT COUNT( post_id ) FROM $wpdb->postmeta WHERE meta_key = '_edd_sl_site_count' ";
-		$total = $wpdb->get_var( $sql );
-	}
-
-	$sql      = $wpdb->prepare( "SELECT meta_id FROM $wpdb->postmeta WHERE meta_key = '_edd_sl_site_count' LIMIT %d;", $number );
-	$meta_ids = $wpdb->get_col( $sql );
-
-	if( ! empty( $meta_ids ) ) {
-
-		$meta_ids = '"' . implode( '","', $meta_ids ) . '"';
-		$sql      = "DELETE FROM $wpdb->postmeta WHERE meta_id IN ({$meta_ids})";
-
-		$wpdb->query( $sql );
-
-		// More Payments found so upgrade them
-		$step++;
-		$redirect = add_query_arg( array(
-			'page'        => 'edd-upgrades',
-			'edd-upgrade' => 'sl_deprecate_site_count_meta',
-			'step'        => $step,
-			'number'      => $number,
-			'total'       => $total,
-		), admin_url( 'index.php' ) );
-		wp_safe_redirect( $redirect ); exit;
-
-	} else {
-
-		// No more data to update. Downloads have been altered or dismissed
-		update_option( 'edd_sl_version', preg_replace( '/[^0-9.].*/', '', EDD_SL_VERSION ) );
-		edd_set_upgrade_complete( 'sl_deprecate_site_count_meta' );
-		delete_option( 'edd_doing_upgrade' );
-
-		wp_redirect( admin_url() ); exit;
-	}
+function edd_sl_register_batch_license_migration() {
+	add_action( 'edd_batch_export_class_include', 'edd_sl_include_sl_license_migration_batch_processor', 10, 1 );
 }
-add_action( 'edd_sl_deprecate_site_count_meta', 'edd_sl_348_remove_site_count_meta' );
+add_action( 'edd_register_batch_exporter', 'edd_sl_register_batch_license_migration', 10 );
+
+
+function edd_sl_include_sl_license_migration_batch_processor( $class ) {
+
+	if ( 'EDD_SL_License_Migration' === $class ) {
+		require_once EDD_SL_PLUGIN_DIR . 'includes/admin/classes/class-sl-license-migration.php';
+	}
+
+}
+
+function edd_sl_register_batch_bundle_license_migration() {
+	add_action( 'edd_batch_export_class_include', 'edd_sl_include_sl_bundle_license_migration_batch_processor', 10, 1 );
+}
+add_action( 'edd_register_batch_exporter', 'edd_sl_register_batch_bundle_license_migration', 10 );
+
+
+function edd_sl_include_sl_bundle_license_migration_batch_processor( $class ) {
+
+	if ( 'EDD_SL_Bundle_License_Migration' === $class ) {
+		require_once EDD_SL_PLUGIN_DIR . 'includes/admin/classes/class-sl-bundle-license-migration.php';
+	}
+
+}
+
+function edd_sl_register_batch_license_log_migration() {
+	add_action( 'edd_batch_export_class_include', 'edd_sl_include_sl_license_log_migration_batch_processor', 10, 1 );
+}
+add_action( 'edd_register_batch_exporter', 'edd_sl_register_batch_license_log_migration', 10 );
+
+
+function edd_sl_include_sl_license_log_migration_batch_processor( $class ) {
+
+	if ( 'EDD_SL_License_Log_Migration' === $class ) {
+		require_once EDD_SL_PLUGIN_DIR . 'includes/admin/classes/class-sl-license-log-migration.php';
+	}
+
+}
+
+function edd_sl_register_batch_legacy_license_removal() {
+	add_action( 'edd_batch_export_class_include', 'edd_sl_include_sl_legacy_license_removal_batch_processor', 10, 1 );
+}
+add_action( 'edd_register_batch_exporter', 'edd_sl_register_batch_legacy_license_removal', 10 );
+
+
+function edd_sl_include_sl_legacy_license_removal_batch_processor( $class ) {
+
+	if ( 'EDD_SL_Remove_Legacy_Licenses' === $class ) {
+		require_once EDD_SL_PLUGIN_DIR . 'includes/admin/classes/class-sl-legacy-license-removal.php';
+	}
+
+}

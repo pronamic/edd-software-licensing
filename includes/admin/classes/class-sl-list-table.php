@@ -46,9 +46,9 @@ class EDD_SL_List_Table extends WP_List_Table {
 		switch( $column_name ) {
 
 			case 'key':
-				echo esc_html( get_post_meta( $item['ID'], '_edd_sl_key', true ) );
+				echo esc_html( $item['key'] );
 				echo '&nbsp;&ndash;&nbsp;<span class="edd-sl-' . esc_attr( $license->status ) . '">' . esc_html( $license->status ) . '</span>';
-				if ( get_post_status( $item['ID'] ) === 'draft' ) {
+				if ( 'disabled' === $license->status ) {
 					echo ' <em>(' . __( 'disabled', 'edd_sl' ) . ')</em>';
 				}
 				break;
@@ -57,6 +57,8 @@ class EDD_SL_List_Table extends WP_List_Table {
 				$customer = new EDD_Customer( $license->customer_id );
 				$name     = empty( $customer->name ) ? $customer->email : $customer->name;
 				echo '<a href="' . esc_url( admin_url( 'edit.php?post_type=download&page=edd-customers&view=overview&id=' ) . $customer->id ) . '">' . $name . '</a>';
+				echo '<br />';
+				echo '<a href="' . esc_url( admin_url( 'edit.php?post_type=download&page=edd-customers&view=licenses&id=' . $license->customer_id ) ) . '">' . __( 'View other licenses', 'edd_sl' ) . '</a>';
 				break;
 
 			case 'limit':
@@ -77,8 +79,19 @@ class EDD_SL_List_Table extends WP_List_Table {
 					echo '<p>';
 						echo '<a href="#" class="edd-sl-adjust-limit button-secondary" data-action="increase" data-id="' . absint( $item['ID'] ) . '" data-download="' . absint( $license->download_id ) . '">+</a>';
 						echo '&nbsp;<a href="#" class="edd-sl-adjust-limit button-secondary" data-action="decrease" data-id="' . absint( $item['ID'] ) . '" data-download="' . absint( $license->download_id ) . '">-</a>';
-					echo '</p>';
 
+						$default_count = $license->get_default_activation_count();
+
+						$message = sprintf(
+							__( 'The default activation limit for this license is %s, which is controlled by the %s product.', 'edd_sl' ),
+							! empty( $default_count ) ? $default_count : __( 'Unlimited', 'edd_sl' ),
+							$license->get_download()->get_name()
+						);
+						$message .= '<br /><br />';
+						$message .= __( 'To modify this license, use the +/- to increase or decrease the number of activations, respectively. To allow unlimited activations for this license, reduce the activation limit to 0.', 'edd_sl' );
+
+						echo '&nbsp;<span alt="f223" class="edd-help-tip dashicons dashicons-editor-help" title="<strong>'. __( 'Change License Limit', 'edd_sl' ) . '</strong>: ' . $message . '"></span>';
+					echo '</p>';
 				break;
 
 			case 'expires':
@@ -104,7 +117,7 @@ class EDD_SL_List_Table extends WP_List_Table {
 
 			case 'purchased':
 
-				$purchased = esc_html( get_the_time( get_option( 'date_format' ), $license->payment_id ) );
+				$purchased = __( 'Payment', 'edd_sl' ) . ' #' . $license->payment_id . '<br />' . esc_html( get_the_time( get_option( 'date_format' ), $license->payment_id ) );
 
 				if ( $license->payment_id && empty( $license->parent ) ) {
 					$payment_url = admin_url( 'edit.php?post_type=download&page=edd-payment-history&view=view-order-details&id=' . $license->payment_id );
@@ -117,7 +130,7 @@ class EDD_SL_List_Table extends WP_List_Table {
 			case 'actions':
 				$base_url = admin_url( 'edit.php?post_type=download&page=edd-licenses' );
 
-				echo '<a href="' . add_query_arg( array( 'view' => 'overview', 'license' => $item['ID'] ), $base_url ) . '">' . __( 'View', 'edd_sl' ) . '</a>';
+				echo '<a href="' . add_query_arg( array( 'view' => 'overview', 'license_id' => $item['ID'] ), $base_url ) . '">' . __( 'Manage', 'edd_sl' ) . '</a>';
 				break;
 		}
 
@@ -138,14 +151,14 @@ class EDD_SL_List_Table extends WP_List_Table {
 
 		//Build row actions
 		$actions = array();
-		$base    = admin_url( 'edit.php?post_type=download&page=edd-licenses' );
+		$license = edd_software_licensing()->get_license( $item['ID'] );
+		$base    = admin_url( 'edit.php?post_type=download&page=edd-licenses&license_id=' . $license->ID );
 
 		if( ! empty( $_GET['s'] ) ) {
 			$base = add_query_arg( 's', $_GET['s'], $base );
 		}
 
 		$base    = wp_nonce_url( $base, 'edd_sl_key_nonce' );
-		$license = edd_software_licensing()->get_license( $item['ID'] );
 
 		$title = $item['title'];
 
@@ -154,35 +167,34 @@ class EDD_SL_List_Table extends WP_List_Table {
 			$title = '&#8212; ' . $title;
 		}
 
-		if ( empty( $license->parent ) ) {
-			if ( $license->status === 'active' || ( $license->download->is_bundled_download() && $license->status !== 'expired' ) ) {
-				$actions['deactivate'] = sprintf(
-					'<a href="%s&action=%s&license=%s">' . __( 'Deactivate', 'edd_sl' ) . '</a>',
-					$base,
-					'deactivate',
-					$item['ID']
-				 );
-				$actions['renew'] = sprintf( '<a href="%s&action=%s&license=%s" title="' . __( 'Extend this license key\'s expiration date', 'edd_sl' ) . '">' . __( 'Extend', 'edd_sl' ) . '</a>', $base, 'renew', $item['ID'] );
-			} elseif( $license->status == 'expired' ) {
-				$actions['renew'] = sprintf( '<a href="%s&action=%s&license=%s">' . __( 'Renew', 'edd_sl' ) . '</a>', $base, 'renew', $item['ID'] );
-			} else {
-				$actions['activate'] = sprintf( '<a href="%s&action=%s&license=%s">' . __( 'Activate', 'edd_sl' ) . '</a>', $base, 'activate', $item['ID'] );
-			}
+		if ( current_user_can( 'manage_licenses' ) ) {
+			if ( empty( $license->parent ) ) {
+				if ( 'disabled' !== $license->status ) {
+					if ( $license->status === 'active' || ( $license->get_download()->is_bundled_download() && $license->status !== 'expired' ) ) {
+						$actions['deactivate'] = sprintf(
+							'<a href="%s&action=%s">' . __( 'Deactivate', 'edd_sl' ) . '</a>',
+							$base,
+							'deactivate'
+						 );
+						$actions['renew'] = sprintf( '<a href="%s&action=%s" title="' . __( 'Extend this license key\'s expiration date', 'edd_sl' ) . '">' . __( 'Extend', 'edd_sl' ) . '</a>', $base, 'renew' );
+					} elseif( $license->status == 'expired' ) {
+						$actions['renew'] = sprintf( '<a href="%s&action=%s">' . __( 'Renew', 'edd_sl' ) . '</a>', $base, 'renew' );
+					} else {
+						$actions['activate'] = sprintf( '<a href="%s&action=%s">' . __( 'Activate', 'edd_sl' ) . '</a>', $base, 'activate' );
+					}
+				}
 
-			if( 'draft' == $license->post_status ) {
-				$actions['enable'] = sprintf( '<a href="%s&action=%s&license=%s">' . __( 'Enable', 'edd_sl' ) . '</a>', $base, 'enable', $item['ID'] );
-			} elseif( 'publish' == $license->post_status ) {
-				$actions['disable'] = sprintf( '<a href="%s&action=%s&license=%s">' . __( 'Disable', 'edd_sl' ) . '</a>', $base, 'disable', $item['ID'] );
+				if( 'disabled' === $license->status ) {
+					$actions['enable'] = sprintf( '<a href="%s&action=%s">' . __( 'Enable', 'edd_sl' ) . '</a>', $base, 'enable' );
+				} else {
+					$actions['disable'] = sprintf( '<a href="%s&action=%s">' . __( 'Disable', 'edd_sl' ) . '</a>', $base, 'disable' );
+				}
 			}
 		}
 
-		$actions['view_log'] = sprintf( '<a href="%s&view=%s&license=%s">' . __( 'View Log', 'edd_sl' ) . '</a>', $base, 'logs', $item['ID'] );
-
-		if( ! edd_software_licensing()->force_increase() ) {
-			$actions['manage_sites'] = sprintf( '<a href="%s&view=overview&license=%s#edd-item-tables-wrapper">' . __( 'Manage Sites', 'edd_sl' ) . '</a>', $base, $item['ID'] );
+		if ( current_user_can( 'delete_licenses' ) ) {
+			$actions['delete'] = sprintf( '<a href="%s&view=%s">' . __( 'Delete', 'edd_sl' ) . '</a>', $base, 'delete' );
 		}
-
-		$actions['delete'] = sprintf( '<a href="%s&view=%s&license=%s">' . __( 'Delete', 'edd_sl' ) . '</a>', $base, 'delete', $item['ID'] );
 
 		// Filter the existing actions and include the license object.
 		$actions = apply_filters( 'edd_sl_row_actions', $actions, $license );
@@ -204,7 +216,7 @@ class EDD_SL_List_Table extends WP_List_Table {
 	function column_cb( $item ) {
 
 		return sprintf(
-			'<input type="checkbox" name="%1$s[]" value="%2$s" />',
+			'<input type="checkbox" name="%1$s_id[]" value="%2$s" />',
 			esc_attr( $this->_args['singular'] ),
 			esc_attr( $item['ID'] )
 		);
@@ -325,22 +337,7 @@ class EDD_SL_List_Table extends WP_List_Table {
 	 */
 
 	function get_total_licenses() {
-		$args = array(
-			'post_type'   => 'edd_license',
-			'fields'      => 'ids',
-			'nopaging'    => true,
-			'post_parent' => 0
-		);
-
-		$args = $this->build_search_args( $args );
-
-		$query = new WP_Query( $args['args'] );
-
-		if( $query->have_posts() ) {
-			return $query->post_count;
-		}
-
-		return 0;
+		return edd_software_licensing()->licenses_db->count( array( 'parent' => 0 ) );
 	}
 
 
@@ -353,29 +350,13 @@ class EDD_SL_List_Table extends WP_List_Table {
 	 */
 
 	function count_licenses( $status = 'active' ) {
-		$args = array(
-			'post_type'   => 'edd_license',
-			'fields'      => 'ids',
-			'nopaging'    => true,
-			'post_parent' => 0
+		$defaults = array(
+			'status' => $status,
+			'parent' => 0,
 		);
 
-		if( 'disabled' == $status ) {
-			$args['post_status'] = 'draft';
-		} else {
-			$args['meta_key']  = '_edd_sl_status';
-			$args['meta_value'] = $status;
-		}
-
-		$args = $this->build_search_args( $args );
-
-		$query = new WP_Query( $args['args'] );
-
-		if( $query->have_posts() ) {
-			return $query->post_count;
-		}
-
-		return 0;
+		$args = $this->build_search_args( $defaults );
+		return edd_software_licensing()->licenses_db->count( $args );
 	}
 
 
@@ -421,7 +402,7 @@ class EDD_SL_List_Table extends WP_List_Table {
 			return;
 		}
 
-		$ids = isset( $_GET['license'] ) ? $_GET['license'] : false;
+		$ids = isset( $_GET['license_id'] ) ? $_GET['license_id'] : false;
 
 		if( ! $ids ) {
 			return;
@@ -517,68 +498,55 @@ class EDD_SL_List_Table extends WP_List_Table {
 		$licenses_data = array();
 
 		$license_args = array(
-			'post_type'      => 'edd_license',
-			'post_status'    => array( 'publish', 'future', 'draft' ),
 			'posts_per_page' => $this->per_page,
 			'paged'          => $this->get_paged(),
-			'post_parent'    => 0
+			'parent'         => 0
 		);
 
 		$view = isset( $_GET['view'] ) ? $_GET['view'] : false;
 
-		if ( $view && 'disabled' == $view ) {
-			$license_args['post_status'] = 'draft';
-		} elseif( $view ) {
-			$license_args['meta_query'][] = array(
-				'key'   => '_edd_sl_status',
-				'value' => $view
-			);
+		if ( $view ) {
+			$license_args['status'] = $view;
 		}
 
 		$license_args = $this->build_search_args( $license_args );
-		$license_args = $license_args['args'];
-		$key_search   = isset( $license_args['key_search'] ) ? true : false;
 
-		$orderby        = isset( $_GET['orderby'] )  ? $_GET['orderby'] : 'ID';
+		$orderby        = isset( $_GET['orderby'] )  ? $_GET['orderby'] : 'date_created';
 		$order          = isset( $_GET['order'] )    ? $_GET['order']   : 'DESC';
-		$order_inverse  = $order == 'DESC'           ? 'ASC'            : 'DESC';
 
 		$license_args['order'] = $order;
 
 		switch( $orderby ) {
 
 			case 'purchased' :
-				$license_args['orderby'] = 'date';
+				$license_args['orderby'] = 'date_created';
 				break;
 
 			case 'expires' :
-				$license_args['orderby']  = 'meta_value_num';
-				$license_args['meta_key'] = '_edd_sl_expiration';
+				$license_args['orderby']  = 'expiration';
 				break;
+
+			default:
+				$license_args['orderby'] = $orderby;
+				break;
+
 		}
 
-		$licenses = get_posts( $license_args );
+		$licenses = edd_software_licensing()->licenses_db->get_licenses( $license_args );
 
 		// If searching by Key
-		if ( $key_search && ! empty( $licenses ) ) {
+		if ( ! empty( $license_args['license_key'] ) && ! empty( $licenses ) ) {
 
 			$found_license = $licenses[0];
 
 			// And we found a child license
-			if ( ! empty( $found_license->post_parent ) ) {
+			if ( ! empty( $found_license->parent ) ) {
 
 				// Swap out the meta query for the parent license to show the entire bundle
-				$parent_license_key = get_post_meta( $found_license->post_parent, '_edd_sl_key', true );
-
-				foreach ( $license_args['meta_query'] as $key => $args ) {
-
-					if ( ! empty( $args['key'] ) && '_edd_sl_key' === $args['key'] ) {
-						$license_args['meta_query'][$key]['value'] = $parent_license_key;
-					}
-
+				$parent_license = edd_software_licensing()->get_license( $found_license->parent );
+				if ( false !== $parent_license ) {
+					$licenses = edd_software_licensing()->licenses_db->get_licenses( array( 'parent_license' => $parent_license->ID ) );
 				}
-
-				$licenses = get_posts( $license_args );
 
 			}
 
@@ -598,7 +566,6 @@ class EDD_SL_List_Table extends WP_List_Table {
 					'expires'          => $license->expiration,
 					'purchased'        => get_the_time( get_option( 'date_format' ), $license->payment_id ),
 					'download_id'      => $license->download_id,
-					'is_child_license' => false
 				);
 
 				$child_licenses = $license->get_child_licenses();
@@ -612,14 +579,14 @@ class EDD_SL_List_Table extends WP_List_Table {
 						}
 
 						$licenses_data[] = array(
-							'ID'               => $child_license->ID,
-							'title'            => $child_license->get_name( false ),
-							'status'           => $child_license->status,
-							'key'              => $child_license->key,
-							'user'             => $child_license->user_id,
-							'expires'          => $child_license->expiration,
-							'purchased'        => get_the_time( get_option( 'date_format' ), $license->payment_id ),
-							'download_id'      => $child_license->download_id,
+							'ID'          => $child_license->ID,
+							'title'       => $child_license->get_name( false ),
+							'status'      => $child_license->status,
+							'key'         => $child_license->key,
+							'user'        => $child_license->user_id,
+							'expires'     => $child_license->expiration,
+							'purchased'   => get_the_time( get_option( 'date_format' ), $license->payment_id ),
+							'download_id' => $child_license->download_id,
 						);
 
 					}
@@ -687,8 +654,6 @@ class EDD_SL_List_Table extends WP_List_Table {
 	 * @return array $args The updated args
 	 */
 	function build_search_args( $args ) {
-		$key_search = false;
-
 		// check to see if we are searching
 		if( ! empty( $_GET['s'] ) ) {
 
@@ -701,50 +666,30 @@ class EDD_SL_List_Table extends WP_List_Table {
 				if( strpos( $search, 'download:' ) !== false ) {
 
 					// Search in the download ID key
-					$args['meta_query'][] = array(
-						'key'   => '_edd_sl_download_id',
-						'value' => trim( str_replace( 'download:', '', $search ) )
-					);
+					$args['download_id'] = trim( str_replace( 'download:', '', $search ) );
 
-				} elseif( false === $has_period && ! preg_match( '/\s/', $search ) ) {
-					// Search in the license key.
-					$args['meta_query'][] = array(
-						'key'   => '_edd_sl_key',
-						'value' => $search
-					);
+				} elseif ( strlen( $search ) > 6 && false === $has_period && ! preg_match( '/\s/', $search ) ) {
 
-					$key_search = true;
+					$args['license_key'] = $search;
 					unset( $args['post_parent'] );
 
 				} elseif( $has_period ) {
 
-					// Search in the sites that are registered.
-					$args['meta_query'][] = array(
-						'key'   => '_edd_sl_sites',
-						'value' => edd_software_licensing()->clean_site_url( $search ),
-						'compare' => 'LIKE'
-					);
+					$args['site'] = edd_software_licensing()->clean_site_url( $search );
 
 				} else {
 
-					$args['s'] = $search;
+					$args['search'] = $search;
 
 				}
 
 			} else {
 
-				$args['s'] = $search;
+				$args['search'] = $search;
 
 			}
 
 		}
-
-		if( ! empty( $args['meta_query'] ) ) {
-			$args['meta_query']['relation'] = 'AND';
-		}
-
-		$args['args']       = $args;
-		$args['key_search'] = $key_search;
 
 		return $args;
 	}

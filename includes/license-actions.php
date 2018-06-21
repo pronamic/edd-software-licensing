@@ -27,13 +27,13 @@ function edd_sl_process_add_site() {
 		return;
 	}
 
-	if ( ( is_admin() && ! current_user_can( 'edit_shop_payments'  ) ) || ( ! is_admin() && $license->user_id != get_current_user_id() ) ) {
+	if ( ( is_admin() && ! current_user_can( 'manage_licenses'  ) ) || ( ! is_admin() && $license->user_id != get_current_user_id() ) ) {
 		return;
 	}
 
 	$site_url = sanitize_text_field( $_POST['site_url'] );
 
-	if ( $license->is_at_limit() && ! current_user_can( 'edit_shop_payments' ) ) {
+	if ( $license->is_at_limit() && ! current_user_can( 'manage_licenses' ) ) {
 		// The license is at its activation limit so stop and show an error
 		wp_safe_redirect( add_query_arg( 'edd_sl_error', 'at_limit' ) ); exit;
 	}
@@ -43,7 +43,7 @@ function edd_sl_process_add_site() {
 		$license->status = 'active';
 
 		if ( is_admin() ) {
-			$redirect = admin_url( 'edit.php?post_type=download&page=edd-licenses&view=overview&license=' . $license->ID );
+			$redirect = admin_url( 'edit.php?post_type=download&page=edd-licenses&view=overview&license_id=' . $license->ID );
 		} else {
 			$redirect = remove_query_arg( array( 'edd_action', 'site_url', 'edd_sl_error', '_wpnonce' ) );
 		}
@@ -75,14 +75,15 @@ function edd_sl_process_deactivate_site() {
 		return;
 	}
 
-	if ( ( is_admin() && ! current_user_can( 'edit_shop_payments' ) ) || ( ! is_admin() && $license->user_id != get_current_user_id() ) ) {
+	if ( ( is_admin() && ! current_user_can( 'manage_licenses' ) ) || ( ! is_admin() && $license->user_id != get_current_user_id() ) ) {
 		return;
 	}
 
 	$site_url = urldecode( $_GET['site_url'] );
 	$license->remove_site( $site_url );
 
-	wp_safe_redirect( remove_query_arg( array( 'edd_action', 'site_url', 'edd_sl_error', '_wpnonce' ) ) ); exit;
+	$url = remove_query_arg( array( 'edd_action', 'site_url', 'edd_sl_error', '_wpnonce', 'license' ) );
+	wp_safe_redirect( $url ); exit;
 }
 add_action( 'edd_deactivate_site', 'edd_sl_process_deactivate_site' );
 

@@ -15,6 +15,10 @@ add_action( 'edd_purchase_history_header_after', 'edd_sl_add_key_column' );
  */
 function edd_sl_site_management_links( $payment_id, $purchase_data ) {
 
+	if ( isset( $_GET['view'] ) && $_GET['view'] == 'upgrades' ) {
+		return;
+	}
+
 	$licensing = edd_software_licensing();
 	$downloads = edd_get_payment_meta_downloads( $payment_id );
 	if( $downloads) :
@@ -111,14 +115,14 @@ function edd_sl_show_keys_on_receipt( $payment, $edd_receipt_args ) {
 		foreach( $licenses as $license ) {
 			echo '<tr class="edd_license_key">';
 				echo '<td>';
-					echo '<span class="edd_sl_license_title">' . $license->download->get_name() . '</span>&nbsp;';
-					if( $license->download->has_variable_prices() ) {
-						echo '<span class="edd_sl_license_price_option">&ndash;&nbsp;' . edd_get_price_option_name( $license->download->ID, $license->price_id ) . '</span>';
+					echo '<span class="edd_sl_license_title">' . $license->get_download()->get_name() . '</span>&nbsp;';
+					if( $license->get_download()->has_variable_prices() ) {
+						echo '<span class="edd_sl_license_price_option">&ndash;&nbsp;' . edd_get_price_option_name( $license->get_download()->ID, $license->price_id ) . '</span>';
 					}
 					if( 'expired' == $license->status ) {
 						echo '<span class="edd_sl_license_key_expired">&nbsp;(' . __( 'expired', 'edd_sl' ) . ')</span>';
-					} elseif( 'draft' == $license->post_status ) {
-						echo '<span class="edd_sl_license_key_revoked">&nbsp;(' . __( 'revoked', 'edd_sl' ) . ')</span>';
+					} elseif( 'disabled' === $license->status ) {
+						echo '<span class="edd_sl_license_key_revoked">&nbsp;(' . __( 'disabled', 'edd_sl' ) . ')</span>';
 					}
 				echo '</td>';
 				if( $license ) {
@@ -137,20 +141,21 @@ add_action( 'edd_payment_receipt_after', 'edd_sl_show_keys_on_receipt', 10, 2 );
 /**
  * Hide download links for expired licenses on purchase receipt page
  *
- * @access      private
  * @since       2.3
- * @return      void
+ * @since       3.6 - Updated to use EDD_Software_Licensing->license_can_download to support multiple licenses for same ID
+ *
+ * @param       bool $show If we should show or hide the links to download on the purchase receipt
+ * @param       int  $item The Item ID that was purchased (download ID)
+ * @param       array $receipt_args Array of arguments for the item, of which we use `id` for the Payment/Order ID
+ *
+ * @return      bool
  */
 function edd_sl_hide_downloads_on_expired( $show, $item, $receipt_args ) {
-	$payment_id = $receipt_args['id'];
-	$licenses   = edd_software_licensing()->get_licenses_of_purchase( $payment_id );
-	if( ! empty( $licenses ) ) {
-		foreach( $licenses as $license ) {
-			if( 'expired' == edd_software_licensing()->get_license_status( $license->ID ) ) {
-				$show = false;
-				break;
-			}
-		}
+	$can_download = edd_software_licensing()->license_can_download( $item, '', $receipt_args['id'], array() );
+	if ( true === $can_download['success'] ) {
+		$show = true;
+	} elseif ( false === $can_download['success'] ) {
+		$show = false;
 	}
 	return $show;
 }

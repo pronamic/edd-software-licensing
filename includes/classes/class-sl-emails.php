@@ -30,7 +30,7 @@ class EDD_SL_Emails {
 
 				}
 
-				$keys_output .=  $license->download->get_name() . $price_name . ": " . $license->key . "\n\r";
+				$keys_output .=  $license->get_download()->get_name() . $price_name . ": " . $license->key . "\n\r";
 			}
 		}
 
@@ -52,6 +52,10 @@ class EDD_SL_Emails {
 		}
 
 		if( $this->is_unsubscribed( $license ) ) {
+			$send = false;
+		}
+
+		if( 'disabled' === $license->status ) {
 			$send = false;
 		}
 
@@ -157,7 +161,7 @@ class EDD_SL_Emails {
 
 		$text = str_replace( '{name}',             $customer_name,  $text );
 		$text = str_replace( '{license_key}',      $license->key,    $text );
-		$text = str_replace( '{product_name}',     $license->download->get_name(),   $text );
+		$text = str_replace( '{product_name}',     $license->get_download()->get_name(),   $text );
 		$text = str_replace( '{expiration}',       $expiration,     $text );
 		$text = str_replace( '{expiration_time}',  $time_diff,      $text );
 		if ( ! empty( $discount ) ) {

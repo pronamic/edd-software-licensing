@@ -12,9 +12,16 @@
  */
 
 // Exit if accessed directly
-if ( ! defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
-class EDD_SL_License_Export extends EDD_Export {
+/**
+ * EDD_SL_License_Export Class.
+ *
+ * @since 3.6 - Updated to use EDD_Batch_Export
+ */
+class EDD_SL_License_Export extends EDD_Batch_Export {
 
 	/**
 	 * Our export type. Used for export-type specific filters / actions
@@ -68,9 +75,13 @@ class EDD_SL_License_Export extends EDD_Export {
 			set_time_limit( 0 );
 		}
 
+		$download = new EDD_Download( $this->download_id );
+
 		nocache_headers();
 		header( 'Content-Type: text/csv; charset=utf-8' );
-		header( 'Content-Disposition: attachment; filename=edd-export-' . $this->export_type . '-' . date( 'm-d-Y' ) . '-' . sanitize_title( get_the_title( $this->download_id ) ) . '.csv' );
+		header( 'Content-Disposition: attachment; filename=edd-export-' . $this->export_type . '-' . date( 'm-d-Y' ) .
+		        '-' . sanitize_title( $download->get_name() ) . '.csv' );
+
 		header( "Expires: 0" );
 	}
 
@@ -83,25 +94,31 @@ class EDD_SL_License_Export extends EDD_Export {
 	 */
 	public function csv_cols() {
 		$cols = array(
-			'email'      => __( 'Email', 'edd_sl' ),
-			'license'    => __( 'License Key', 'edd_sl' ),
-			'status'     => __( 'License Status', 'edd_sl' ),
-			'product'    => __( 'Product Name', 'edd_sl' ),
-			'date'       => __( 'Purchase Date', 'edd_sl' ),
-			'expiration' => __( 'Expiration Date', 'edd_sl' ),
-			'limit'      => __( 'Activation Limit', 'edd_sl' ),
-			'count'      => __( 'Activation Count', 'edd_sl' ),
-			'urls'       => __( 'Activated URLs', 'edd_sl' ),
+			'id'          => __( 'License ID', 'edd_sl' ),
+			'license'     => __( 'License Key', 'edd_sl' ),
+			'status'      => __( 'License Status', 'edd_sl' ),
+			'customer_id' => __( 'Customer ID', 'edd_sl' ),
+			'user_id'     => __( 'User ID', 'edd_sl' ),
+			'product'     => __( 'Product Name', 'edd_sl' ),
+			'price_id'    => __( 'Price ID', 'edd_sl' ),
+			'date'        => __( 'Purchase Date', 'edd_sl' ),
+			'expiration'  => __( 'Expiration Date', 'edd_sl' ),
+			'limit'       => __( 'Activation Limit', 'edd_sl' ),
+			'count'       => __( 'Activation Count', 'edd_sl' ),
+			'urls'        => __( 'Activated URLs', 'edd_sl' ),
 		);
+
 		return $cols;
 	}
 
 	/**
 	 * Get the data being exported
 	 *
-	 * @access      public
-	 * @since       3.0
-	 * @return      array
+	 * @access public
+	 * @since 3.0
+	 * @since 3.6 - Updated to use EDD_Batch_Export
+	 *
+	 * @return mixed array|bool Logs if they exist, false otherwise.
 	 */
 	public function get_data() {
 		global $edd_logs;
@@ -109,55 +126,94 @@ class EDD_SL_License_Export extends EDD_Export {
 		$data = array();
 
 		$args = array(
-			'nopaging'   => true,
-			'post_type'  => 'edd_license',
-			'meta_query' => array()
+			'number' => 30,
+			'paged'  => $this->step,
 		);
 
-		if( 'all' != $this->status ) {
-			$args['meta_query'][] = array(
-				'key'   => '_edd_sl_status',
-				'value' => $this->status
-			);
+		if ( 'all' !== $this->status ) {
+			$args['status'] = $this->status;
 		}
 
-		if( ! empty( $this->download_id ) ) {
-			$args['meta_query'][] = array(
-				'key'   => '_edd_sl_download_id',
-				'value' => $this->download_id
-			);
+		if ( ! empty( $this->download_id ) ) {
+			$args['download_id'] = $this->download_id;
 		}
 
-		$license_keys = get_posts( $args );
+		$licenses = edd_software_licensing()->licenses_db->get_licenses( $args );
 
-		if ( $license_keys ) {
+		if ( ! empty( $licenses ) ) {
+			foreach ( $licenses as $license ) {
 
-			$edd_sl = edd_software_licensing();
-
-			foreach ( $license_keys as $license ) {
-
-				$title      = $license->post_title;
-				$title_pos  = strpos( $title, '-' ) + 1;
-				$length     = strlen( $title );
-				$email      = substr( $title, $title_pos, $length );
-
-				$data[]    = array(
-					'email'      => $email,
-					'license'    => $edd_sl->get_license_key( $license->ID ),
-					'status'     => $edd_sl->get_license_status( $license->ID ),
-					'product'    => get_post_field( 'post_title', $edd_sl->get_download_id( $license->ID ) ),
-					'date'       => $license->post_date,
-					'expiration' => date( 'Y-m-d H:i:s', $edd_sl->get_license_expiration( $license->ID ) ),
-					'limit'      => $edd_sl->license_limit( $license->ID ),
-					'count'      => $edd_sl->get_site_count( $license->ID ),
-					'urls'       => implode( ' - ', $edd_sl->get_sites( $license->ID ) ),
+				$data[] = array(
+					'id'          => $license->ID,
+					'license'     => $license->key,
+					'status'      => $license->status,
+					'customer_id' => $license->customer_id,
+					'user_id'     => $license->user_id,
+					'product'     => $license->download_id,
+					'price_id'    => $license->price_id,
+					'date'        => $license->date_created,
+					'expiration'  => $license->expiration,
+					'limit'       => $license->activation_limit,
+					'count'       => $license->activation_count,
+					'urls'        => implode( ', ', $license->sites ),
 				);
+
 			}
+
+			$data = apply_filters( 'edd_export_get_data', $data );
+			$data = apply_filters( 'edd_export_get_data_' . $this->export_type, $data );
+
+			return $data;
 		}
 
-		$data = apply_filters( 'edd_export_get_data', $data );
-		$data = apply_filters( 'edd_export_get_data_' . $this->export_type, $data );
+		return false;
+	}
 
-		return $data;
+	/**
+	 * Return the calculated completion percentage.
+	 *
+	 * @access public
+	 * @since 3.6
+	 *
+	 * @return int Percentage complete based on current step.
+	 */
+	public function get_percentage_complete() {
+		global $edd_logs;
+
+		$args = array(
+			'number' => -1,
+		);
+
+		if ( 'all' !== $this->status ) {
+			$args['status'] = $this->status;
+		}
+
+		if ( ! empty( $this->download_id ) ) {
+			$args['download_id'] = $this->download_id;
+		}
+
+		$total      = edd_software_licensing()->licenses_db->count( $args );
+		$percentage = 100;
+
+		if ( $total > 0 ) {
+			$percentage = ( ( 30 * $this->step ) / $total ) * 100;
+		}
+
+		if ( $percentage > 100 ) {
+			$percentage = 100;
+		}
+
+		return $percentage;
+	}
+
+	/**
+	 * Define properties for the batch exporter.
+	 *
+	 * @access public
+	 * @since 3.6
+	 */
+	public function set_properties( $request ) {
+		$this->status      = sanitize_text_field( $request['edd_sl_status'] );
+		$this->download_id = absint( $request['edd_sl_download_id'] );
 	}
 }

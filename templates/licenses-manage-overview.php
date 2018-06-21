@@ -2,7 +2,7 @@
 $payment_id = absint( $_GET['payment_id' ] );
 $user_id    = edd_get_payment_user_id( $payment_id );
 
-if( ! current_user_can( 'edit_shop_payments' ) && $user_id != get_current_user_id() ) {
+if( ! current_user_can( 'manage_licenses' ) && $user_id != get_current_user_id() ) {
 	return;
 }
 
@@ -18,7 +18,7 @@ $edd_sl = edd_software_licensing();
 $keys   = $edd_sl->get_licenses_of_purchase( $payment_id );
 $keys   = apply_filters( 'edd_sl_manage_template_payment_licenses', $keys, $payment_id );
 if ( $keys ) : ?>
-	<table id="edd_sl_license_keys" class="edd_sl_table">
+	<table id="edd_sl_license_keys" class="edd_sl_table edd-table">
 		<thead>
 			<tr class="edd_sl_license_row">
 				<?php do_action('edd_sl_license_header_before'); ?>
