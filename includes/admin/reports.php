@@ -168,7 +168,7 @@ function edd_sl_show_renewals_graph() {
 						}
 						?>,
 					],
-					label: "<?php _e( 'Renewals', 'eddc' ); ?>",
+					label: "<?php _e( 'Renewals', 'edd_sl' ); ?>",
 					id: 'renewals'
 				}],
 			{

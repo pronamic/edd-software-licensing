@@ -8,7 +8,7 @@ if ( is_user_logged_in() ) :
 	?>
 	<?php do_action( 'edd_sl_license_keys_before' ); ?>
 
-	<table id="edd_sl_license_keys" class="edd_sl_table">
+	<table id="edd_sl_license_keys" class="edd_sl_table edd-table">
 		<thead>
 			<tr class="edd_sl_license_row">
 				<?php do_action('edd_sl_license_keys_header_before'); ?>
@@ -79,7 +79,7 @@ if ( is_user_logged_in() ) :
 						<span class="edd_sl_limit_used"><?php echo edd_software_licensing()->get_site_count( $license->ID ); ?></span>
 						<span class="edd_sl_limit_sep">&nbsp;/&nbsp;</span>
 						<span class="edd_sl_limit_max"><?php echo edd_software_licensing()->license_limit( $license->ID ); ?></span>
-						<?php if( ! edd_software_licensing()->force_increase() && 'expired' !== edd_software_licensing()->get_license_status( $license->ID ) && get_post_status( $license->ID ) !== 'draft' ) : ?>
+						<?php if( ! edd_software_licensing()->force_increase() && ( 'expired' !== $license->status && 'disabled' !== $license->status ) ) : ?>
 							<br/><a href="<?php echo esc_url( add_query_arg( array( 'license_id' => $license->ID, 'action' => 'manage_licenses', 'payment_id' => $payment_id ), get_permalink( edd_get_option( 'purchase_history_page' ) ) ) ); ?>"><?php _e( 'Manage Sites', 'edd_sl' ); ?></a>
 						<?php elseif ( 'expired' === edd_software_licensing()->get_license_status( $license->ID ) ) : ?>
 							<br/><span class="edd_sl_no_management"><?php _e( 'Renew to manage sites', 'edd_sl' ); ?></span>

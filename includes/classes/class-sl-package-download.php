@@ -79,6 +79,8 @@ class EDD_SL_Package_Download {
 		);
 		$license_status = edd_software_licensing()->check_license( $license_check_args );
 		switch( $license_status ) {
+			case 'valid':
+				break;
 			case 'expired':
 				$renewal_link = add_query_arg( 'edd_license_key', $license_key, edd_get_checkout_uri() );
 				wp_die( sprintf( __( 'Your license has expired, please <a href="%s" title="Renew your license">renew it</a> to install this update.', 'edd_sl' ), $renewal_link ), __( 'Error', 'edd_sl' ), array( 'response' => 401 ) );
@@ -90,22 +92,23 @@ class EDD_SL_Package_Download {
 			case 'disabled':
 				wp_die( __( 'Your license has been disabled.', 'edd_sl' ), __( 'Error', 'edd_sl' ), array( 'response' => 401 ) );
 				break;
-			case 'valid':
-				break;
 			default:
 				wp_die( __( 'Your license could not be validated.', 'edd_sl' ), __( 'Error', 'edd_sl' ), array( 'response' => 401 ) );
 				break;
 		}
 
-		$download_name  = get_the_title( $download_id );
+		$download = new EDD_SL_Download( $download_id );
+
+		$download_name  = $download->get_name();
 		if ( $download_beta ) {
-			$file_key = get_post_meta( $download_id, '_edd_sl_beta_upgrade_file_key', true );
+			$file_key      = $download->get_beta_upgrade_file_key();
 		} else {
-			$file_key = get_post_meta( $download_id, '_edd_sl_upgrade_file_key', true );
+			$file_key      = $download->get_upgrade_file_key();
 		}
 
-		$hash = md5( $download_name . $file_key . $download_id . $license_key . $expires );
-		if ( ! hash_equals( $hash, $values[3] ) ) {
+		$computed_hash = md5( $download_name . $file_key . $download_id . $license_key . (int) $expires );
+		$computed_hash = apply_filters( 'edd_sl_package_download_computed_hash', $computed_hash, $download_name, $file_key, $download_id, $license_key, (int) $expires );
+		if ( ! hash_equals( $computed_hash, $values[3] ) ) {
 			wp_die( __( 'Provided hash does not validate.', 'edd_sl' ), __( 'Error', 'edd_sl' ), array( 'response' => 401 ) );
 		}
 
@@ -113,7 +116,7 @@ class EDD_SL_Package_Download {
 			'expires'       => $expires,
 			'license'       => $license_key,
 			'id'            => $download_id,
-			'key'           => $hash,
+			'key'           => $computed_hash,
 			'beta'          => $download_beta
 		);
 
@@ -127,17 +130,19 @@ class EDD_SL_Package_Download {
 
 		if( ! empty( $license_key ) ) {
 
-			$download_name = get_the_title( $download_id );
+			$download = new EDD_SL_Download( $download_id );
+
+			$download_name = $download->get_name();
 			$hours         = '+' . absint( edd_get_option( 'download_link_expiration', 24 ) ) . ' hours';
 			$expires       = strtotime( $hours, current_time( 'timestamp' ) );
 
 			if ( $download_beta ) {
-				$file_key      = get_post_meta( $download_id, '_edd_sl_beta_upgrade_file_key', true );
+				$file_key      = $download->get_beta_upgrade_file_key();
 			} else {
-				$file_key      = get_post_meta( $download_id, '_edd_sl_upgrade_file_key', true );
+				$file_key      = $download->get_upgrade_file_key();
 			}
 
-			$hash          = md5( $download_name . $file_key . $download_id . $license_key . $expires );
+			$hash          = md5( $download_name . $file_key . $download_id . $license_key . (int) $expires );
 			$url           = str_replace( ':', '@', $url );
 
 			$token = base64_encode( sprintf( '%s:%s:%d:%s:%s:%d', $expires, $license_key, $download_id, $hash, $url, $download_beta ) );
@@ -276,10 +281,14 @@ class EDD_SL_Package_Download {
 
 					} elseif ( $direct && ( stristr( getenv( 'SERVER_SOFTWARE' ), 'nginx' ) || stristr( getenv( 'SERVER_SOFTWARE' ), 'cherokee' ) ) ) {
 
-						// We need a path relative to the domain
-						$redirect_path = '/' . str_ireplace( realpath( $_SERVER['DOCUMENT_ROOT'] ), '', $file_path );
-						$redirect_path = apply_filters( 'edd_sl_accel_redirect_path', $redirect_path, $file_path );
-						header( "X-Accel-Redirect: $redirect_path" );
+						$ignore_x_accel_redirect_header = apply_filters( 'edd_ignore_x_accel_redirect', false );
+
+						if ( ! $ignore_x_accel_redirect_header ) {
+							// We need a path relative to the domain
+							$redirect_path = '/' . str_ireplace( realpath( $_SERVER['DOCUMENT_ROOT'] ), '', $file_path );
+							$redirect_path = apply_filters( 'edd_sl_accel_redirect_path', $redirect_path, $file_path );
+							header( "X-Accel-Redirect: $redirect_path" );
+						}
 
 					}
 
@@ -321,11 +330,13 @@ class EDD_SL_Package_Download {
 	 */
 	public function get_download_package( $download_id = 0, $license_key = '', $hash, $expires = 0, $download_beta = false ) {
 
+		$download = new EDD_SL_Download( $download_id );
+
 		if ( $download_beta ) {
-			$file_key  = get_post_meta( $download_id, '_edd_sl_beta_upgrade_file_key', true );
+			$file_key  = $download->get_beta_upgrade_file_key();
 			$all_files = get_post_meta( $download_id, '_edd_sl_beta_files', true );
 		} else {
-			$file_key  = get_post_meta( $download_id, '_edd_sl_upgrade_file_key', true );
+			$file_key  = $download->get_upgrade_file_key();
 			$all_files = get_post_meta( $download_id, 'edd_download_files', true );
 		}
 
@@ -335,9 +346,12 @@ class EDD_SL_Package_Download {
 			$file_url = '';
 		}
 
-		$download_name = get_the_title( $download_id );
+		$download_name = $download->get_name();
 
-		if ( ! empty( $hash ) && ! hash_equals( md5( $download_name . $file_key . $download_id . $license_key . $expires ), $hash ) ) {
+		$computed_hash = md5( $download_name . $file_key . $download_id . $license_key . $expires );
+		$computed_hash = apply_filters( 'edd_sl_package_download_computed_hash', $computed_hash, $download_name, $file_key, $download_id, $license_key, (int) $expires );
+
+		if ( ! empty( $hash ) && ! hash_equals( $computed_hash, $hash ) ) {
 			wp_die( __( 'You do not have permission to download this file. An invalid hash was provided.', 'edd_sl' ), __( 'Error', 'edd_sl' ), array( 'response' => 401 ) );
 		}
 

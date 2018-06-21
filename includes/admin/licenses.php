@@ -107,17 +107,28 @@ function edd_sl_licenses_list() {
 function edd_sl_render_license_view( $view, $callbacks ) {
 	$render = true;
 
-	if( ! current_user_can( 'edit_shop_payments' ) ) {
+	if( ! current_user_can( 'view_licenses' ) ) {
 		edd_set_error( 'edd-no-access', __( 'You are not permitted to view this data.', 'edd_sl' ) );
 		$render = false;
 	}
 
-	if( ! isset( $_GET['license'] ) || ! is_numeric( $_GET['license'] ) ) {
+	if ( isset( $_GET['license'] ) ) {
+		if ( is_numeric( $_GET['license'] ) ) {
+			$new_license_id = edd_software_licensing()->license_meta_db->get_license_id( '_edd_sl_legacy_id', absint( $_GET['license'] ), true );
+		}
+
+		if ( empty( $new_license_id ) ) {
+			edd_set_error( 'edd-invalid-license', __( 'Invalid license ID provided.', 'edd_sl' ) );
+			$render = false;
+		}
+	}
+
+	if( ( ! isset( $_GET['license_id'] ) || ! is_numeric( $_GET['license_id'] ) ) && empty( $new_license_id ) ) {
 		edd_set_error( 'edd-invalid-license', __( 'Invalid license ID provided.', 'edd_sl' ) );
 		$render = false;
 	}
 
-	$license_id  = (int) $_GET['license'];
+	$license_id  = isset( $_GET['license_id'] ) ? absint( $_GET['license_id'] ) : $new_license_id;
 	$license     = edd_software_licensing()->get_license( $license_id );
 
 	if( empty( $license->key ) ) {
@@ -128,7 +139,7 @@ function edd_sl_render_license_view( $view, $callbacks ) {
 	$license_tabs = edd_sl_license_tabs();
 	?>
 	<div class="wrap">
-		<h2><?php _e( 'License Details', 'edd_sl' ); ?></h2>
+		<h2><?php _e( 'Manage License Details', 'edd_sl' ); ?></h2>
 		<?php if( edd_get_errors() ) : ?>
 			<div class="error settings-error">
 				<?php edd_print_errors(); ?>
@@ -155,7 +166,7 @@ function edd_sl_render_license_view( $view, $callbacks ) {
 								?>
 
 								<?php if ( ! $active ) : ?>
-									<a href="<?php echo esc_url( admin_url( 'edit.php?post_type=download&page=edd-licenses&view=' . $key . '&license=' . $license->ID ) ); ?>"<?php echo $aria_label; ?>>
+									<a href="<?php echo esc_url( admin_url( 'edit.php?post_type=download&page=edd-licenses&view=' . $key . '&license_id=' . $license->ID ) ); ?>"<?php echo $aria_label; ?>>
 								<?php endif; ?>
 
 									<span class="edd-item-tab-label-wrap"<?php echo $active ? $aria_label : ''; ?>>
@@ -198,7 +209,8 @@ function edd_sl_render_license_view( $view, $callbacks ) {
  * @return void
  */
 function edd_sl_licenses_view( $license ) {
-	$base         = admin_url( 'edit.php?post_type=download&page=edd-licenses&view=overview&license=' . $license->ID );
+	$base         = admin_url( 'edit.php?post_type=download&page=edd-licenses&view=overview&license_id=' . $license->ID );
+	$base         = remove_query_arg( 'edd-message' );
 	$base         = wp_nonce_url( $base, 'edd_sl_license_nonce' );
 	$has_children = $license->get_child_licenses();
 	$unsubscribed = $license->get_meta( 'edd_sl_unsubscribed', true );
@@ -206,7 +218,7 @@ function edd_sl_licenses_view( $license ) {
 	do_action( 'edd_sl_license_card_top', $license->key );
 	?>
 	<div class="info-wrapper item-section">
-		<form id="edit-item-info" method="post" action="<?php echo admin_url( 'edit.php?post_type=download&page=edd-licenses&view=overview&license=' . $license->ID ); ?>">
+		<form id="edit-item-info" method="post" action="<?php echo admin_url( 'edit.php?post_type=download&page=edd-licenses&view=overview&license_id=' . $license->ID ); ?>">
 			<div class="item-info">
 				<table class="widefat striped">
 					<tbody>
@@ -215,7 +227,22 @@ function edd_sl_licenses_view( $license ) {
 								<label for="tablecell"><?php _e( 'License Key:', 'edd_sl' ); ?></label>
 							</td>
 							<td style="word-wrap: break-word">
-								<?php echo $license->key; ?>
+								<span id="license-key"><?php echo $license->key; ?></span>
+								<?php if ( current_user_can( 'manage_licenses' ) ) : ?>
+								<span>
+									<a id="edd-sl-regenerate-key"
+									   href="#"
+									   title="Regenerate License Key"
+									   data-nonce="<?php echo wp_create_nonce( 'edd-sl-regenerate-license' ); ?>"
+									   data-license-id="<?php echo absint( $license->id ); ?>"
+									>
+										<span class="dashicons dashicons-update"></span>
+									</a>
+									<?php $tool_tip_title   = __( 'Regenerate License Key', 'edd_sl'); ?>
+									<?php $tool_tip_message = __( 'In the event that a user needs to have their license key changed, using this button will assign a new key to this license', 'edd_sl' ); ?>
+									<span alt="f223" class="edd-help-tip dashicons dashicons-editor-help" title="<strong><?php echo $tool_tip_title ?></strong>:<br /><?php echo $tool_tip_message ?>">
+								</span>
+								<?php endif; ?>
 							</td>
 						</tr>
 						<tr>
@@ -241,20 +268,35 @@ function edd_sl_licenses_view( $license ) {
 							</td>
 							<td>
 								<?php
-								$exp_date = ucfirst( $license->expiration );
-								$classes  = 'hidden edd-sl-license-exp-date edd_datepicker';
+								$exp_date       = ucfirst( $license->expiration );
+								$classes        = 'hidden edd-sl-license-exp-date edd_datepicker';
+								$parent_license = $license->parent > 0 ? edd_software_licensing()->get_license( $license->parent ) : false;
 
-								if( ! $license->is_lifetime ) {
-									$exp_date = esc_html( date_i18n( get_option( 'date_format' ), $exp_date, 1 ) );
+								if ( ! $license->is_lifetime ) {
+									if ( $license->parent == 0 ) {
+										$exp_date = esc_html( date_i18n( get_option( 'date_format' ), $exp_date, 1 ) );
+									} else {
+										$exp_date       = esc_html( date_i18n( get_option( 'date_format' ), $parent_license->expiration, 1 ) );
+									}
 								}
 								?>
 								<span class="edd-sl-license-exp-date"><?php echo $exp_date; ?></span>
 								<input type="text" name="exp_date" class="<?php echo $classes; ?>" value="<?php echo esc_attr( $exp_date ); ?>" />
+
+								<?php if ( $license->parent == 0 ) : ?>
 								<span>&nbsp;&ndash;&nbsp;</span>
 								<a href="#" class="edd-sl-edit-license-exp-date"><?php _e( 'Edit', 'edd_sl' ); ?></a>
+								<?php endif; ?>
+
 								<?php
-								if( ! $license->is_lifetime ) {
-									echo sprintf( 'or&nbsp;<a href="%s&action=%s&license=%s">' . __( 'Mark as Lifetime', 'edd_sl' ) . '</a>', $base, 'set-lifetime', $license->ID );
+								if ( $license->parent > 0 ) {
+									printf( __( '(Set by <a href="%s">parent license</a>)', 'edd_sl' ), add_query_arg( 'license_id', $parent_license->ID ) );
+								}
+								?>
+
+								<?php
+								if( empty( $license->parent ) && ! $license->is_lifetime ) {
+									echo sprintf( 'or&nbsp;<a href="%s&action=%s">' . __( 'Mark as Lifetime', 'edd_sl' ) . '</a>', $base, 'set-lifetime' );
 								}
 								?>
 							</td>
@@ -273,24 +315,42 @@ function edd_sl_licenses_view( $license ) {
 							</td>
 							<td>
 								<?php
-								$download_name = $license->download->get_name();
+								$download_name = $license->get_download()->get_name();
 								if ( strrpos( $download_name, ' &#8211; ' ) ) {
 									$download_name = trim( substr( $download_name, 0, strrpos( $download_name, ' &#8211; ' ) ) );
 								}
 								$download_name = '<a href="' . admin_url( 'post.php?post=' . $license->download_id . '&action=edit' ) . '">' . $download_name . '</a>';
 								$price_id      = 0;
 
-								if( ! empty( $license->post_parent ) ) {
-									$download_name = '&#8212; ' . $download_name;
-								}
-
-								if( $license->download->has_variable_prices() ) {
+								if( $license->get_download()->has_variable_prices() ) {
 									$price_id = $license->price_id;
-									$prices   = $license->download->get_prices();
+									$prices   = $license->get_download()->get_prices();
 
-									$download_name .= ' (' . $prices[ $price_id ]['name'] . ')';
+									$options = array();
+									if ( empty( $license->parent ) ) {
+										foreach ( $prices as $id => $price ) {
+											$options[ $id ] = $price['name'];
+										}
+									} else {
+										$child_price_id_label = ' (' . $prices[ $price_id ]['name'] . ')';
+									}
+
 								}
+
 								echo $download_name;
+								if ( ! empty( $options ) ) {
+									echo ' - ';
+									echo EDD()->html->select( array(
+										'name'             => 'price_id',
+										'id'               => 'license-price-id',
+										'show_option_all'  => false,
+										'show_option_none' => false,
+										'options'          => $options,
+										'selected'         => $price_id,
+									) );
+								} else if ( ! empty( $child_price_id_label ) ) {
+									echo $child_price_id_label;
+								}
 								?>
 							</td>
 						</tr>
@@ -316,6 +376,18 @@ function edd_sl_licenses_view( $license ) {
 									echo '<a href="#" class="edd-sl-adjust-limit button-secondary" data-action="increase" data-id="' . absint( $license->ID ) . '" data-download="' . absint( $license->download_id ) . '">+</a>';
 									echo '&nbsp;<a href="#" class="edd-sl-adjust-limit button-secondary" data-action="decrease" data-id="' . absint( $license->ID ) . '" data-download="' . absint( $license->download_id ) . '">-</a>';
 									echo '</span>';
+
+									$default_count = $license->get_default_activation_count();
+
+									$message = sprintf(
+										__( 'The default activation limit for this license is %s, which is controlled by the %s product.', 'edd_sl' ),
+										! empty( $default_count ) ? $default_count : __( 'Unlimited', 'edd_sl' ),
+										$license->get_download()->get_name()
+									);
+									$message .= '<br /><br />';
+									$message .= __( 'To modify this license, use the +/- to increase or decrease the number of activations, respectively. To allow unlimited activations for this license, reduce the activation limit to 0.', 'edd_sl' );
+
+									echo '&nbsp;<span alt="f223" class="edd-help-tip dashicons dashicons-editor-help" title="<strong>'. __( 'Change License Limit', 'edd_sl' ) . '</strong>: ' . $message . '"></span>';
 								}
 								?>
 							</td>
@@ -328,7 +400,7 @@ function edd_sl_licenses_view( $license ) {
 								<?php
 								$status = $license->status;
 								echo '<span class="edd-sl-' . esc_attr( $status ) . '">' . esc_html( $status ) . '</span>';
-								if ( get_post_status( $license->ID ) === 'draft' ) {
+								if ( 'disabled' === $license->status ) {
 									echo ' <em>(' . __( 'disabled', 'edd_sl' ) . ')</em>';
 								}
 								?>
@@ -374,7 +446,7 @@ function edd_sl_licenses_view( $license ) {
 								$actions = array();
 								$status  = $license->status;
 
-								if( ! $license->post_parent ) {
+								if( ! $license->parent ) {
 									if ( ! $license->is_lifetime ) {
 
 										if( ! $unsubscribed ) {
@@ -382,23 +454,25 @@ function edd_sl_licenses_view( $license ) {
 										}
 
 										if ( 'active' === $status ) {
-											$actions['deactivate'] = sprintf( '<a href="%s&action=%s&license=%s">' . __( 'Deactivate', 'edd_sl' ) . '</a>', $base, 'deactivate', $license->ID );
-										} elseif( 'draft' !== $license->post_status && 'expired' !== $status ) {
-											$actions['activate'] = sprintf( '<a href="%s&action=%s&license=%s">' . __( 'Activate', 'edd_sl' ) . '</a>', $base, 'activate', $license->ID );
+											$actions['deactivate'] = sprintf( '<a href="%s&action=%s">' . __( 'Deactivate', 'edd_sl' ) . '</a>', $base, 'deactivate' );
+										} elseif( 'disabled' !== $license->status && 'expired' !== $status ) {
+											$actions['activate'] = sprintf( '<a href="%s&action=%s">' . __( 'Activate', 'edd_sl' ) . '</a>', $base, 'activate' );
 										}
 
-										if( 'draft' !== $license->post_status && 'expired' !== $status ) {
-											$actions['renew'] = sprintf( '<a href="%s&action=%s&license=%s" title="' . __( 'Extend this license key\'s expiration date', 'edd_sl' ) . '">' . __( 'Extend', 'edd_sl' ) . '</a>', $base, 'renew', $license->ID );
-										} else if ( 'draft' !== $license->post_status ) {
-											$actions['renew'] = sprintf( '<a href="%s&action=%s&license=%s">' . __( 'Renew', 'edd_sl' ) . '</a>', $base, 'renew', $license->ID );
+										if ( 'disabled' !== $license->status ) {
+											if( 'expired' !== $status ) {
+												$actions['renew'] = sprintf( '<a href="%s&action=%s" title="' . __( 'Extend this license key\'s expiration date', 'edd_sl' ) . '">' . __( 'Extend', 'edd_sl' ) . '</a>', $base, 'renew', $license->ID );
+											} else {
+												$actions['renew'] = sprintf( '<a href="%s&action=%s">' . __( 'Renew', 'edd_sl' ) . '</a>', $base, 'renew' );
+											}
 										}
 
 									}
 
-									if( 'draft' == $license->post_status ) {
-										$actions['enable'] = sprintf( '<a href="%s&action=%s&license=%s">' . __( 'Enable', 'edd_sl' ) . '</a>', $base, 'enable', $license->ID );
-									} elseif( 'publish' == $license->post_status ) {
-										$actions['disable'] = sprintf( '<a href="%s&action=%s&license=%s">' . __( 'Disable', 'edd_sl' ) . '</a>', $base, 'disable', $license->ID );
+									if( 'disabled' === $license->status ) {
+										$actions['enable'] = sprintf( '<a href="%s&action=%s">' . __( 'Enable', 'edd_sl' ) . '</a>', $base, 'enable' );
+									} else {
+										$actions['disable'] = sprintf( '<a href="%s&action=%s">' . __( 'Disable', 'edd_sl' ) . '</a>', $base, 'disable' );
 									}
 
 								}
@@ -435,7 +509,7 @@ function edd_sl_licenses_view( $license ) {
 									}
 									?>
 								</select>
-								<input type="submit" class="button-secondary button" value="<?php _e( 'Send Notice', 'edd_sl' ); ?>" data-license-id="<?php echo esc_attr( $_GET['license'] ); ?>" />
+								<input type="submit" class="button-secondary button" value="<?php _e( 'Send Notice', 'edd_sl' ); ?>" data-license-id="<?php echo esc_attr( $license->ID ); ?>" />
 								<span class="spinner"></span>
 							</td>
 						</tr>
@@ -443,9 +517,10 @@ function edd_sl_licenses_view( $license ) {
 				</table>
 			</div>
 			<div id="item-edit-actions" class="edit-item" style="float: right; margin: 10px 0 0; display: block;">
-				<?php wp_nonce_field( 'edd-sl-update-license-exp', 'edd-sl-update-license-exp-nonce' ); ?>
+				<input type="hidden" name="edd_action" value="update_license" />
+				<?php wp_nonce_field( 'edd-sl-update-license', 'edd-sl-update-license-nonce' ); ?>
 				<input type="submit" name="edd_sl_update_license" id="edd_sl_update_license" class="button button-primary" value="<?php _e( 'Update License', 'edd_sl' ); ?>" />
-				<input type="hidden" name="license_id" value="<?php echo absint( $license->ID ); ?>" />
+				<input type="hidden" name="license_id" value="<?php echo $license->ID; ?>" />
 			</div>
 		</form>
 	</div>
@@ -472,14 +547,14 @@ function edd_sl_licenses_view( $license ) {
 						<?php $parent_license = edd_software_licensing()->get_license( $license->parent ); ?>
 						<tr>
 							<td><?php echo $parent_license->get_name( false ); ?></td>
-							<td><a href="<?php echo add_query_arg( 'license', $parent_license->ID ); ?>"><?php echo edd_software_licensing()->get_license_key( $parent_license->ID ); ?></a></td>
+							<td><a href="<?php echo add_query_arg( 'license_id', $parent_license->ID ); ?>"><?php echo edd_software_licensing()->get_license_key( $parent_license->ID ); ?></a></td>
 						</tr>
 					<?php endif; ?>
 					<?php if( $has_children ) : ?>
 						<?php foreach( $has_children as $child_license ) : ?>
 							<tr>
 								<td><?php echo $child_license->get_name( false ); ?></td>
-								<td><a href="<?php echo add_query_arg( 'license', $child_license->ID ); ?>"><?php echo edd_software_licensing()->get_license_key( $child_license->ID ); ?></a></td>
+								<td><a href="<?php echo add_query_arg( 'license_id', $child_license->ID ); ?>"><?php echo edd_software_licensing()->get_license_key( $child_license->ID ); ?></a></td>
 							</tr>
 						<?php endforeach; ?>
 					<?php endif; ?>
@@ -515,7 +590,7 @@ function edd_sl_licenses_view( $license ) {
 						<?php $site_url = strpos( $site, 'http' ) !== false ? $site : 'http://' . $site; ?>
 						<tr class="row<?php if( $i % 2 == 0 ) { echo ' alternate'; } ?>">
 							<td><a href="<?php echo $site_url; ?>" target="_blank"><?php echo $site; ?></a></td>
-							<td><a href="<?php echo wp_nonce_url( add_query_arg( array( 'edd_action' => 'deactivate_site', 'site_url' => $site ) ), 'edd_deactivate_site_nonce' ); ?>"><?php _e( 'Deactivate Site', 'edd_sl' ); ?></a></td>
+							<td><a href="<?php echo wp_nonce_url( add_query_arg( array( 'edd_action' => 'deactivate_site', 'site_url' => $site, 'license' => $license->ID ) ), 'edd_deactivate_site_nonce' ); ?>"><?php _e( 'Deactivate Site', 'edd_sl' ); ?></a></td>
 						</tr>
 						<?php
 						$i++;
@@ -706,10 +781,10 @@ function edd_sl_licenses_logs_view( $license ) {
 						echo '<td>' . date_i18n( 'Y-m-d h:m:s', strtotime( $log->post_date ) ) . '</td>';
 						echo '<td>';
 						if( has_term( 'renewal_notice', 'edd_log_type', $log->ID ) ) {
-							echo esc_html( get_the_title( $log->ID ) );
+							echo esc_html( get_post_field( 'post_title', $log->ID ) );
 						} else {
 							$data = json_decode( get_post_field( 'post_content', $log->ID ) );
-							echo esc_html( get_the_title( $log->ID ) );
+							echo esc_html( get_post_field( 'post_title', $log->ID ) ) . ' - ';
 
 							if( isset( $data->HTTP_USER_AGENT ) ) {
 								echo esc_html( $data->HTTP_USER_AGENT ) . ' - ';
@@ -722,6 +797,24 @@ function edd_sl_licenses_logs_view( $license ) {
 							if( isset( $data->HTTP_USER_AGENT ) ) {
 								echo esc_html( date_i18n( get_option( 'date_format' ), $data->REQUEST_TIME ) . ' ' . date_i18n( get_option( 'time_format' ), $data->REQUEST_TIME ) );
 							}
+
+							if ( isset( $data->license_key ) ) {
+								echo esc_html( $data->license_key ) . ' - ';
+							}
+
+							if ( isset( $data->user_id ) ) {
+								$login = '';
+								if ( ! empty( $data->user_id ) ) {
+									$user  = new WP_User( $data->user_id );
+									$login = $user->user_login;
+								}
+
+								if ( ! empty( $login ) ) {
+									echo esc_html( $login );
+								}
+
+							}
+
 						}
 						echo '</td>';
 						echo '</tr>';
@@ -757,7 +850,7 @@ function edd_sl_licenses_delete_view( $license ) {
 
 	<?php do_action( 'edd_sl_license_before_license_delete', $license->key ); ?>
 
-	<form id="delete-license" method="post" action="<?php echo admin_url( 'edit.php?post_type=download&page=edd-licenses&view=delete&license=' . $license->ID ); ?>">
+	<form id="delete-license" method="post" action="<?php echo admin_url( 'edit.php?post_type=download&page=edd-licenses&view=delete&license_id=' . $license->ID ); ?>">
 		<div class="edd-item-info delete-license">
 			<span class="delete-license-options">
 				<p>
@@ -773,7 +866,7 @@ function edd_sl_licenses_delete_view( $license ) {
 				<?php wp_nonce_field( 'delete-license', '_wpnonce', false, true ); ?>
 				<input type="hidden" name="edd_action" value="sl_delete_license" />
 				<input type="submit" disabled="disabled" id="edd-sl-delete-license" class="button-primary" value="<?php _e( 'Delete License', 'edd_sl' ); ?>" />
-				<a id="edd-sl-delete-license-cancel" href="<?php echo admin_url( 'edit.php?post_type=download&page=edd-licenses&view=overview&license=' . $license->ID ); ?>" class="delete"><?php _e( 'Cancel', 'edd_sl' ); ?></a>
+				<a id="edd-sl-delete-license-cancel" href="<?php echo admin_url( 'edit.php?post_type=download&page=edd-licenses&view=overview&license_id=' . $license->ID ); ?>" class="delete"><?php _e( 'Cancel', 'edd_sl' ); ?></a>
 			</span>
 		</div>
 	</form>
