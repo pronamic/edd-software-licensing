@@ -5,7 +5,7 @@ $download_id = absint( edd_software_licensing()->get_download_id( $license_id ) 
 $download    = new EDD_Download( $download_id );
 $user_id     = edd_software_licensing()->get_user_id( $license_id );
 
-if( ! current_user_can( 'edit_shop_payments' ) && $user_id != get_current_user_id() ) {
+if( ! current_user_can( 'manage_licenses' ) && $user_id != get_current_user_id() ) {
 	return;
 }
 
@@ -22,7 +22,7 @@ $sites = edd_software_licensing()->get_sites( $license_id );
 	<span class="edd-sl-manage-license-key"><?php _e( 'License', 'edd_sl' ); ?>: <?php echo '<code>' . edd_software_licensing()->get_license_key( $license_id ) . '</code>'; ?></span>
 	<span class="edd-sl-manage-license-product"><?php _e( 'Product', 'edd_sl' ); ?>: <span><?php echo $download->get_name(); ?></span></span>
 </p>
-<table id="edd_sl_license_sites" class="edd_sl_table">
+<table id="edd_sl_license_sites" class="edd_sl_table edd-table">
 	<thead>
 		<tr class="edd_sl_license_row">
 			<?php do_action('edd_sl_license_sites_header_before'); ?>
@@ -52,7 +52,7 @@ $sites = edd_software_licensing()->get_sites( $license_id );
 <?php $status   = edd_software_licensing()->get_license_status( $license_id ); ?>
 <?php $at_limit = edd_software_licensing()->is_at_limit( $license_id, $download_id ); ?>
 
-<?php if ( ! $at_limit && ( $status == 'active' || $status == 'inactive' ) && get_post_status( $license_id ) !== 'draft' ) : ?>
+<?php if ( ! $at_limit && ( $status == 'active' || $status == 'inactive' ) && 'disabled' !== $status ) : ?>
 <form method="post" id="edd_sl_license_add_site_form" class="edd_sl_form">
 	<div>
 		<span><?php _e( 'Use this form to authorize a new site URL for this license. Enter the full site URL.', 'edd_sl' ); ?></span>

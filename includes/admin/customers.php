@@ -20,18 +20,10 @@ function edd_sl_customer_tab( $tabs ) {
 
 	$customer_id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : false;
 	$customer    = new EDD_Customer( $customer_id );
-	$payment_ids = explode( ',', $customer->payment_ids );
-	$licenses    = get_posts( array(
-		'post_type'      => 'edd_license',
-		'posts_per_page' => 100,
-		'post_status'    => 'any',
-		'meta_query'     =>  array(
-			array(
-				'key'     => '_edd_sl_payment_id',
-				'value'   => $payment_ids,
-				'compare' => 'IN'
-			)
-		)
+
+	$licenses = edd_software_licensing()->licenses_db->get_licenses( array(
+		'number'      => 1,
+		'customer_id' => $customer->id,
 	) );
 
 	// If they have licenses show the tab.
@@ -57,18 +49,10 @@ function edd_sl_customer_view( $views ) {
 
 	$customer_id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : false;
 	$customer    = new EDD_Customer( $customer_id );
-	$payment_ids = explode( ',', $customer->payment_ids );
-	$licenses    = get_posts( array(
-		'post_type'      => 'edd_license',
-		'posts_per_page' => 100,
-		'post_status'    => 'any',
-		'meta_query'     =>  array(
-			array(
-				'key'     => '_edd_sl_payment_id',
-				'value'   => $payment_ids,
-				'compare' => 'IN'
-			)
-		)
+
+	$licenses = edd_software_licensing()->licenses_db->count( array(
+		'number'      => 1,
+		'customer_id' => $customer->id,
 	) );
 
 	if ( $licenses ) {
@@ -90,18 +74,11 @@ add_filter( 'edd_customer_views', 'edd_sl_customer_view', 10, 1 );
  */
 function edd_sl_customer_licenses_view( $customer ) {
 
-	$payment_ids = explode( ',', $customer->payment_ids );
-	$licenses    = get_posts( array(
-		'post_type'      => 'edd_license',
-		'posts_per_page' => 100,
-		'post_status'    => 'any',
-		'meta_query'     =>  array(
-			array(
-				'key'     => '_edd_sl_payment_id',
-				'value'   => $payment_ids,
-				'compare' => 'IN'
-			)
-		)
+	$licenses = edd_software_licensing()->licenses_db->get_licenses( array(
+		'number'      => -1,
+		'customer_id' => $customer->id,
+		'orderby'     => 'id',
+		'order'       => 'ASC',
 	) );
 
 	?>
@@ -125,16 +102,20 @@ function edd_sl_customer_licenses_view( $customer ) {
 			<tbody>
 				<?php if ( ! empty( $licenses ) ) : ?>
 					<?php foreach ( $licenses as $license ) : ?>
-						<?php
-						$license_key = get_post_meta( $license->ID, '_edd_sl_key', true );
-						$download_id = get_post_meta( $license->ID, '_edd_sl_download_id', true );
-						?>
 						<tr>
-							<td><a href="<?php echo esc_url( admin_url( 'post.php?action=edit&post=' . $download_id ) ); ?>"><?php echo get_the_title( $download_id ); ?></a></td>
-							<td><?php echo $license_key; ?></td>
-							<td><?php echo edd_software_licensing()->get_license_status( $license->ID ); ?></td>
 							<td>
-								<a title="<?php esc_attr_e( 'View', 'edd_sl' ); ?>" href="<?php echo esc_url( admin_url( 'edit.php?post_type=download&page=edd-licenses&view=overview&license=' . $license->ID ) ); ?>">
+								<?php if ( ! empty( $license->parent ) ) { echo '&mdash;'; } ?>
+								<a href="<?php echo esc_url( admin_url( 'post.php?action=edit&post=' . $license->download_id ) ); ?>"><?php echo $license->get_download()->get_name(); ?></a>
+							</td>
+							<td><?php echo $license->key; ?></td>
+							<td>
+								<?php
+								$status = $license->status;
+								echo '<span class="edd-sl-' . esc_attr( $status ) . '">' . esc_html( $status ) . '</span>';
+								?>
+							</td>
+							<td>
+								<a title="<?php esc_attr_e( 'View', 'edd_sl' ); ?>" href="<?php echo esc_url( admin_url( 'edit.php?post_type=download&page=edd-licenses&view=overview&license_id=' . $license->ID ) ); ?>">
 									<?php _e( 'View', 'edd_sl' ); ?>
 								</a>
 							</td>

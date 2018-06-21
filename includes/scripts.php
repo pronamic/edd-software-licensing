@@ -22,7 +22,8 @@ function edd_sl_admin_scripts() {
 		'download_page_edd-reports',
 		'download_page_edd-settings',
 		'download_page_edd-tools',
-		'download_page_edd-payment-history'
+		'download_page_edd-payment-history',
+		'download_page_edd-customers',
 	);
 
 	$allowed_screens = apply_filters( 'edd-sl-admin-script-screens', $allowed_screens );
@@ -31,7 +32,10 @@ function edd_sl_admin_scripts() {
 		return;
 	}
 
-	wp_enqueue_script( 'edd-sl-admin', plugins_url( '/js/edd-sl-admin.js', EDD_SL_PLUGIN_FILE ), array( 'jquery' ), EDD_SL_VERSION );
+	// Use minified libraries if SCRIPT_DEBUG is turned off
+	$suffix = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+
+	wp_enqueue_script( 'edd-sl-admin', plugins_url( '/js/edd-sl-admin'  . $suffix . '.js', EDD_SL_PLUGIN_FILE ), array( 'jquery' ), EDD_SL_VERSION );
 
 	if( $screen->id === 'download' ) {
 		wp_localize_script( 'edd-sl-admin', 'edd_sl', array(
@@ -52,8 +56,8 @@ function edd_sl_admin_scripts() {
 		) );
 	}
 
-	wp_enqueue_style( 'edd-sl-admin-styles', plugins_url( '/css/edd-sl-admin.css', EDD_SL_PLUGIN_FILE ), false, EDD_SL_VERSION );
-	wp_enqueue_style( 'edd-sl-styles', plugins_url( '/css/edd-sl.css', EDD_SL_PLUGIN_FILE ), false, EDD_SL_VERSION );
+	wp_enqueue_style( 'edd-sl-admin-styles', plugins_url( '/css/edd-sl-admin' . $suffix . '.css', EDD_SL_PLUGIN_FILE ), false, EDD_SL_VERSION );
+	wp_enqueue_style( 'edd-sl-styles', plugins_url( '/css/edd-sl' . $suffix . '.css', EDD_SL_PLUGIN_FILE ), false, EDD_SL_VERSION );
 }
 add_action( 'admin_enqueue_scripts', 'edd_sl_admin_scripts' );
 
@@ -75,7 +79,9 @@ function edd_sl_scripts() {
 
 	$load_scripts_manually = apply_filters( 'edd_sl_load_styles', false );
 
-	wp_register_style( 'edd-sl-styles', plugins_url( '/css/edd-sl.css', EDD_SL_PLUGIN_FILE ), false, EDD_SL_VERSION );
+	// Use minified libraries if SCRIPT_DEBUG is turned off
+	$suffix = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+	wp_register_style( 'edd-sl-styles', plugins_url( '/css/edd-sl' . $suffix . '.css', EDD_SL_PLUGIN_FILE ), false, EDD_SL_VERSION );
 
 	$should_load_styles = false;
 	if ( is_admin() || edd_is_checkout() ) {

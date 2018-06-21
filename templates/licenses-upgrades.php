@@ -6,7 +6,7 @@ $download_id = absint( edd_software_licensing()->get_download_id( $license_id ) 
 $upgrades    = edd_sl_get_license_upgrades( $license_id );
 $user_id     = edd_software_licensing()->get_user_id( $license_id );
 
-if( ! current_user_can( 'edit_shop_payments' ) && $user_id != get_current_user_id() ) {
+if( ! current_user_can( 'manage_licenses' ) && $user_id != get_current_user_id() ) {
 	return;
 }
 
@@ -16,7 +16,7 @@ $color = ( $color == 'inherit' ) ? '' : $color;
 ?>
 <p><a href="<?php echo esc_url( remove_query_arg( array( 'view', 'license_id', 'edd_sl_error', '_wpnonce' ) ) ); ?>" class="edd-manage-license-back edd-submit button <?php echo esc_attr( $color ); ?>"><?php _e( 'Go back', 'edd_sl' ); ?></a></p>
 <?php edd_sl_show_errors(); ?>
-<table id="edd_sl_license_upgrades" class="edd_sl_table">
+<table id="edd_sl_license_upgrades" class="edd_sl_table edd-table">
 	<thead>
 		<tr class="edd_sl_license_row">
 			<?php do_action('edd_sl_license_upgrades_header_before'); ?>

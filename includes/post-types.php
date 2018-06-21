@@ -72,7 +72,7 @@ add_action( 'init', 'edd_sl_setup_post_type', 2 );
 function edd_sl_download_columns( $download_columns ) {
 	unset( $download_columns['date'] );
 	$download_columns['version'] = __( 'Version', 'edd_sl' );
-	$download_columns['date'] = __( 'Date' );
+	$download_columns['date'] = __( 'Date', 'edd_sl' );
 	return apply_filters( 'edd_sl_download_columns', $download_columns );
 }
 add_filter( 'manage_edit-download_columns', 'edd_sl_download_columns' );
@@ -87,13 +87,10 @@ add_filter( 'manage_edit-download_columns', 'edd_sl_download_columns' );
  */
 function edd_sl_render_download_columns( $column_name, $post_id ) {
 	if ( get_post_type( $post_id ) == 'download' ) {
-		global $edd_options;
-
-		$style = isset( $edd_options['button_style'] ) ? $edd_options['button_style'] : 'button';
-
+		$download = new EDD_SL_Download( $post_id );
 		switch ( $column_name ) {
 			case 'version':
-				echo esc_html( get_post_meta( $post_id, '_edd_sl_version', true ) );
+				echo esc_html( $download->get_version() );
 				break;
 		}
 	}

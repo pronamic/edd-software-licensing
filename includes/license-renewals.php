@@ -290,11 +290,11 @@ function edd_sl_add_renewal_to_cart( $license_id = 0, $by_key = false ) {
 		return new WP_Error( 'payment_not_complete', __( 'The purchase record for this license is not marked as complete', 'edd_sl' ) );
 	}
 
-	if ( 'publish' !== $license->post_status ) {
+	if ( 'disabled' === $license->status ) {
 		return new WP_Error( 'license_disabled', __( 'The supplied license has been disabled and cannot be renewed', 'edd_sl' ) );
 	}
 
-	if ( 'publish' !== $license->download->post_status ) {
+	if ( 'publish' !== $license->get_download()->post_status ) {
 		return new WP_Error( 'license_disabled', __( 'The download for this license is not published', 'edd_sl' ) );
 	}
 
@@ -310,7 +310,7 @@ function edd_sl_add_renewal_to_cart( $license_id = 0, $by_key = false ) {
 	$options = array( 'is_renewal' => true, 'license_id' => $license->ID, 'license_key' => $license->key );
 
 	// if product has variable prices, find previous used price id and add it to cart
-	if ( $license->download->has_variable_prices() ) {
+	if ( $license->get_download()->has_variable_prices() ) {
 		$options['price_id'] = $license->price_id;
 	}
 
@@ -479,7 +479,7 @@ function edd_sl_get_renewal_discount_amount( $item = array(), $license_key = '' 
 
 	if( false !== $license && ! empty( $item['options']['is_renewal'] ) ) {
 
-		if( $license->download->has_variable_prices() ) {
+		if( $license->get_download()->has_variable_prices() ) {
 
 			$prices   = edd_get_variable_prices( $item['id'] );
 			if( false !== $license->price_id && '' !== $license->price_id && isset( $prices[ $license->price_id ] ) ) {
@@ -510,7 +510,9 @@ function edd_sl_get_renewal_discount_amount( $item = array(), $license_key = '' 
 
 	}
 
-	return apply_filters( 'edd_sl_get_renewal_discount_amount', $discount, $license->key, $item );
+	$license_key = ! empty( $license->key ) ? $license->key : '';
+
+	return apply_filters( 'edd_sl_get_renewal_discount_amount', $discount, $license_key, $item );
 }
 
 function edd_sl_cancel_license_renewal() {
@@ -686,7 +688,7 @@ function edd_sl_scheduled_reminders() {
 				continue;
 			}
 
-			$sent_time = get_post_meta( $license->ID, sanitize_key( '_edd_sl_renewal_sent_' . $notice['send_period'] ), true );
+			$sent_time = $license->get_meta( sanitize_key( '_edd_sl_renewal_sent_' . $notice['send_period'] ) );
 			if( $sent_time ) {
 
 				$expire_date = strtotime( $notice['send_period'], $sent_time );
@@ -698,7 +700,7 @@ function edd_sl_scheduled_reminders() {
 
 				}
 
-				delete_post_meta( $license->ID, sanitize_key( '_edd_sl_renewal_sent_' . $notice['send_period'] ) );
+				$license->delete_meta( sanitize_key( '_edd_sl_renewal_sent_' . $notice['send_period'] ) );
 
 			}
 
@@ -711,33 +713,41 @@ function edd_sl_scheduled_reminders() {
 }
 add_action( 'edd_daily_scheduled_events', 'edd_sl_scheduled_reminders' );
 
-
+/**
+ * Return licenses that expire on the day determined by the period provided.
+ *
+ * This does not get all licenses between now and the period, but on the day, in the past or future for the period.
+ *
+ * Example:
+ * A period of +1month will get all licenses that expire on the date 30 days from now.
+ * A period of -1day will get all licenses that expired yesterday
+ *
+ * If you want all licenses that expired in a range, you can use the EDD_SL_License_DB class with the following arguments
+ * 'expiration' => array(
+ *     'start' => <unix timestamp of start date>,
+ *     'end'   => <unix timestamp of end date>,
+ * )
+ *
+ * @param string $period This is a PHP pseudo-date string used with `strototime` and can be provided values like
+ *                       +1month (default), +2weeks, +1day, +1year, and also supports negative values to look backwards.
+ *
+ * @return array|bool    If found, it will return an array of license IDs, if none are found, it returns false.
+ */
 function edd_sl_get_expiring_licenses( $period = '+1month' ) {
 
 	$args = array(
-		'post_type'              => 'edd_license',
-		'nopaging'               => true,
-		'fields'                 => 'ids',
-		'update_post_meta_cache' => false,
-		'update_post_term_cache' => false,
-		'post_parent'            => 0,
-		'meta_query'             => array(
-			'relation'           => 'AND',
-			array(
-				'key'            => '_edd_sl_expiration',
-				'value'          => array(
-					strtotime( $period . ' midnight', current_time( 'timestamp' ) ),
-					strtotime( $period . ' midnight', current_time( 'timestamp' ) ) + ( DAY_IN_SECONDS - 1 ),
-				),
-				'compare'        => 'BETWEEN'
-			)
+		'number'     => - 1,
+		'fields'     => 'ids',
+		'parent'     => 0,
+		'expiration' => array(
+			'start' => strtotime( $period . ' midnight', current_time( 'timestamp' ) ),
+			'end'   => strtotime( $period . ' midnight', current_time( 'timestamp' ) ) + ( DAY_IN_SECONDS - 1 ),
 		)
 	);
 
 	$args  = apply_filters( 'edd_sl_expiring_licenses_args', $args );
+	$keys  = edd_software_licensing()->licenses_db->get_licenses( $args );
 
-	$query = new WP_Query;
-	$keys  = $query->query( $args );
 	if( ! $keys ) {
 		return false; // no expiring keys found
 	}
@@ -748,33 +758,23 @@ function edd_sl_get_expiring_licenses( $period = '+1month' ) {
 function edd_sl_check_for_expired_licenses() {
 
 	$args = array(
-		'post_type'              => 'edd_license',
-		'posts_per_page'         => 99999,
-		'fields'                 => 'ids',
-		'post_parent'            => 0, // Child keys get expired during set_license_status()
-		'update_post_meta_cache' => false,
-		'update_post_term_cache' => false,
-		'meta_query'             => array(
-			'relation'           => 'AND',
-			array(
-				'key'            => '_edd_sl_expiration',
-				'value'          => array(
-					current_time( 'timestamp' ),
-					strtotime( '-1 month' )
-				),
-				'compare'        => 'BETWEEN'
-			)
-		)
+		'number'     => -1,
+		'parent'     => 0, // Child keys get expired during set_license_status()
+		'expiration' => array(
+			'start' => strtotime( '-1 Month' ),
+			'end'   => current_time( 'timestamp' ),
+		),
+		'status' => array( 'active', 'inactive', 'disabled' ),
 	);
 
-	$query = new WP_Query;
-	$keys  = $query->query( $args );
-	if( ! $keys ) {
+	$args      = apply_filters( 'edd_sl_expired_licenses_args', $args );
+	$licenses  = edd_software_licensing()->licenses_db->get_licenses( $args );
+
+	if( ! $licenses ) {
 		return; // no expiring keys found
 	}
 
-	foreach( $keys as $license_id ) {
-		$license = edd_software_licensing()->get_license( $license_id );
+	foreach( $licenses as $license ) {
 		$license->status = 'expired';
 	}
 }
@@ -880,7 +880,7 @@ add_action( 'edd_view_order_details_update_inner', 'edd_sl_payment_details_inner
 function edd_sl_exclude_non_published_download_renewals( $send = true, $license_id = 0, $notice_id = 0 ) {
 
 	$license = edd_software_licensing()->get_license( $license_id );
-	$status      = get_post_field( 'post_status', $license->download_id );
+	$status  = get_post_field( 'post_status', $license->download_id );
 
 	if( $status && 'publish' !== $status ) {
 		$send = false;
@@ -1013,3 +1013,52 @@ function edd_sl_process_renewal_email_unsubscribe() {
 
 }
 add_action( 'edd_license_unsubscribe', 'edd_sl_process_renewal_email_unsubscribe' );
+
+/**
+ * When the cart is emptied, clear out any session data contianing renewals.
+ *
+ * @since 2.5.19
+ * @return void
+ */
+function edd_sl_clear_cart_renewal(){
+	$contains_renewal = EDD()->session->get('edd_is_renewal');
+
+	if ( ! empty( $contains_renewal ) ) {
+		EDD()->session->set( 'edd_is_renewal', null );
+		EDD()->session->set( 'edd_renewal_keys', null );
+	}
+
+}
+add_action( 'edd_empty_cart', 'edd_sl_clear_cart_renewal' );
+
+/**
+ * Rolls a license expiration date back when refunding a renewal payment.
+ *
+ * @since 3.6
+ *
+ * @param EDD_Payment $payment Payment object.
+ */
+function edd_sl_rollback_expiration_on_renewal_refund( $payment ) {
+	$is_renewal = edd_get_payment_meta( $payment->ID, '_edd_sl_is_renewal', true );
+
+	if ( ! $is_renewal ) {
+		return;
+	}
+
+	foreach ( $payment->cart_details as $cart_item ) {
+		if ( is_array( $cart_item['item_number']['options'] ) ) {
+
+			// See if the `is_renewal` key exists and if the license_id exists, since these were added later, they may not on some legacy payments.
+			if ( array_key_exists( 'is_renewal', $cart_item['item_number']['options'] ) && ! empty( $cart_item['item_number']['options']['license_id'] ) ) {
+
+				$license = edd_software_licensing()->get_license( (int) $cart_item['item_number']['options']['license_id'] );
+
+				if ( false !== $license ) {
+					$license->expiration = strtotime( '-' . $license->license_length(), $license->expiration );
+				}
+
+			}
+		}
+	}
+}
+add_action( 'edd_post_refund_payment', 'edd_sl_rollback_expiration_on_renewal_refund' );

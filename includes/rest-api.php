@@ -5,12 +5,12 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 function edd_sl_products_product_api( $product ) {
 	$download_id = $product['info']['id'];
-	$download    = new EDD_Download( $download_id );
+	$download    = new EDD_SL_Download( $download_id );
 
-	$enabled    = get_post_meta( $download_id, '_edd_sl_enabled', true ) ? true : false;
-	$version    = get_post_meta( $download_id, '_edd_sl_version', true );
-	$exp_unit   = get_post_meta( $download_id, '_edd_sl_exp_unit', true );
-	$exp_length = get_post_meta( $download_id, '_edd_sl_exp_length', true );
+	$enabled    = $download->licensing_enabled();
+	$version    = $download->get_version();
+	$exp_unit   = $download->get_expiration_unit();
+	$exp_length = $download->get_expiration_length();
 
 	$licensing_data = array(
 		'enabled'    => $enabled,
@@ -45,7 +45,7 @@ function edd_sl_sales_api( $sales ) {
 				$download = edd_software_licensing()->get_download_id( $license->ID );
 				$price_id = edd_software_licensing()->get_price_id( $license->ID );
 				$title    = get_the_title( $download );
-				$status   = ( edd_software_licensing()->get_license_status( $license->ID ) == 'draft' ? 'revoked' : edd_software_licensing()->get_license_status( $license->ID ) );
+				$status   = edd_software_licensing()->get_license_status( $license->ID );
 
 				if( edd_has_variable_prices( $download ) ) {
 					$title .= ' - ' . edd_get_price_option_name( $download, $price_id );

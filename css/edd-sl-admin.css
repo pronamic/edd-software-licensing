@@ -79,6 +79,10 @@
 	margin-top: -19px !important;
 }
 
+#edd-item-card-wrapper #license-key {
+	font-family: monospace;
+}
+
 #edd-item-card-wrapper .edd-sl-license-card-notices {
 	display: none;
 }

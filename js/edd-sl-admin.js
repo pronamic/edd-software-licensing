@@ -180,7 +180,7 @@ jQuery(document).ready(function ($) {
 		$('.edd-sl-license-exp-date').toggle();
 	});
 
-	$('.edd-sl-license-exp-date').on('change', function() {
+	$('.edd-sl-license-exp-date, #license_price_id').on('change', function() {
 		$('#edd_sl_update_license').fadeIn('fast').css('display', 'inline-block');
 	});
 
@@ -196,6 +196,42 @@ jQuery(document).ready(function ($) {
 			link.text(edd_sl.action_edit);
 		}
 	}
+
+	$('#edd-sl-regenerate-key').on( 'click', function(e) {
+		var license_key   = $('#license-key');
+		var target        = $(this);
+		target.css('color', '#999').css('pointer-events', 'none');
+
+		var postData = {
+			action : 'edd_sl_regenerate_license',
+			license_id : target.data('license-id'),
+			nonce : target.data('nonce')
+		};
+
+		$.ajax({
+			type: "POST",
+			data: postData,
+			dataType: 'json',
+			url: ajaxurl,
+			success: function (response) {
+				if ( response.success ) {
+					license_key.fadeTo('fast', '.1', function(){
+						license_key.text(response.key).fadeTo('fast', '1', function(){
+							target.css('color', '').css('pointer-events', '');
+						});
+					});
+				} else {
+					target.css('color', '').css('pointer-events', '');
+				}
+			}
+		}).fail(function (data) {
+			if ( window.console && window.console.log ) {
+				console.log( data );
+			}
+		});
+
+		return false;
+	});
 
 	$('#edd_sl_send_renewal_notice').on('click', function(e) {
 		e.preventDefault();

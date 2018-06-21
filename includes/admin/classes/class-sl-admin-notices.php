@@ -65,15 +65,21 @@ class EDD_Software_Licensing_Admin_Notices {
 
 				break;
 
-			case 'exp-update' :
+			case 'license-updated' :
 
-				$message = __( 'License expiration date updated successfully', 'edd_sl' );
+				$message = __( 'License updated successfully', 'edd_sl' );
 
 				break;
 
 			case 'delete' :
 
 				$message = __( 'License deleted successfully', 'edd_sl' );
+
+				break;
+
+			case 'delete-error' :
+
+				$message = __( 'Error deleting license', 'edd_sl' );
 
 				break;
 
