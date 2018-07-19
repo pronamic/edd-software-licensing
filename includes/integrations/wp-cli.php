@@ -87,9 +87,6 @@ class EDD_SL_CLI extends EDD_CLI {
 			// Store any licenses that will need a parent/child relationship to be corrected.
 			$child_licenses = array();
 
-			// If we bail on a legacy license ID, store it.
-			$failed_licenses = array();
-
 			// Store all the new licenses, Key = Legacy License ID, Value = new License ID
 			$new_license_ids = array();
 
@@ -118,7 +115,6 @@ class EDD_SL_CLI extends EDD_CLI {
 				}
 
 				if ( empty( $post_meta['_edd_sl_key'] ) ) {
-					$failed_licenses[ $license_post->ID ] = __( 'Missing license key in legacy data', 'edd_sl' );
 					continue;
 				}
 
@@ -521,13 +517,6 @@ class EDD_SL_CLI extends EDD_CLI {
 			$old_count = $wpdb->get_col( "SELECT count(ID) FROM $wpdb->posts WHERE post_type ='edd_license'", 0 );
 			WP_CLI::line( __( 'Old License Count: ', 'edd_sl' ) . $old_count[ 0 ] );
 			WP_CLI::line( __( 'New License Count: ', 'edd_sl' ) . $new_count );
-
-			if ( ! empty( $failed_licenses ) ) {
-				WP_CLI::line( __( 'Failed Legacy License IDs (from custom post type): ', 'edd_sl' ) . count( $failed_licenses ) );
-				foreach ( $failed_licenses as $id => $reason ) {
-					WP_CLI::line( sprintf( __( 'License ID: %d - %s', 'edd_sl' ), $id, $reason ) );
-				}
-			}
 
 			update_option( 'edd_sl_version', preg_replace( '/[^0-9.].*/', '', EDD_SL_VERSION ) );
 

@@ -578,10 +578,6 @@ class EDD_SL_License {
 	 */
 	public function delete() {
 		$license_deleted = edd_software_licensing()->licenses_db->delete( $this->ID );
-		if ( $license_deleted ) {
-			edd_software_licensing()->license_meta_db->delete_all_meta( $this->ID );
-			edd_software_licensing()->activations_db->delete_all_activations( $this->ID );
-		}
 
 		return $license_deleted;
 	}
@@ -1015,18 +1011,31 @@ class EDD_SL_License {
 		 */
 		$count_from_meta = $this->get_meta( '_edd_sl_activation_count', true );
 
-		if( edd_software_licensing()->force_increase() && is_numeric( $count_from_meta )  ) {
+		if ( edd_software_licensing()->force_increase() && is_numeric( $count_from_meta )  ) {
+
 			$count = absint( $count_from_meta );
+
 		} else {
+
 			$bypass_local = edd_get_option( 'edd_sl_bypass_local_hosts', false );
+			$sites        = $this->get_sites();
 
-			$count_args = array(
-				'license_id' => $this->ID,
-				'activated'  => 1,
-				'is_local'   => $bypass_local ? 0 : array( 0, 1 ),
-			);
+			if ( $bypass_local ) {
 
-			$count = edd_software_licensing()->activations_db->count( $count_args );
+				foreach ( $sites as $site ) {
+
+					if ( ! edd_software_licensing()->is_local_url( $site ) ) {
+						$count++;
+					}
+
+				}
+
+			} else {
+
+				$count = count( $sites );
+
+			}
+
 		}
 
 		$this->activation_count = apply_filters( 'edd_sl_get_site_count', $count, $this->ID );

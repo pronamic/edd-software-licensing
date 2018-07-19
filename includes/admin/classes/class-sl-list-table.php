@@ -657,9 +657,19 @@ class EDD_SL_List_Table extends WP_List_Table {
 		// check to see if we are searching
 		if( ! empty( $_GET['s'] ) ) {
 
-			$search = trim( $_GET['s'] );
+			$search = sanitize_text_field( trim( $_GET['s'] ) );
 
-			if( ! is_email( $search ) ) {
+			if( is_email( $search ) ) {
+
+				$customer = new EDD_Customer( $search );
+
+				if( $customer && $customer->id > 0 ) {
+
+					$args['customer_id'] = $customer->id;
+
+				}
+
+			} else {
 
 				$has_period = strstr( $search, '.' );
 
@@ -670,6 +680,11 @@ class EDD_SL_List_Table extends WP_List_Table {
 
 				} elseif ( strlen( $search ) > 6 && false === $has_period && ! preg_match( '/\s/', $search ) ) {
 
+					$license = edd_software_licensing()->get_license( $search );
+					if ( ! empty( $license->parent ) ) {
+						$license = edd_software_licensing()->get_license( $license->parent );
+						$search  = $license->key;
+					}
 					$args['license_key'] = $search;
 					unset( $args['post_parent'] );
 
@@ -682,10 +697,6 @@ class EDD_SL_List_Table extends WP_List_Table {
 					$args['search'] = $search;
 
 				}
-
-			} else {
-
-				$args['search'] = $search;
 
 			}
 
