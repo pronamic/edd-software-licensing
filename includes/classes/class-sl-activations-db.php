@@ -136,16 +136,10 @@ class EDD_SL_Activations_DB extends EDD_SL_DB {
 		$args['orderby'] = esc_sql( $args['orderby'] );
 		$args['order']   = esc_sql( $args['order'] );
 
-		$activations = $this->get_cache( $args, 'edd_license_activations' );
-
-		if ( false === $activations ) {
-			if ( isset( $args['fields'] ) && in_array( $args['fields'], $this->get_column_labels() ) ) {
-				$activations = $wpdb->get_col( $wpdb->prepare( "SELECT {$args['fields']} FROM  $this->table_name $where ORDER BY {$args['orderby']} {$args['order']} LIMIT %d,%d;", absint( $args['offset'] ), absint( $args['number'] ) ), 0 );
-			} else {
-				$activations = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM  $this->table_name $where ORDER BY {$args['orderby']} {$args['order']} LIMIT %d,%d;", absint( $args['offset'] ), absint( $args['number'] ) ) );
-			}
-
-			$this->set_cache( $args, $activations, 'edd_license_activations' );
+		if ( isset( $args['fields'] ) && in_array( $args['fields'], $this->get_column_labels() ) ) {
+			$activations = $wpdb->get_col( $wpdb->prepare( "SELECT {$args['fields']} FROM  $this->table_name $where ORDER BY {$args['orderby']} {$args['order']} LIMIT %d,%d;", absint( $args['offset'] ), absint( $args['number'] ) ), 0 );
+		} else {
+			$activations = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM  $this->table_name $where ORDER BY {$args['orderby']} {$args['order']} LIMIT %d,%d;", absint( $args['offset'] ), absint( $args['number'] ) ) );
 		}
 
 		return $activations;

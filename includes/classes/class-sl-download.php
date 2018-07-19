@@ -50,6 +50,8 @@ class EDD_SL_Download extends EDD_Download {
 	public function get_activation_limit( $price_id = false ) {
 		$limit = false;
 
+		remove_filter( 'get_post_metadata', '_eddsl_get_meta_backcompat', 99 );
+
 		if ( false === $price_id || ! $this->has_variable_prices() ) {
 			$limit = get_post_meta( $this->ID, '_edd_sl_limit', true );
 		} else {
@@ -59,6 +61,8 @@ class EDD_SL_Download extends EDD_Download {
 				$limit = $price_limit;
 			}
 		}
+
+		add_filter( 'get_post_metadata', '_eddsl_get_meta_backcompat', 99, 4 );
 
 		return apply_filters( 'edd_sl_download_license_limit', $limit, $this->ID, $price_id );
 	}

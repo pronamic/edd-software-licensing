@@ -110,10 +110,12 @@ class EDD_SL_License_DB extends EDD_SL_DB {
 	}
 
 	/**
-	 * Retrieve all commissions for a customer
+	 * Retrieve licenses for the requested arguments.
 	 *
 	 * @access  public
 	 * @since   3.6
+	 *
+	 * @return
 	 */
 	public function get_licenses( $args = array() ) {
 		global $wpdb;
@@ -145,21 +147,14 @@ class EDD_SL_License_DB extends EDD_SL_DB {
 		$args['orderby'] = esc_sql( $args['orderby'] );
 		$args['order']   = esc_sql( $args['order'] );
 
-		$license_ids = $this->get_cache( $args, 'edd_licenses' );
+		$query = $wpdb->prepare(
+			"SELECT DISTINCT( l1.id ) FROM  {$this->table_name} l1 {$where} ORDER BY l1.{$args['orderby']} {$args['order']} LIMIT %d,%d;",
+			absint( $args['offset'] ),
+			absint( $args['number'] )
+		);
 
-		if ( false === $license_ids ) {
-			$query = $wpdb->prepare(
-				"SELECT DISTINCT( l1.id ) FROM  {$this->table_name} l1 {$where} ORDER BY l1.{$args['orderby']} {$args['order']} LIMIT %d,%d;",
-				absint( $args['offset'] ),
-				absint( $args['number'] )
-			);
-
-			$license_ids = $wpdb->get_col( $query, 0 );
-
-			$this->set_cache( $args, $license_ids, 'edd_licenses' );
-		}
-
-		$licenses = array();
+		$license_ids = $wpdb->get_col( $query, 0 );
+		$licenses    = array();
 
 		if( ! empty( $license_ids ) ) {
 
@@ -186,18 +181,9 @@ class EDD_SL_License_DB extends EDD_SL_DB {
 		global $wpdb;
 
 		$where     = $this->parse_where( $args );
-		$cache_key = md5( 'edd_licenses_count' . serialize( $args ) );
 
-		$count = $this->get_cache( $cache_key, 'edd_licenses' );
-
-		if( $count === false ) {
-
-			$sql   = "SELECT COUNT($this->primary_key) FROM " . $this->table_name . " as l1 {$where};";
-			$count = $wpdb->get_var( $sql );
-
-			$this->set_cache( $cache_key, $count, 'edd_licenses' );
-
-		}
+		$sql   = "SELECT COUNT($this->primary_key) FROM " . $this->table_name . " as l1 {$where};";
+		$count = $wpdb->get_var( $sql );
 
 		return absint( $count );
 
@@ -218,7 +204,25 @@ class EDD_SL_License_DB extends EDD_SL_DB {
 		if ( false === $wpdb->query( $delete_query ) ) {
 			return false;
 		} else {
+			$this->delete_cache( $license_id, 'edd_license_objects'  );
+
 			edd_software_licensing()->license_meta_db->delete_all_meta( $license_id );
+			edd_software_licensing()->activations_db->delete_all_activations( $license_id );
+
+			// Before we unassociate the child licenses, get the IDs of them.
+			$child_license_ids = $wpdb->get_col( $wpdb->prepare( "SELECT $this->primary_key FROM $this->table_name WHERE parent = %d", $license_id ), 0 );
+
+			// Remove any child license associations with this license.
+			$wpdb->update(
+				$this->table_name,
+				array( 'parent' => 0 ),
+				array( 'parent' => $license_id ),
+				array( '%d' ),
+				array( '%d' )
+			);
+
+			// Delete the cache of the child license keys.
+			$this->delete_cache_multi( $child_license_ids, 'edd_license_objects' );
 		}
 
 		return true;
