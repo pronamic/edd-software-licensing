@@ -106,3 +106,36 @@ function edd_sl_remove_quantity_filter( $item, $key ) {
 	}
 }
 add_action( 'edd_cart_actions', 'edd_sl_remove_quantity_filter', 10, 2 );
+
+/**
+ * When a user is verified after guest purchases, attach the license keys to the user ID.
+ *
+ * @since 3.6.4
+ *
+ * @param int   $user_id           The user ID that was verified.
+ * @param bool  $update_successful If verification was successful.
+ */
+function edd_sl_attach_licenses_to_verified_user( $user_id, $update_successful ) {
+	if ( empty( $update_successful ) ) {
+		return;
+	}
+
+	$customer = new EDD_Customer( $user_id, true );
+	$args     = array(
+		'number'      => -1,
+		'customer_id' => $customer->id,
+	);
+	$licenses = edd_software_licensing()->licenses_db->get_licenses( $args );
+
+	foreach ( $licenses as $license ) {
+		/* @var $license EDD_SL_License */
+
+		// If this license is already associated with the user ID do not run an update call.
+		if ( (int) $license->user_id === (int) $user_id ) {
+			continue;
+		}
+
+		$license->update( array( 'user_id' => $user_id ) );
+	}
+}
+add_action( 'edd_post_set_user_to_active', 'edd_sl_attach_licenses_to_verified_user', 10, 2 );

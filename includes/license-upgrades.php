@@ -226,17 +226,55 @@ function edd_sl_get_license_upgrade_url( $license_id = 0, $upgrade_id = 0 ) {
  */
 function edd_sl_get_license_upgrade_cost( $license_id = 0, $upgrade_id = 0 ) {
 
-	$url         = home_url();
 	$download_id = edd_software_licensing()->get_download_id( $license_id );
+	$download    = new EDD_SL_Download( $download_id );
 	$upgrades    = edd_sl_get_upgrade_paths( $download_id );
 
-	if( edd_has_variable_prices( $download_id ) ) {
+	if( $download->has_variable_prices() ) {
 
 		$price_id = edd_software_licensing()->get_price_id( $license_id );
 
-		if( false !== $price_id && '' !== $price_id ) {
+		if ( false !== $price_id && '' !== $price_id ) {
 
-			$old_price = edd_get_price_option_amount( $download_id, $price_id );
+			$prices    = $download->get_prices();
+
+			/**
+			 * Allow using the previously paid amount as the $old_price
+			 *
+			 * Some store owners would prefer that the old price be based off what was previously paid, instead of what
+			 * the current price ID value is. Returning false here, allows the $old_price to be based on the last amount paid
+			 * instead of the current price of the Price ID, in the event it has been changed.
+			 *
+			 * @since 3.6.4
+			 *
+			 * @param bool             Should we use the current price of the Price ID for prorated estimates.
+			 * @param int  $license_id The License ID requesting the prorated cost.
+			 * @param int  $download_id The Download ID associated with the license.
+			 */
+			$use_current_price = apply_filters( 'edd_sl_use_current_price_proration', true, $license_id, $download_id );
+			if ( array_key_exists( $price_id, $prices ) && $use_current_price ) {
+
+				// The old price ID still exists, use the current price of it as the old price.
+				$old_price = edd_get_price_option_amount( $download_id, $price_id );
+
+			} else {
+
+				// The old price ID was removed, so just figure out what they paid last.
+				$license         = edd_software_licensing()->get_license( $license_id );
+				$last_payment_id = max( $license->payment_ids );
+				$payment         = edd_get_payment( $last_payment_id );
+
+				$old_price = 0.00;
+				foreach ( $payment->cart_details as $item ) {
+					if ( (int) $item['id'] !== $download->ID ) {
+						continue;
+					}
+
+					$old_price = $item['item_price'];
+					break;
+				}
+
+			}
 
 		} else {
 
@@ -251,7 +289,7 @@ function edd_sl_get_license_upgrade_cost( $license_id = 0, $upgrade_id = 0 ) {
 	}
 
 
-	if( isset( $upgrades[ $upgrade_id ][ 'price_id' ] ) && false !== $upgrades[ $upgrade_id ][ 'price_id' ] ) {
+	if ( isset( $upgrades[ $upgrade_id ][ 'price_id' ] ) && false !== $upgrades[ $upgrade_id ][ 'price_id' ] ) {
 
 		$new_price = edd_get_price_option_amount( $upgrades[ $upgrade_id ][ 'download_id' ], $upgrades[ $upgrade_id ][ 'price_id' ] );
 
@@ -263,20 +301,20 @@ function edd_sl_get_license_upgrade_cost( $license_id = 0, $upgrade_id = 0 ) {
 
 	$cost = $new_price;
 
-	if( ! empty( $upgrades[ $upgrade_id ][ 'pro_rated' ] ) ) {
+	if ( ! empty( $upgrades[ $upgrade_id ][ 'pro_rated' ] ) ) {
 
 		$cost = edd_sl_get_pro_rated_upgrade_cost( $license_id, $old_price, $new_price );
 
 	}
 
 
-	if( isset( $upgrades[ $upgrade_id ][ 'discount' ] ) ) {
+	if ( isset( $upgrades[ $upgrade_id ][ 'discount' ] ) ) {
 
 		$cost -= $upgrades[ $upgrade_id ][ 'discount' ];
 
 	}
 
-	if( $cost < 0 ) {
+	if ( $cost < 0 ) {
 		$cost = 0;
 	}
 

@@ -13,7 +13,6 @@ class EDD_SL_DB extends EDD_DB {
 		$updated = parent::update( $row_id, $data, $where );
 
 		if ( ! empty( $updated ) && $this->use_cache() ) {
-			$this->delete_query_cache();
 
 			switch( $this->table_name ) {
 
@@ -43,7 +42,6 @@ class EDD_SL_DB extends EDD_DB {
 		$insert_id = parent::insert( $data, $type = '' );
 
 		if ( ! empty( $insert_id ) && $this->use_cache() ) {
-			$this->delete_query_cache();
 
 			switch( $this->table_name ) {
 
@@ -58,7 +56,7 @@ class EDD_SL_DB extends EDD_DB {
 			}
 
 			if ( ! empty( $license_id ) ) {
-				$this->delete_cache( 'edd_license_objects', $license_id );
+				$this->delete_cache( $license_id, 'edd_license_objects' );
 			}
 		}
 
@@ -115,6 +113,26 @@ class EDD_SL_DB extends EDD_DB {
 	}
 
 	/**
+	 * Delete multiple items from the cache from a single group.
+	 *
+	 * @since 3.6.4
+	 *
+	 * @param array  $keys  The cache keys to delete.
+	 * @param string $group The cache group to delete them from.
+	 *
+	 * @return array $deleted Each requested cache key will be listed as a key in the array and the value is a boolean if
+	 *               it was successfully deleted.
+	 */
+	protected function delete_cache_multi( $keys = array(), $group = '' ) {
+		$deleted = array();
+		foreach ( $keys as $key ) {
+			$deleted[ $key ] = $this->delete_cache( $key, $group );
+		}
+
+		return $deleted;
+	}
+
+	/**
 	 * Sanitize the key for storing in cache. If an array is passed, it will json_encode and MD5 it
 	 *
 	 * @since 3.6
@@ -133,6 +151,12 @@ class EDD_SL_DB extends EDD_DB {
 
 	/**
 	 * Delete all caches related to licenses
+	 *
+	 * @since 3.6
+	 * @since 3.6.4 There are some significant issues when using a drop-in object-cache.php with something like Redis or
+	 *        Memcached. These plugins do not maintain the WP Core formatting for groups and keys, therefore our attempt
+	 *        to clear a group never works correctly. While this method will continue to exist for backwards compatibility
+	 *        it should not be relied upon in all environments, and therefore Software Licensing is going to stop using it.
 	 */
 	private function delete_query_cache() {
 		global $wp_object_cache;
