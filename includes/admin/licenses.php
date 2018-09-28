@@ -215,6 +215,8 @@ function edd_sl_licenses_view( $license ) {
 	$has_children = $license->get_child_licenses();
 	$unsubscribed = $license->get_meta( 'edd_sl_unsubscribed', true );
 
+	$initial_payment = edd_get_payment( $license->payment_id );
+
 	do_action( 'edd_sl_license_card_top', $license->key );
 	?>
 	<div class="info-wrapper item-section">
@@ -251,7 +253,7 @@ function edd_sl_licenses_view( $license ) {
 							</td>
 							<td>
 								<?php
-								$payment_date = esc_html( get_the_time( get_option( 'date_format' ), $license->payment_id ) );
+								$payment_date = esc_html( date( get_option( 'date_format' ), strtotime( $initial_payment->completed_date ) ) );
 
 								if( $license->payment_id && ! $license->post_parent ) {
 									$payment_url = admin_url( 'edit.php?post_type=download&page=edd-payment-history&view=view-order-details&id=' . $license->payment_id );
@@ -451,12 +453,6 @@ function edd_sl_licenses_view( $license ) {
 
 										if( ! $unsubscribed ) {
 											$actions[ 'renewal_notice' ] = '<a href="#" id="edd_sl_send_renewal_notice" title="' . __( 'Send a renewal notice for this license key', 'edd_sl' ) . '">' . __( 'Send Renewal Notice', 'edd_sl' ) . '</a>';
-										}
-
-										if ( 'active' === $status ) {
-											$actions['deactivate'] = sprintf( '<a href="%s&action=%s">' . __( 'Deactivate', 'edd_sl' ) . '</a>', $base, 'deactivate' );
-										} elseif( 'disabled' !== $license->status && 'expired' !== $status ) {
-											$actions['activate'] = sprintf( '<a href="%s&action=%s">' . __( 'Activate', 'edd_sl' ) . '</a>', $base, 'activate' );
 										}
 
 										if ( 'disabled' !== $license->status ) {
@@ -744,7 +740,7 @@ function edd_sl_licenses_view( $license ) {
  * View logs for a license
  *
  * @since  3.5
- * @param  $license The License object being displayed
+ * @param  EDD_SL_License $license The License object being displayed
  * @return void
  */
 function edd_sl_licenses_logs_view( $license ) {
@@ -772,19 +768,19 @@ function edd_sl_licenses_logs_view( $license ) {
 			</thead>
 			<tbody>
 				<?php
-				$logs = edd_software_licensing()->get_license_logs( $license->ID );
+				$logs = $license->get_logs();
 
-				if( $logs ) {
+				if( ! empty( $logs ) ) {
 					foreach ( $logs as $log ) {
 						echo '<tr>';
 						echo '<td>#' . esc_html( $log->ID ) . '</td>';
 						echo '<td>' . date_i18n( 'Y-m-d h:m:s', strtotime( $log->post_date ) ) . '</td>';
 						echo '<td>';
 						if( has_term( 'renewal_notice', 'edd_log_type', $log->ID ) ) {
-							echo esc_html( get_post_field( 'post_title', $log->ID ) );
+							echo esc_html( $log->post_title );
 						} else {
-							$data = json_decode( get_post_field( 'post_content', $log->ID ) );
-							echo esc_html( get_post_field( 'post_title', $log->ID ) ) . ' - ';
+							$data = json_decode( $log->post_content );
+							echo esc_html( $log->post_title ) . '<br />';
 
 							if( isset( $data->HTTP_USER_AGENT ) ) {
 								echo esc_html( $data->HTTP_USER_AGENT ) . ' - ';

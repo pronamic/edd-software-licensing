@@ -1,5 +1,9 @@
 <?php
 
+if ( ! is_user_logged_in() ) {
+	return;
+}
+
 $payment_id  = absint( $_GET['payment_id' ] );
 $license_id  = absint( $_GET['license_id' ] );
 $download_id = absint( edd_software_licensing()->get_download_id( $license_id ) );

@@ -15,7 +15,9 @@ add_action( 'edd_purchase_history_header_after', 'edd_sl_add_key_column' );
  */
 function edd_sl_site_management_links( $payment_id, $purchase_data ) {
 
-	if ( isset( $_GET['view'] ) && $_GET['view'] == 'upgrades' ) {
+	$is_upgrade_page = isset( $_GET['view'] ) && $_GET['view'] == 'upgrades';
+	$is_manage_page  = isset( $_GET['action'] ) && $_GET['action'] == 'manage_licenses';
+	if ( $is_upgrade_page || $is_manage_page ) {
 		return;
 	}
 

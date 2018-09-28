@@ -1,17 +1,42 @@
 <?php
 
+if ( ! class_exists( '\WordPressdotorg\Plugin_Directory\Readme\Parser' ) ) {
+	require_once EDD_SL_PLUGIN_DIR . 'includes/class-parser.php';
+}
+
+use \WordPressdotorg\Plugin_Directory\Readme\Parser as Parser;
 
 /**
  * Class EDD_SL_Readme_Parser
+ *
+ * @link   https://meta.trac.wordpress.org/browser/sites/trunk/wordpress.org/public_html/wp-content/plugins/plugin-directory/readme/class-parser.php
  */
-class EDD_SL_Readme_Parser extends \WordPressdotorg\Plugin_Directory\Readme\Parser {
+class EDD_SL_Readme_Parser extends Parser {
 
 	/**
+	 * Constructor.
+	 *
+	 * @return void
+	 */
+	public function __construct( $file ) {
+		$file_path = WP_CONTENT_DIR . '/edd-sl-tmp-readme.txt';
+		$file_path = file_put_contents( $file_path, $file ) ? $file_path : false;
+		parent::__construct( $file_path );
+	}
+
+	/**
+	 * Parse markdown and return HTML.
+	 *
+	 * @link https://github.com/erusev/parsedown
+	 *
 	 * @param string $text
 	 *
 	 * @return string
 	 */
 	public function parse_markdown( $text ) {
+		if ( ! class_exists( 'Parsedown' ) ) {
+			require_once EDD_SL_PLUGIN_DIR . 'includes/Parsedown.php';
+		}
 		static $markdown = null;
 
 		if ( null === $markdown ) {
@@ -24,13 +49,14 @@ class EDD_SL_Readme_Parser extends \WordPressdotorg\Plugin_Directory\Readme\Pars
 	/**
 	 * Return parsed readme.txt as array.
 	 *
-	 * @return array
+	 * @return array $data
 	 */
 	public function parse_data() {
 		$data = array();
 		foreach ( get_object_vars( $this ) as $key => $value ) {
-			$data[ $key ] = $value;
+			$data[ $key ] = 'contributors' === $key ? $this->create_contributors( $value ) : $value;
 		}
+		$data = $this->faq_as_h4( $data );
 
 		return $data;
 	}
@@ -45,26 +71,45 @@ class EDD_SL_Readme_Parser extends \WordPressdotorg\Plugin_Directory\Readme\Pars
 	}
 
 	/**
-	 * Makes generation of short description PHP 5.3 compliant.
-	 * Original requires PHP 5.4 for array dereference.
+	 * Create contributor data.
 	 *
-	 * @return string $description[0]
+	 * @param array $users
+	 *
+	 * @return array $contributors
 	 */
-	protected function short_description_53() {
-		$description = array_filter( explode( "\n", $this->sections['description'] ) );
+	private function create_contributors( $users ) {
+		global $wp_version;
+		$contributors = [];
+		foreach ( (array) $users as $contributor ) {
+			$contributors[ $contributor ]['display_name'] = $contributor;
+			$contributors[ $contributor ]['profile']      = '//profiles.wordpress.org/' . $contributor;
+			$contributors[ $contributor ]['avatar']       = 'https://wordpress.org/grav-redirect.php?user=' . $contributor;
+			if ( $wp_version < '5.0-alpha-42631' ) {
+				$contributors[ $contributor ] = '//profiles.wordpress.org/' . $contributor;
+			}
+		}
 
-		return $description[0];
+		return $contributors;
 	}
 
 	/**
 	 * Converts FAQ from dictionary list to h4 style.
+	 *
+	 * @param array $data Array of parsed readme data.
+	 *
+	 * @return array $data
 	 */
-	protected function faq_as_h4() {
-		unset( $this->sections['faq'] );
-		$this->sections['faq'] = '';
-		foreach ( $this->faq as $question => $answer ) {
-			$this->sections['faq'] .= "<h4>{$question}</h4>\n{$answer}\n";
+	public function faq_as_h4( $data ) {
+		if ( empty( $data['faq'] ) ) {
+			return $data;
 		}
+		unset( $data['sections']['faq'] );
+		$data['sections']['faq'] = '';
+		foreach ( $data['faq'] as $question => $answer ) {
+			$data['sections']['faq'] .= "<h4>{$question}</h4>\n{$answer}\n";
+		}
+
+		return $data;
 	}
 
 	/**
