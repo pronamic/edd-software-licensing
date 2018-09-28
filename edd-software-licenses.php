@@ -3,7 +3,7 @@
 Plugin Name: Easy Digital Downloads - Software Licensing
 Plugin URL: https://easydigitaldownloads.com/downloads/software-licensing/
 Description: Adds a software licensing system to Easy Digital Downloads
-Version: 3.6.4
+Version: 3.6.5
 Author: Easy Digital Downloads
 Author URI: https://easydigitaldownloads.com
 Contributors: easydigitaldownloads, mordauk, cklosows
@@ -24,7 +24,7 @@ if ( ! defined( 'EDD_SL_PLUGIN_FILE' ) ) {
 }
 
 if ( ! defined( 'EDD_SL_VERSION' ) ) {
-	define( 'EDD_SL_VERSION', '3.6.4' );
+	define( 'EDD_SL_VERSION', '3.6.5' );
 }
 
 class EDD_Software_Licensing {
@@ -856,8 +856,6 @@ class EDD_Software_Licensing {
 
 		}
 
-		$is_local_url = $this->is_local_url( $url );
-
 		if ( $args['key'] != $license->key ) {
 			return 'invalid'; // keys don't match
 		}
@@ -1359,10 +1357,39 @@ class EDD_Software_Licensing {
 					'high' => get_post_meta( $item_id, '_edd_readme_plugin_banner_high', true ),
 					'low'  => get_post_meta( $item_id, '_edd_readme_plugin_banner_low', true )
 				)
-			)
+			),
+			'icons' => array()
 		);
 
+		if ( has_post_thumbnail( $download->ID ) ) {
+			$thumb_id  = get_post_thumbnail_id( $download->ID );
+			$thumb_128 = get_the_post_thumbnail_url( $download->ID, 'sl-small' );
+			if ( ! empty( $thumb_128 ) ) {
+				$response['icons'][ '1x' ] = $thumb_128;
+			}
+
+			$thumb_256 = get_the_post_thumbnail_url( $download->ID, 'sl-large' );
+			if ( ! empty( $thumb_256 ) ) {
+				$response['icons'][ '2x' ] = $thumb_256;
+			}
+		}
+
+		$response['icons'] = serialize( $response['icons'] );
+
 		$response = apply_filters( 'edd_sl_license_response', $response, $download, $download_beta );
+
+		/**
+		 * Encode any emoji in the name and sections.
+		 *
+		 * @since 3.6.5
+		 * @see https://github.com/easydigitaldownloads/EDD-Software-Licensing/issues/1313
+		 */
+		if ( function_exists( 'wp_encode_emoji' ) ) {
+			$response['name']     = wp_encode_emoji( $response['name'] );
+
+			$sections             = maybe_unserialize( $response['sections'] );
+			$response['sections'] = serialize( array_map('wp_encode_emoji', $sections ) );
+		}
 
 		echo json_encode( $response );
 		exit;
@@ -1408,25 +1435,11 @@ class EDD_Software_Licensing {
 	 * @return array|bool
 	 */
 	function get_license_logs( $license_id = '' ) {
-
-		$query_args = apply_filters(
-			'edd_sl_license_logs_query_args',
-			array(
-				'post_type'      => 'edd_license_log',
-				'meta_key'       => '_edd_sl_log_license_id',
-				'meta_value'     => $license_id,
-				'posts_per_page' => 1000
-			)
-		);
-
-		$logs = get_posts( apply_filters( 'edd_sl_get_license_logs', $query_args ) );
-
-		if ( $logs ) {
-			return $logs;
+		if ( $license = $this->get_license( $license_id ) ) {
+			return $license->get_logs();
 		}
 
-		return false; // no logs found
-
+		return false;
 	}
 
 	/**
@@ -1434,19 +1447,9 @@ class EDD_Software_Licensing {
 	 * @param array $server_data
 	 */
 	function log_license_activation( $license_id, $server_data ) {
-
-		$log_id = wp_insert_post(
-			array(
-				'post_title'   => __( 'LOG - License Activated: ', 'edd_sl' ) . $license_id,
-				'post_name'    => 'log-license-activated-' . $license_id . '-' . md5( current_time( 'timestamp' ) ),
-				'post_type'    => 'edd_license_log',
-				'post_content' => json_encode( $server_data ),
-				'post_status'  => 'publish'
-			 )
-		);
-
-		add_post_meta( $log_id, '_edd_sl_log_license_id', $license_id );
-
+		if ( $license = $this->get_license( $license_id ) ) {
+			$license->add_log( __( 'LOG - License Activated: ', 'edd_sl' ) . $license_id, $server_data );
+		}
 	}
 
 	/**
@@ -1454,19 +1457,9 @@ class EDD_Software_Licensing {
 	 * @param array $server_data
 	 */
 	function log_license_deactivation( $license_id, $server_data ) {
-
-		$log_id = wp_insert_post(
-			array(
-				'post_title'   => __( 'LOG - License Deactivated: ', 'edd_sl' ) . $license_id,
-				'post_name'    => 'log-license-deactivated-' . $license_id . '-' . md5( current_time( 'timestamp' ) ),
-				'post_type'    => 'edd_license_log',
-				'post_content' => json_encode( $server_data ),
-				'post_status'  => 'publish'
-			 )
-		);
-
-		add_post_meta( $log_id, '_edd_sl_log_license_id', $license_id );
-
+		if ( $license = $this->get_license( $license_id ) ) {
+			$license->add_log( __( 'LOG - License Deactivated: ', 'edd_sl' ) . $license_id, $server_data );
+		}
 	}
 
 
@@ -2534,7 +2527,7 @@ class EDD_Software_Licensing {
 
 			if ( substr_count( $host, '.' ) > 1 ) {
 				$subdomains_to_check = apply_filters( 'edd_sl_url_subdomains', array(
-					'dev.', '*.staging.',
+					'dev.', '*.staging.', '*.test.',
 				) );
 
 				foreach ( $subdomains_to_check as $subdomain ) {

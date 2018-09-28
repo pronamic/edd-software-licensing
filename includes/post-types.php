@@ -57,7 +57,18 @@ function edd_sl_setup_post_type() {
 }
 add_action( 'init', 'edd_sl_setup_post_type', 2 );
 
-
+/**
+ * Registers the thumbnail sizes for the plugins, so they can be used in the updater icons array.
+ * 
+ * @since 3.6.5
+ *
+ * @return void
+ */
+function edd_sl_register_thumbnail_sizes() {
+	add_image_size( 'sl-small', 128, 128, true );
+	add_image_size( 'sl-large', 256, 256, true );
+}
+add_action( 'init', 'edd_sl_register_thumbnail_sizes' );
 
 /**
  * Download Columns

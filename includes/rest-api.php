@@ -35,6 +35,13 @@ add_filter( 'edd_api_products_product', 'edd_sl_products_product_api', 10, 1 );
  */
 function edd_sl_sales_api( $sales ) {
 	foreach( $sales['sales'] as $id => $sale ) {
+
+		$sales['sales'][ $id ]['licenses'] = array();
+
+		if ( ! $sale['ID'] ) {
+			continue;
+		}
+
 		$licenses = edd_software_licensing()->get_licenses_of_purchase( $sale['ID'] );
 
 		if( ! empty( $licenses ) ) {

@@ -46,8 +46,9 @@ final class EDD_SL_Changelog_Widget extends WP_Widget {
 		);
 		$this->alt_option_name = 'widget_sl_changelog';
 		$this->defaults = array(
-			'title' => __( 'Changelog', 'edd_sl' ),
-			'download_id' => 'current',
+			'title'        => __( 'Changelog', 'edd_sl' ),
+			'display_type' => 'current',
+			'download_id'  => 0,
 		);
 		add_action( 'save_post', array( $this, 'flush_widget_cache' ) );
 	}
@@ -72,25 +73,43 @@ final class EDD_SL_Changelog_Widget extends WP_Widget {
 	 * @return void
 	 */
 	public function widget( $args, $instance ) {
+		$defaults = $this->defaults;
+		$instance = wp_parse_args( $instance, $defaults );
 
-		if ( $instance['download_id'] == 'current' ) {
-			$post = get_queried_object();
-			$post_id = isset( $post->ID ) ? $post->ID : null;
-		} else {
-			$post_id = $instance['download_id'];
+		if ( ! empty( $instance['download_id'] ) ) {
+			if ( 'current' === ( $instance['download_id'] ) ) {
+				$instance['display_type'] = 'current';
+				unset( $instance['download_id'] );
+			} elseif ( is_numeric( $instance['download_id'] ) ) {
+				$instance['display_type'] = 'specific';
+			}
 		}
-		$post_id = apply_filters( 'edd_sl_changeloge_widget_post_id', $post_id, $args, $instance );
-		if ( !$post_id ) {
+
+		// set correct download ID.
+		$download_id = 0;
+
+		if ( 'current' == $instance['display_type'] && is_singular( 'download' ) ) {
+			$download_id = get_the_ID();
+		} else if ( ! empty( $instance['download_id'] ) ) {
+			$download_id = absint( $instance['download_id'] );
+		}
+
+		$download_id = apply_filters( 'edd_sl_changeloge_widget_post_id', $download_id, $args, $instance );
+
+		// Added in 3.6.5 - Fixing spelling error in `changeloge` from previous versions.
+		$download_id = apply_filters( 'edd_sl_changelog_widget_post_id', $download_id, $args, $instance );
+
+		if ( ! $download_id ) {
 			return;
 		}
 
 		extract( $args, EXTR_SKIP );
 
-		$download = new EDD_SL_Download( $post_id );
+		$download = new EDD_SL_Download( $download_id );
 
 		// Get cached items if they exist
 		$cache = wp_cache_get( 'widget_sl_changelog', 'widget' );
-		$cache_arr_key = $args['widget_id'] . '_' . $post_id;
+		$cache_arr_key = $args['widget_id'] . '_' . $download_id;
 
 		// Use cached information if it exists
 		if ( $cache !== false ) {
@@ -140,9 +159,18 @@ final class EDD_SL_Changelog_Widget extends WP_Widget {
 	 */
 	public function update( $new_instance, $old_instance ) {
 		$instance = $old_instance;
-		$instance['title']       = strip_tags( $new_instance['title'] );
-		$instance['download_id'] = $new_instance['download_id'];
-		$this->flush_widget_cache();
+
+		$instance['title']        = strip_tags( $new_instance['title'] );
+		$instance['download_id']  = strip_tags( $new_instance['download_id'] );
+		$instance['display_type'] = isset( $new_instance['display_type'] ) ? strip_tags( $new_instance['display_type'] ) : '';
+
+		do_action( 'edd_sl_changelog_widget_update', $instance );
+
+		// If the new view is 'current download' then remove the specific download ID
+		if ( 'current' === $instance['display_type'] ) {
+			unset( $instance['download_id'] );
+		}
+
 		return $instance;
 	}
 
@@ -155,29 +183,66 @@ final class EDD_SL_Changelog_Widget extends WP_Widget {
 	 * @return void
 	 */
 	public function form( $instance ) {
-		$config = array_merge( $this->defaults, $instance );
-		extract( $config );
-		$query_args = array(
-			'post_type'      => 'download',
-			'posts_per_page' => -1,
-			'post_status'    => 'publish',
-			'orderby'        => 'title',
-			'order'          => 'asc',
-		);
-		$downloads = get_posts( $query_args );
+		$instance = wp_parse_args( $instance, $this->defaults );
+
+		if ( ! empty( $instance['download_id'] ) ) {
+			if ( 'current' === ( $instance['download_id'] ) ) {
+				$instance['display_type'] = 'current';
+				unset( $instance['download_id'] );
+			} elseif ( is_numeric( $instance['download_id'] ) ) {
+				$instance['display_type'] = 'specific';
+			}
+		}
+
+		// set correct download ID.
+		$download_id = isset( $instance['download_id'] ) ? absint( $instance['download_id'] ) : 0;
 		?>
+		<script>
+			$( document ).ready(function() {
+				// When the document is loaded, be sure to just trigger the width on the download chosen field so it's ready
+				// when the user asks to view it by expanding the widget form.
+				$('#<?php echo $this->id_base . '_download_id_' . $this->number . '_chosen'; ?>' ).css('width', '100%' );
+
+				// After you 'save' a widget, the input field loses the 'chosen' state, so we have to re-trigger it again.
+				$(document).on( 'widget-updated', function( widget ) {
+					var save_button = widget.currentTarget.activeElement.id;
+					if ( save_button === 'widget-<?php echo $this->id_base; ?>-<?php echo $this->number; ?>-savewidget') {
+						$('#<?php echo $this->id_base . '_download_id_' . $this->number ; ?>' ).chosen();
+					}
+				});
+			});
+		</script>
 		<p>
 			<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:', 'edd_sl' ); ?></label>
-			<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>" />
+			<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" type="text" value="<?php echo esc_attr( $instance['title'] ); ?>" />
 		</p>
+
 		<p>
-			<label for="<?php echo $this->get_field_id( 'download_id' ); ?>"><?php _e( 'Show changelog for:', 'edd_sl' ); ?></label>
-			<select class="widefat" name="<?php echo $this->get_field_name( 'download_id' ); ?>" id="<?php echo $this->get_field_id( 'download_id' ); ?>">
-				<option value="current"><?php echo esc_html( sprintf( __( 'Current %s', 'edd_sl' ), edd_get_label_singular() ) ); ?></option>
-				<?php foreach ( $downloads as $download ) { ?>
-					<option <?php selected( $download_id, $download->ID ); ?> value="<?php echo $download->ID; ?>"><?php echo esc_html( $download->post_title ); ?></option>
-				<?php } ?>
-			</select>
+			<?php _e( 'Show Changelog For:', 'edd_sl' ); ?><br />
+			<input type="radio" onchange="jQuery(this).parent().next('.download-details-selector').hide();" <?php checked( 'current', $instance['display_type'], true ); ?> value="current" name="<?php echo esc_attr( $this->get_field_name( 'display_type' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'display_type' ) ); ?>-current"><label for="<?php echo esc_attr( $this->get_field_id( 'display_type' ) ); ?>-current"><?php _e( 'Current', 'edd_sl' ); ?></label>
+			<input type="radio" onchange="jQuery(this).parent().next('.download-details-selector').show().find('div.chosen-container').css('width', '100%');" <?php checked( 'specific', $instance['display_type'], true ); ?> value="specific" name="<?php echo esc_attr( $this->get_field_name( 'display_type' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'display_type' ) ); ?>-specific"><label for="<?php echo esc_attr( $this->get_field_id( 'display_type' ) ); ?>-specific"><?php _e( 'Specific', 'edd_sl' ); ?></label>
+		</p>
+
+		<!-- Download -->
+		<?php $display = 'current' === $instance['display_type'] ? ' style="display: none;"' : ''; ?>
+		<p class="download-details-selector" <?php echo $display; ?>>
+			<label for="<?php echo $this->id_base . '-download-id-' . $this->number; ?>"><?php printf( __( '%s:', 'edd_sl' ), edd_get_label_singular() ); ?></label><br />
+			<?php
+			echo EDD()->html->product_dropdown( array(
+				'name'        => $this->get_field_name( 'download_id' ),
+				'id'          => $this->id_base . '-download-id-' . $this->number,
+				'class'       => 'download-details-selector',
+				'selected'    => $download_id,
+				'chosen'      => true,
+				'number'      => 15,
+				'bundles'     => false,
+				'placeholder' => sprintf( __( 'Choose a %s', 'edd_sl' ), edd_get_label_singular() ),
+				'data'        => array(
+					'search-type'        => 'download',
+					'search-placeholder' => sprintf( __( 'Type to search all %s', 'edd_sl' ), edd_get_label_plural() )
+				),
+			) );
+			?>
 		</p>
 		<?php
 	}

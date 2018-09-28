@@ -84,7 +84,7 @@ function edd_sl_license_settings( $settings ) {
 				'time-based' => __( 'Time-Based Calculation', 'edd_sl' )
 			),
 			'tooltip_title' => __( 'How are prorations calculated?', 'edd_sl' ),
-			'tooltip_desc'  => __( 'Cost-based caluclation is a type of pseudo-proration where the value of an upgrade is calculated based on the cost difference between the current and new licenses.<br /><br />Time-based calculation is true proration in which the amount of time remaining on the current license is calculated to adjust the cost of the new license.', 'edd_sl' ),
+			'tooltip_desc'  => __( 'Cost-based calculation is a type of pseudo-proration where the value of an upgrade is calculated based on the cost difference between the current and new licenses.<br /><br />Time-based calculation is true proration in which the amount of time remaining on the current license is calculated to adjust the cost of the new license.', 'edd_sl' ),
 			'std'           => 'cost-based'
 		),
 		array(

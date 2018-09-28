@@ -1,4 +1,9 @@
 <?php
+
+if ( ! is_user_logged_in() ) {
+	return;
+}
+
 $payment_id = absint( $_GET['payment_id' ] );
 $user_id    = edd_get_payment_user_id( $payment_id );
 

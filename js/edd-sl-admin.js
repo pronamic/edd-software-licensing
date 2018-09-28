@@ -45,6 +45,17 @@ jQuery(document).ready(function ($) {
 			$thickboxLog.data( 'log-state', 'loaded' );
 		});
 	});
+
+	$('input#edd_sl_disable_renewal_discount').on( 'change', function() {
+		var checked = $(this).is(':checked');
+		var target  = $('#edd_sl_renewal_discount');
+		if ( checked ) {
+			target.prop('readonly', 'readonly' ).prop('disabled','disabled');
+		} else {
+			target.removeProp('readonly').removeProp('disabled');
+		}
+	});
+
 	$('select#_edd_product_type, input#edd_license_enabled, input#edd_sl_beta_enabled').on( 'change', function() {
 		var product_type = $('#_edd_product_type').val();
 		var license_enabled = $('#edd_license_enabled').is(':checked');
@@ -59,7 +70,7 @@ jQuery(document).ready(function ($) {
 			$('#edd_sl_upgrade_paths input, #edd_sl_upgrade_paths select').prop('disabled', true).trigger('chosen:updated');
 			return;
 		}
-		
+
 		if ( ! beta_enabled ) {
 			$beta_toggled_rows.hide();
 		} else {
@@ -198,6 +209,12 @@ jQuery(document).ready(function ($) {
 	}
 
 	$('#edd-sl-regenerate-key').on( 'click', function(e) {
+
+		var response = confirm( edd_sl.regenerate_notice );
+		if ( response == false ) {
+			return;
+		}
+
 		var license_key   = $('#license-key');
 		var target        = $(this);
 		target.css('color', '#999').css('pointer-events', 'none');

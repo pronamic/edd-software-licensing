@@ -47,12 +47,13 @@ function edd_sl_admin_scripts() {
 		) );
 	} else {
 		wp_localize_script( 'edd-sl-admin', 'edd_sl', array(
-			'ajaxurl'        => edd_get_ajax_url(),
-			'delete_license' => __( 'Are you sure you wish to delete this license?', 'edd_sl' ),
-			'action_edit'    => __( 'Edit', 'edd_sl' ),
-			'action_cancel'  => __( 'Cancel', 'edd_sl' ),
-			'send_notice'    => __( 'Send Renewal Notice', 'edd_sl' ),
-			'cancel_notice'  => __( 'Cancel Renewal Notice', 'edd_sl' )
+			'ajaxurl'           => edd_get_ajax_url(),
+			'delete_license'    => __( 'Are you sure you wish to delete this license?', 'edd_sl' ),
+			'action_edit'       => __( 'Edit', 'edd_sl' ),
+			'action_cancel'     => __( 'Cancel', 'edd_sl' ),
+			'send_notice'       => __( 'Send Renewal Notice', 'edd_sl' ),
+			'cancel_notice'     => __( 'Cancel Renewal Notice', 'edd_sl' ),
+			'regenerate_notice' => __( 'Regenerating a license key is not reversible. Click "OK" to continue.', 'edd_sl' ),
 		) );
 	}
 
@@ -147,3 +148,12 @@ function edd_sl_checkout_js() {
 <?php
 }
 add_action( 'wp_head', 'edd_sl_checkout_js' );
+
+function edd_sl_load_edd_admin_scripts( $should_load, $hook ) {
+	if ( 'widgets.php' === $hook ) {
+		$should_load = true;
+	}
+
+	return $should_load;
+}
+add_filter( 'edd_load_admin_scripts', 'edd_sl_load_edd_admin_scripts', 10, 2 );

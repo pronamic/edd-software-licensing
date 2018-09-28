@@ -10,7 +10,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Parse the ReadMe URL
  *
  * @since  2.4
- * @link   https://meta.trac.wordpress.org/browser/sites/trunk/wordpress.org/public_html/wp-content/plugins/plugin-directory/readme/class-parser.php
  *
  * @param  string $url URL of the readme.txt file
  *
@@ -18,20 +17,15 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 function _edd_sl_readme_parse( $url = '' ) {
 
-	if ( ! class_exists( '\WordPressdotorg\Plugin_Directory\Readme\Parser' ) ) {
-		require_once EDD_SL_PLUGIN_DIR . 'includes/class-parser.php';
-	}
-	if ( ! class_exists( 'Parsedown' ) ) {
-		require_once EDD_SL_PLUGIN_DIR . 'includes/Parsedown.php';
-	}
-
 	require_once EDD_SL_PLUGIN_DIR . 'includes/classes/class-sl-parser.php';
 
-	$request = wp_remote_get( $url, array(
-		'timeout'         => 15,
-		'sslverify'       => false,
-		'sslcertificates' => null,
-	) );
+	$request = wp_remote_get(
+		$url, array(
+			'timeout'         => 15,
+			'sslverify'       => false,
+			'sslcertificates' => null,
+		)
+	);
 
 	if ( ! empty( $request ) && ! is_wp_error( $request ) ) {
 
@@ -149,7 +143,7 @@ function edd_sl_readme_modify_license_response( $original_response = array(), $d
 		// existing sections with the custom readme.txt sections.
 		foreach ( (array) $readme_sections as $section ) {
 			if ( array_key_exists( $section, $readme['sections'] ) ) {
-				$response['sections'][ $section ] = $readme['sections']["$section"];
+				$response['sections'][ $section ] = $readme['sections'][ "$section" ];
 			}
 		}
 	}
@@ -168,7 +162,7 @@ function edd_sl_readme_modify_license_response( $original_response = array(), $d
 		// existing sections with the custom readme.txt sections.
 		foreach ( (array) $readme_meta as $meta ) {
 			if ( array_key_exists( $meta, $readme ) ) {
-				$response[ $meta ] = $readme["$meta"];
+				$response[ $meta ] = $readme[ "$meta" ];
 			}
 		}
 	}
@@ -257,7 +251,7 @@ function edd_sl_render_readme_cache_status() {
 
 	// The readme has been cached. Show the reset
 	if ( ! empty( $readme ) ) {
-		$message = sprintf( __( 'the file has been cached. %sClear cached file%s', 'edd_sl' ), '<a href="' . esc_url( add_query_arg( array( 'refresh' => 'readmecache' ) ) ) . '#edd_readme_cache" class="button button-secondary">', '</a>' );
+		$message = sprintf( __( 'the file has been cached. %1$sClear cached file%2$s', 'edd_sl' ), '<a href="' . esc_url( add_query_arg( array( 'refresh' => 'readmecache' ) ) ) . '#edd_readme_cache" class="button button-secondary">', '</a>' );
 	} else {
 		$message = __( 'the file is not cached.', 'edd_sl' );
 	}
@@ -307,8 +301,10 @@ function edd_sl_is_valid_readme_url( $url ) {
 	// Test if the $url string is formatted as an URL
 	$test_url = parse_url( $url );
 
-	return ( isset( $test_url['scheme'] ) && isset( $test_url['host'] ) && in_array( $test_url['scheme'], array(
+	return ( isset( $test_url['scheme'] ) && isset( $test_url['host'] ) && in_array(
+		$test_url['scheme'], array(
 			'http',
 			'https',
-		) ) );
+		)
+	) );
 }

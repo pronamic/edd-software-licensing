@@ -316,20 +316,18 @@ add_action( 'edd_sl_delete_license', 'edd_sl_delete_license' );
  * @return      void
 */
 function edd_sl_log_generated_license( $license_id, $d_id, $payment_id, $type ) {
-	$log_id = wp_insert_post(
-		array(
-			'post_title'   => sprintf( __( 'Missing License Generated: %s', 'edd_sl' ), $license_id ),
-			'post_type'    => 'edd_license_log',
-			'post_author'  => get_current_user_id(),
-			'post_content' => json_encode( array(
+	$license = EDD_Software_Licensing()->get_license( $license_id );
+
+	if ( $license ) {
+		$license->add_log(
+			sprintf( __( 'Missing License Generated: %s' ), $license_id ),
+			array(
 				'HTTP_USER_AGENT' => $_SERVER['HTTP_USER_AGENT'],
 				'REMOTE_ADDR'     => $_SERVER['REMOTE_ADDR'],
 				'REQUEST_TIME'    => $_SERVER['REQUEST_TIME']
-			) ),
-			'post_status'  => 'publish'
-		 )
-	);
-	add_post_meta( $log_id, '_edd_sl_log_license_id', $license_id );
+			)
+		);
+	}
 }
 
 
