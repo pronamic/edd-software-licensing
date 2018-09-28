@@ -1833,6 +1833,59 @@ class EDD_SL_License {
 	}
 
 	/**
+	 * Add license log.
+	 *
+	 * @since 3.6
+	 *
+	 * @param $title
+	 * @param string|array $message Message to add as a log. Arrays are converted to JSON.
+	 * @param string|array $type Log type(s).
+	 * @return int|WP_Error Log ID.
+	 */
+	public function add_log( $title, $message = null, $type = null ) {
+		$log_id = wp_insert_post(
+			array(
+				'post_title'   => $title,
+				'post_name'    => 'edd-license-log-' . $this->ID . '-' . md5( current_time( 'timestamp' ) ),
+				'post_type'    => 'edd_license_log',
+				'post_content' => is_array( $message ) ? json_encode( $message ) : $message,
+				'post_status'  => 'publish',
+				'post_author'  => get_current_user_id(),
+			)
+		);
+
+		add_post_meta( $log_id, '_edd_sl_log_license_id', $this->ID );
+
+		if ( ! is_null( $type ) ) {
+			wp_set_object_terms( $log_id, $type, 'edd_log_type', false );
+		}
+
+		return $log_id;
+	}
+
+	/**
+	 * Get the license logs.
+	 *
+	 * @since 3.6
+	 *
+	 * @return array List of logs.
+	 */
+	public function get_logs() {
+		$query_args = apply_filters( 'edd_sl_license_logs_query_args', array(
+			'post_type'              => 'edd_license_log',
+			'meta_key'               => '_edd_sl_log_license_id',
+			'meta_value'             => $this->ID,
+			'posts_per_page'         => 1000,
+			'no_found_rows'          => true,
+			'update_post_meta_cache' => false,
+		) );
+
+		$log_query = new WP_Query( $query_args );
+
+		return apply_filters( 'edd_sl_get_license_logs', $log_query->posts );
+	}
+
+	/**
 	 * Backfill customer ID if empty. In rare cases this was empty when keys were migrated in 3.6.
 	 * See https://github.com/easydigitaldownloads/EDD-Software-Licensing/issues/1300
 	 *

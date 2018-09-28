@@ -894,6 +894,7 @@ add_filter( 'edd_sl_send_scheduled_reminder_for_license', 'edd_sl_exclude_non_pu
  * Get the discount rate for renewals (as a percentage, eg 40%)
  *
  * @since 3.4
+ * @since 3.6.5 Supports returning 0 when a product has renewal discounts disabled.
  * @return int
  */
 function edd_sl_get_renewal_discount_percentage( $license_id = 0, $download_id = 0 ) {
@@ -901,6 +902,11 @@ function edd_sl_get_renewal_discount_percentage( $license_id = 0, $download_id =
 	// Check if the product has an individual discount amount
 	if( $download_id == 0 ) {
 		$download_id = edd_software_licensing()->get_download_id( $license_id );
+	}
+
+	$renewals_disabled = get_post_meta( $download_id, '_edd_sl_disable_renewal_discount', true );
+	if ( ! empty( $renewals_disabled ) ) {
+		return 0;
 	}
 
 	$renewal_discount = edd_sanitize_amount( get_post_meta( $download_id, '_edd_sl_renewal_discount', true ) );

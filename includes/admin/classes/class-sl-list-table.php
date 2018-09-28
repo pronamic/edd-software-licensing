@@ -170,21 +170,14 @@ class EDD_SL_List_Table extends WP_List_Table {
 		if ( current_user_can( 'manage_licenses' ) ) {
 			if ( empty( $license->parent ) ) {
 				if ( 'disabled' !== $license->status ) {
-					if ( $license->status === 'active' || ( $license->get_download()->is_bundled_download() && $license->status !== 'expired' ) ) {
-						$actions['deactivate'] = sprintf(
-							'<a href="%s&action=%s">' . __( 'Deactivate', 'edd_sl' ) . '</a>',
-							$base,
-							'deactivate'
-						 );
+					if ( 'expired' !== $license->status ) {
 						$actions['renew'] = sprintf( '<a href="%s&action=%s" title="' . __( 'Extend this license key\'s expiration date', 'edd_sl' ) . '">' . __( 'Extend', 'edd_sl' ) . '</a>', $base, 'renew' );
-					} elseif( $license->status == 'expired' ) {
-						$actions['renew'] = sprintf( '<a href="%s&action=%s">' . __( 'Renew', 'edd_sl' ) . '</a>', $base, 'renew' );
 					} else {
-						$actions['activate'] = sprintf( '<a href="%s&action=%s">' . __( 'Activate', 'edd_sl' ) . '</a>', $base, 'activate' );
+						$actions['renew'] = sprintf( '<a href="%s&action=%s">' . __( 'Renew', 'edd_sl' ) . '</a>', $base, 'renew' );
 					}
 				}
 
-				if( 'disabled' === $license->status ) {
+				if ( 'disabled' === $license->status ) {
 					$actions['enable'] = sprintf( '<a href="%s&action=%s">' . __( 'Enable', 'edd_sl' ) . '</a>', $base, 'enable' );
 				} else {
 					$actions['disable'] = sprintf( '<a href="%s&action=%s">' . __( 'Disable', 'edd_sl' ) . '</a>', $base, 'disable' );
@@ -371,8 +364,6 @@ class EDD_SL_List_Table extends WP_List_Table {
 	function get_bulk_actions() {
 
 		$actions = array(
-			'deactivate'     => __( 'Deactivate', 'edd_sl' ),
-			'activate'       => __( 'Activate', 'edd_sl' ),
 			'enable'         => __( 'Enable', 'edd_sl' ),
 			'disable'        => __( 'Disable', 'edd_sl' ),
 			'renewal_notice' => __( 'Send Renewal Notice', 'edd_sl' ),
@@ -419,14 +410,6 @@ class EDD_SL_List_Table extends WP_List_Table {
 			// No license found, move along.
 			if ( false === $license ) {
 				continue;
-			}
-
-			if ( 'deactivate' === $this->current_action() ) {
-				$license->status = 'inactive';
-			}
-
-			if ( 'activate' === $this->current_action() ) {
-				$license->status = 'active';
 			}
 
 			if ( 'enable' === $this->current_action() ) {
