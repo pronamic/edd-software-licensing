@@ -255,14 +255,12 @@ function edd_sl_send_renewal_notice() {
 			wp_die( __( 'You do not have permission to edit this license', 'edd_sl' ), __( 'Error', 'edd_sl' ), array( 'response' => 403 ) );
 		}
 
-
 		$emails         = new EDD_SL_Emails;
-		$notices        = edd_sl_get_renewal_notices();
 		$send_notice_id = absint( $_POST['notice_id'] );
 
 		if ( $emails->send_renewal_reminder( $license_id, $send_notice_id ) ) {
 			$return['success'] = true;
-			$return['url']     = admin_url( 'edit.php?post_type=download&page=edd-licenses&view=overview&license=' . $license_id . '&edd-message=send-notice' );
+			$return['url']     = admin_url( 'edit.php?post_type=download&page=edd-licenses&view=overview&license_id=' . $license_id . '&edd-message=send-notice' );
 		}
 	}
 
@@ -320,7 +318,7 @@ function edd_sl_log_generated_license( $license_id, $d_id, $payment_id, $type ) 
 
 	if ( $license ) {
 		$license->add_log(
-			sprintf( __( 'Missing License Generated: %s' ), $license_id ),
+			sprintf( __( 'Missing License Generated: %s', 'edd_sl' ), $license_id ),
 			array(
 				'HTTP_USER_AGENT' => $_SERVER['HTTP_USER_AGENT'],
 				'REMOTE_ADDR'     => $_SERVER['REMOTE_ADDR'],

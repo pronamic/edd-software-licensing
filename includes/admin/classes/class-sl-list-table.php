@@ -460,7 +460,7 @@ class EDD_SL_List_Table extends WP_List_Table {
 			}
 
 			if ( 'delete' === $this->current_action() ) {
-				wp_delete_post( $license->ID );
+				$license->delete();
 			}
 		}
 
@@ -481,9 +481,9 @@ class EDD_SL_List_Table extends WP_List_Table {
 		$licenses_data = array();
 
 		$license_args = array(
-			'posts_per_page' => $this->per_page,
-			'paged'          => $this->get_paged(),
-			'parent'         => 0
+			'number' => $this->per_page,
+			'paged'  => $this->get_paged(),
+			'parent' => 0
 		);
 
 		$view = isset( $_GET['view'] ) ? $_GET['view'] : false;

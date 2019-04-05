@@ -3,7 +3,7 @@
 Plugin Name: Easy Digital Downloads - Software Licensing
 Plugin URL: https://easydigitaldownloads.com/downloads/software-licensing/
 Description: Adds a software licensing system to Easy Digital Downloads
-Version: 3.6.5
+Version: 3.6.8
 Author: Easy Digital Downloads
 Author URI: https://easydigitaldownloads.com
 Contributors: easydigitaldownloads, mordauk, cklosows
@@ -24,7 +24,7 @@ if ( ! defined( 'EDD_SL_PLUGIN_FILE' ) ) {
 }
 
 if ( ! defined( 'EDD_SL_VERSION' ) ) {
-	define( 'EDD_SL_VERSION', '3.6.5' );
+	define( 'EDD_SL_VERSION', '3.6.8' );
 }
 
 class EDD_Software_Licensing {
@@ -466,16 +466,31 @@ class EDD_Software_Licensing {
 		$args = wp_parse_args( $args, $defaults );
 		$args = apply_filters( 'edd_sl_pre_activate_license_args', $args );
 
+		// Remove any leading or trailing whitespace from the values in the arguments. See GH#1452
+		$args = array_map( 'trim', $args );
+
 		extract( $args, EXTR_SKIP );
 
+		/**
+		 * Setup type hinting for the extracted args.
+		 *
+		 * @var string $key
+		 * @var string $item_name
+		 * @var int $item_id
+		 * @var int $expiration
+		 * @var string $url
+		 */
 		$license   = $this->get_license( $key, true );
 		$item_name = html_entity_decode( $item_name );
 
-		if( empty( $url ) ) {
+		if ( empty( $url ) && ! edd_software_licensing()->force_increase() ) {
 
 			// Attempt to grab the URL from the user agent if no URL is specified
 			$domain = array_map( 'trim', explode( ';', $_SERVER['HTTP_USER_AGENT'] ) );
-			$url    = trim( $domain[1] );
+
+			if ( ! empty( $domain[1] ) ) {
+				$url = trim( $domain[1] );
+			}
 
 		}
 
@@ -496,6 +511,11 @@ class EDD_Software_Licensing {
 			$result['error']   = 'missing';
 
 		} else {
+
+			if ( empty( $url ) && ! $this->force_increase( $license_id ) ) {
+				$result['success'] = false;
+				$result['error']   = 'missing_url';
+			}
 
 			$allow_bundle_activation = apply_filters( 'edd_sl_allow_bundle_activation', false, $license );
 
@@ -681,8 +701,20 @@ class EDD_Software_Licensing {
 		$args = wp_parse_args( $args, $defaults );
 		$args = apply_filters( 'edd_sl_pre_deactivate_license_args', $args );
 
+		// Remove any leading or trailing whitespace from the values in the arguments. See GH#1452
+		$args = array_map( 'trim', $args );
+
 		extract( $args, EXTR_SKIP );
 
+		/**
+		 * Setup type hinting for the extracted args.
+		 *
+		 * @var string $key
+		 * @var string $item_name
+		 * @var int $item_id
+		 * @var int $expiration
+		 * @var string $url
+		 */
 		$license = $this->get_license( $key, true );
 
 		if ( false === $license ) {
@@ -691,11 +723,14 @@ class EDD_Software_Licensing {
 
 		$item_name = html_entity_decode( $item_name );
 
-		if( empty( $url ) ) {
+		if ( empty( $url ) && ! edd_software_licensing()->force_increase() ) {
 
 			// Attempt to grab the URL from the user agent if no URL is specified
 			$domain = array_map( 'trim', explode( ';', $_SERVER['HTTP_USER_AGENT'] ) );
-			$url    = trim( $domain[1] );
+
+			if ( ! empty( $domain[1] ) ) {
+				$url = trim( $domain[1] );
+			}
 
 		}
 
@@ -742,7 +777,7 @@ class EDD_Software_Licensing {
 		}
 
 		// deactivate the site for the license
-		$license->remove_site( $url );
+		$removed = $license->remove_site( $url );
 
 		if ( ! $is_local_url ) {
 
@@ -752,7 +787,7 @@ class EDD_Software_Licensing {
 			do_action( 'edd_sl_deactivate_license', $license->ID, $license->download_id );
 		}
 
-		return true; // license has been deactivated
+		return $removed; // license has been deactivated
 
 	}
 
@@ -839,6 +874,8 @@ class EDD_Software_Licensing {
 		$args = wp_parse_args( $args, $defaults );
 		$args = apply_filters( 'edd_sl_pre_check_license_args', $args );
 
+		$args = array_map( 'trim', $args );
+
 		$license = $this->get_license( $args['key'], true );
 
 		if ( false === $license ) {
@@ -880,7 +917,7 @@ class EDD_Software_Licensing {
 			$status = 'disabled'; // License key disabled
 		} elseif ( 'active' != $license->status ) {
 			$status = 'inactive'; // this license is not active.
-		} elseif( ! $is_local_url && ! $license->is_site_active( $url ) ) {
+		} elseif ( ! $license->is_site_active( $url ) ) {
 			$status = 'site_inactive';
 		} else {
 			do_action( 'edd_sl_check_license', $license->ID, $license->download_id );
@@ -1863,9 +1900,11 @@ class EDD_Software_Licensing {
 			return array();
 		}
 
+		$customer = new EDD_Customer( $user_id, true );
+
 		$args = array(
 			'number'  => 50,
-			'user_id' => $user_id,
+			'customer_id' => $customer->id,
 			'orderby' => 'date_created',
 			'order'   => 'DESC',
 		);
@@ -2527,7 +2566,7 @@ class EDD_Software_Licensing {
 
 			if ( substr_count( $host, '.' ) > 1 ) {
 				$subdomains_to_check = apply_filters( 'edd_sl_url_subdomains', array(
-					'dev.', '*.staging.', '*.test.',
+					'dev.', '*.staging.', '*.test.', 'staging-*.',
 				) );
 
 				foreach ( $subdomains_to_check as $subdomain ) {

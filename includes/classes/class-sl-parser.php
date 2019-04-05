@@ -57,6 +57,10 @@ class EDD_SL_Readme_Parser extends Parser {
 			$data[ $key ] = 'contributors' === $key ? $this->create_contributors( $value ) : $value;
 		}
 		$data = $this->faq_as_h4( $data );
+		$data = $this->readme_section_as_h4( 'changelog', $data );
+		$data = $this->readme_section_as_h4( 'description', $data );
+
+		@unlink( WP_CONTENT_DIR . '/edd-sl-tmp-readme.txt' );
 
 		return $data;
 	}
@@ -84,7 +88,7 @@ class EDD_SL_Readme_Parser extends Parser {
 			$contributors[ $contributor ]['display_name'] = $contributor;
 			$contributors[ $contributor ]['profile']      = '//profiles.wordpress.org/' . $contributor;
 			$contributors[ $contributor ]['avatar']       = 'https://wordpress.org/grav-redirect.php?user=' . $contributor;
-			if ( $wp_version < '5.0-alpha-42631' ) {
+			if ( $wp_version < '5.1-alpha' ) {
 				$contributors[ $contributor ] = '//profiles.wordpress.org/' . $contributor;
 			}
 		}
@@ -108,6 +112,26 @@ class EDD_SL_Readme_Parser extends Parser {
 		foreach ( $data['faq'] as $question => $answer ) {
 			$data['sections']['faq'] .= "<h4>{$question}</h4>\n{$answer}\n";
 		}
+
+		return $data;
+	}
+
+	/**
+	 * Converts wp.org readme section items to h4 style.
+	 *
+	 * @param string $section Readme section.
+	 * @param array  $data Array of parsed readme data.
+	 *
+	 * @return array $data
+	 */
+	public function readme_section_as_h4( $section, $data ) {
+		if ( empty( $data['sections'][ $section ] ) || false !== strpos( $data['sections'][ $section ], '<h4>' ) ) {
+			return $data;
+		}
+		$pattern = '~<p>=(.*)=</p>~';
+		$replace = '<h4>$1</h4>';
+
+		$data['sections'][ $section ] = preg_replace( $pattern, $replace, $data['sections'][ $section ] );
 
 		return $data;
 	}

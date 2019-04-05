@@ -34,39 +34,50 @@ add_filter( 'edd_api_products_product', 'edd_sl_products_product_api', 10, 1 );
  * @return array $sales   The modified sales data
  */
 function edd_sl_sales_api( $sales ) {
-	foreach( $sales['sales'] as $id => $sale ) {
 
-		$sales['sales'][ $id ]['licenses'] = array();
+	if( ! empty( $sales['sales'] ) ) {
 
-		if ( ! $sale['ID'] ) {
-			continue;
-		}
+		foreach( $sales['sales'] as $id => $sale ) {
 
-		$licenses = edd_software_licensing()->get_licenses_of_purchase( $sale['ID'] );
+			$sales['sales'][ $id ]['licenses'] = array();
 
-		if( ! empty( $licenses ) ) {
-			$i = 0;
+			if ( ! $sale['ID'] ) {
+				continue;
+			}
 
-			foreach( $licenses as $license ) {
-				$key      = edd_software_licensing()->get_license_key( $license->ID );
-				$download = edd_software_licensing()->get_download_id( $license->ID );
-				$price_id = edd_software_licensing()->get_price_id( $license->ID );
-				$title    = get_the_title( $download );
-				$status   = edd_software_licensing()->get_license_status( $license->ID );
+			$payment  = edd_get_payment_by( 'key', $sale['key'] );
+			if ( empty( $payment ) ) {
+				continue;
+			}
 
-				if( edd_has_variable_prices( $download ) ) {
-					$title .= ' - ' . edd_get_price_option_name( $download, $price_id );
+			$licenses = edd_software_licensing()->get_licenses_of_purchase( $payment->ID );
+
+			if( ! empty( $licenses ) ) {
+				$i = 0;
+
+				foreach( $licenses as $license ) {
+					$key      = edd_software_licensing()->get_license_key( $license->ID );
+					$download = edd_software_licensing()->get_download_id( $license->ID );
+					$price_id = edd_software_licensing()->get_price_id( $license->ID );
+					$title    = get_the_title( $download );
+					$status   = edd_software_licensing()->get_license_status( $license->ID );
+
+					if( edd_has_variable_prices( $download ) ) {
+						$title .= ' - ' . edd_get_price_option_name( $download, $price_id );
+					}
+
+					$sales['sales'][ $id ]['licenses'][ $i ]['id']     = $license->ID;
+					$sales['sales'][ $id ]['licenses'][ $i ]['name']   = $title;
+					$sales['sales'][ $id ]['licenses'][ $i ]['status'] = $status;
+					$sales['sales'][ $id ]['licenses'][ $i ]['key']    = ( $license ? $key : 'none' );
+
+					$i++;
 				}
 
-				$sales['sales'][ $id ]['licenses'][ $i ]['id']     = $license->ID;
-				$sales['sales'][ $id ]['licenses'][ $i ]['name']   = $title;
-				$sales['sales'][ $id ]['licenses'][ $i ]['status'] = $status;
-				$sales['sales'][ $id ]['licenses'][ $i ]['key']    = ( $license ? $key : 'none' );
-
-				$i++;
 			}
 
 		}
+
 	}
 
 	return $sales;

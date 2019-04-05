@@ -182,7 +182,13 @@ class EDD_SL_License {
 		}
 
 		foreach ( get_object_vars( $license ) as $key => $value ) {
-			$this->{$key} = $value;
+
+			if( ( 'user_id' === $key && ! empty( $value ) ) || 'user_id' !== $key ) {
+
+				$this->{$key} = $value;
+
+			}
+
 		}
 
 		$this->ID     = absint( $license->id );
@@ -198,9 +204,12 @@ class EDD_SL_License {
 
 		$this->sites            = $this->get_sites();
 		$this->activation_limit = $this->get_activation_limit();
+		$this->user_id          = $this->get_user_id();
 
 		$this->maybe_backfill_customer();
 		$this->maybe_backfill_payment();
+
+		$this->user_id = $this->get_user_id();
 
 		$this->exists = true;
 
@@ -462,6 +471,17 @@ class EDD_SL_License {
 	 * @return array      If the row was updated
 	 */
 	public function update( $data = array() ) {
+
+		if( array_key_exists( 'user_id', $data ) ) {
+
+			/*
+			 * The user ID is not permitted to be updated here. It is retrieved from the customer during setup()
+			 *
+			 * See https://github.com/easydigitaldownloads/EDD-Software-Licensing/issues/1441
+			 */
+			unset( $data['user_id'] );
+		}
+
 		return edd_software_licensing()->licenses_db->update( $this->ID, $data );
 	}
 
@@ -511,19 +531,6 @@ class EDD_SL_License {
 				$this->add_meta( '_edd_sl_payment_id', $payment_id, false );
 			}
 
-			$child_licenses = $this->get_child_licenses();
-			// If this item has child licenses, renew them as well
-			if ( ! empty( $child_licenses ) ) {
-				foreach ( $this->child_licenses as $child_license ) {
-
-					if ( $this->is_lifetime ) {
-						$child_license->set_is_lifetime( true );
-					} else {
-						$child_license->renew( $payment_id );
-					}
-				}
-			}
-
 		}
 
 		do_action( 'edd_sl_post_license_renewal', $this->ID, $new_expiration );
@@ -558,7 +565,7 @@ class EDD_SL_License {
 	 * @return bool
 	 */
 	public function disable() {
-		$updated = $this->update( array( 'status' => 'disabled' ) );
+		$updated = $this->set_status( 'disabled' );
 
 		if ( $updated ) {
 			$child_licenses = $this->get_child_licenses();
@@ -764,9 +771,6 @@ class EDD_SL_License {
 	 * @return int
 	 */
 	private function get_user_id() {
-		if ( ! is_null( $this->user_id ) ) {
-			return $this->user_id;
-		}
 
 		$user_id = $this->user_id;
 
@@ -777,11 +781,22 @@ class EDD_SL_License {
 			$user_id    = $payment->user_id;
 
 			if ( ! empty( $user_id ) ) {
-				$this->user_id = $user_id;
+
 				edd_software_licensing()->licenses_db->update( $this->ID, array( 'user_id' => $user_id ) );
+
+			}
+
+		} else {
+
+			if( (int) $user_id !== (int) $this->get_customer()->user_id ) {
+
+				$user_id = $this->get_customer()->user_id;
+				edd_software_licensing()->licenses_db->update( $this->ID, array( 'user_id' => $user_id ) );
+
 			}
 
 		}
+
 		$this->user_id = $user_id;
 
 		return (int) $this->user_id;
@@ -1424,6 +1439,23 @@ class EDD_SL_License {
 		return array_unique( apply_filters( 'edd_sl_get_sites', $this->sites, $this->ID ) );
 	}
 
+	/**
+	 * Returns an array of activation records, including all activation details for a license.
+	 *
+	 * @since 3.6.6
+	 * @return array
+	 */
+	public function get_activations() {
+		$args = array( 'number' => -1, 'license_id' => $this->ID, 'activated' => 1 );
+		$activations = edd_software_licensing()->activations_db->get_activations( $args );
+
+		if ( empty( $activations ) ) {
+			$activations = array();
+		}
+
+		return apply_filters( 'edd_sl_get_license_activations', $activations, $this->ID );
+	}
+
 	public function get_download() {
 		if ( ! is_null( $this->download ) && is_object( $this->download ) ) {
 			return $this->download;
@@ -1495,10 +1527,14 @@ class EDD_SL_License {
 	 *
 	 * @return bool|int
 	 */
-	public function remove_site( $site ) {
+	public function remove_site( $site = '' ) {
 
-		$site    = trailingslashit( edd_software_licensing()->clean_site_url( $site ) );
-		$removed = false;
+		if ( is_numeric( $site ) ) {
+			$site = absint( $site );
+		} else {
+			$site    = trailingslashit( edd_software_licensing()->clean_site_url( $site ) );
+			$removed = false;
+		}
 
 		if ( edd_software_licensing()->force_increase() ) {
 			$current_activation_count = $this->get_activation_count();
@@ -1507,10 +1543,20 @@ class EDD_SL_License {
 		}
 
 		$args   = array(
-			'site_name'  => $site,
 			'license_id' => $this->ID,
 			'fields'     => 'site_id',
 		);
+
+		if ( is_numeric( $site ) ) {
+			$args['site_id'] = $site;
+		} else {
+			$args['site_name'] = $site;
+		}
+
+		// We can't remove a site if we don't have a site to remove;
+		if ( empty( $args['site_id'] ) && empty( $args['site_name'] ) ) {
+			return false;
+		}
 
 		// Check for this site being active for the license
 		$exists = edd_software_licensing()->activations_db->get_activations( $args );
@@ -1657,6 +1703,10 @@ class EDD_SL_License {
 			return; // Statuses are the same
 		}
 
+		if ( 'disabled' === $this->status && 'expired' === strtolower( $status ) ) {
+			return false; // Do not allow a disabled license to be changed to expired.
+		}
+
 		do_action( 'edd_sl_pre_set_status', $this->ID, $status );
 
 		$updated = edd_software_licensing()->licenses_db->update( $this->ID, array( 'status' => $status ) );
@@ -1712,8 +1762,9 @@ class EDD_SL_License {
 		$updated = $this->update( array( 'expiration' => $expiration ) );
 
 		if ( $updated ) {
-			// Change status to expired when expiration date is in the past
-			if( $expiration < current_time( 'timestamp' ) ) {
+
+			// Change status to expired when expiration date is in the past. Note: an empty expiration means a lifetime license. 
+			if( ! empty( $expiration ) && $expiration < current_time( 'timestamp' ) ) {
 				$this->set_status( 'expired' );
 			} else {
 				$this->set_status( 'active' );
