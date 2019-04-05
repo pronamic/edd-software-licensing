@@ -44,6 +44,10 @@ class EDD_SL_Emails {
 			return false;
 		}
 
+		if( ! edd_get_option( 'edd_sl_send_renewal_reminders', false ) ) {
+			return false;
+		}
+
 		$send    = true;
 		$license = edd_software_licensing()->get_license( $license_id );
 
@@ -108,7 +112,7 @@ class EDD_SL_Emails {
 
 		if( $sent ) {
 
-			$log_id = $license->add_log( __( 'LOG - Renewal Notice Sent', 'edd_sl' ), null, 'renewal_notice' );
+			$log_id = $license->add_log( __( 'LOG - Renewal Notice Sent', 'edd_sl' ), __( 'Sent via the send_renewal_reminder method.', 'edd_sl' ), 'renewal_notice' );
 			add_post_meta( $log_id, '_edd_sl_renewal_notice_id', $notice_id );
 
 			$license->update_meta( sanitize_key( '_edd_sl_renewal_sent_' . $notice['send_period'] ), current_time( 'timestamp' ) ); // Prevent renewal notices from being sent more than once

@@ -137,6 +137,16 @@ class EDD_SL_License_DB extends EDD_SL_DB {
 
 		$args = wp_parse_args( $args, $defaults );
 
+		// If there is a 'customer_id' present in the args, and it's set to 0, return no results.
+		if ( isset( $args['customer_id'] ) && ( 0 == $args['customer_id'] || '0' == $args['customer_id'] ) ) {
+			return array();
+		}
+
+		// If there is a 'user_id' present in the args, and it's set to 0, return no results.
+		if ( isset( $args['user_id'] ) && ( 0 == $args['user_id'] || '0' == $args['user_id'] ) ) {
+			return array();
+		}
+
 		if( $args['number'] < 1 ) {
 			$args['number'] = 999999999999;
 		}
@@ -287,10 +297,10 @@ class EDD_SL_License_DB extends EDD_SL_DB {
 			if( is_array( $args['license_key'] ) ) {
 				$keys = $this->prepare_in_values( $args['license_key'] );
 			} else {
-				$keys = sanitize_text_field( $args['license_key'] );
+				$keys = "'" . sanitize_text_field( $args['license_key'] ) . "'";
 			}
 
-			$where .= " AND l1.license_key IN( '{$keys}' ) ";
+			$where .= " AND l1.license_key IN( {$keys} ) ";
 
 		}
 
@@ -378,7 +388,7 @@ class EDD_SL_License_DB extends EDD_SL_DB {
 				$download_ids = absint( $args['download_id'] );
 			}
 
-			$where .= " AND l1.download_id IN( '{$download_ids}' ) ";
+			$where .= " AND l1.download_id IN( {$download_ids} ) ";
 
 		}
 
@@ -391,7 +401,7 @@ class EDD_SL_License_DB extends EDD_SL_DB {
 				$price_ids = absint( $args['price_id'] );
 			}
 
-			$where .= " AND l1.price_id IN( '{$price_ids}' ) ";
+			$where .= " AND l1.price_id IN( {$price_ids} ) ";
 
 		}
 
@@ -401,10 +411,10 @@ class EDD_SL_License_DB extends EDD_SL_DB {
 			if( is_array( $args['status'] ) ) {
 				$statuses = $this->prepare_in_values( $args['status'] );
 			} else {
-				$statuses = sanitize_text_field( $args['status'] );
+				$statuses = "'" . sanitize_text_field( $args['status'] ) . "'";
 			}
 
-			$where .= " AND l1.status IN( '{$statuses}' ) ";
+			$where .= " AND l1.status IN( {$statuses} ) ";
 
 		} else {
 			$where .= " AND l1.status != 'private' ";
@@ -575,7 +585,7 @@ class EDD_SL_License_DB extends EDD_SL_DB {
 			return '';
 		}
 
-		return implode( "','", array_map( $sanitize_callback, $array ) );
+		return "'" . implode( "','", array_map( $sanitize_callback, $array ) ) . "'";
 	}
 
 }

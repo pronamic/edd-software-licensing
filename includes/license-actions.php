@@ -79,8 +79,16 @@ function edd_sl_process_deactivate_site() {
 		return;
 	}
 
-	$site_url = urldecode( $_GET['site_url'] );
-	$license->remove_site( $site_url );
+	$site_url = ! empty( $_GET['site_url'] ) ? urldecode( $_GET['site_url'] ) : false;
+	$site_id  = ! empty( $_GET['site_id'] ) ? absint( $_GET['site_id'] ) : false;
+
+	if ( empty( $site_url ) && empty( $site_id ) ) {
+		wp_die( __( 'Invalid site specified.', 'edd_sl' ) );
+	}
+
+	$site = ! empty( $site_id ) ? $site_id : $site_url;
+
+	$license->remove_site( $site );
 
 	$url = remove_query_arg( array( 'edd_action', 'site_url', 'edd_sl_error', '_wpnonce', 'license' ) );
 	wp_safe_redirect( $url ); exit;
