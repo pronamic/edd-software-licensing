@@ -39,7 +39,7 @@ class EDD_SL_DB extends EDD_DB {
 	public function insert( $data, $type = '' ) {
 		global $wpdb;
 
-		$insert_id = parent::insert( $data, $type = '' );
+		$insert_id = parent::insert( $data, $type );
 
 		if ( ! empty( $insert_id ) && $this->use_cache() ) {
 

@@ -579,14 +579,14 @@ function edd_sl_licenses_view( $license ) {
 			</thead>
 			<tbody>
 				<?php
-				$sites = $license->sites;
+				$sites = $license->get_activations();
 				if( ! empty( $sites ) ) :
 					$i = 0;
 					foreach( $sites as $site ) : ?>
-						<?php $site_url = strpos( $site, 'http' ) !== false ? $site : 'http://' . $site; ?>
+						<?php $site_url = strpos( $site->site_name, 'http' ) !== false ? $site->site_name : 'http://' . $site->site_name; ?>
 						<tr class="row<?php if( $i % 2 == 0 ) { echo ' alternate'; } ?>">
-							<td><a href="<?php echo $site_url; ?>" target="_blank"><?php echo $site; ?></a></td>
-							<td><a href="<?php echo wp_nonce_url( add_query_arg( array( 'edd_action' => 'deactivate_site', 'site_url' => $site, 'license' => $license->ID ) ), 'edd_deactivate_site_nonce' ); ?>"><?php _e( 'Deactivate Site', 'edd_sl' ); ?></a></td>
+							<td><a href="<?php echo $site_url; ?>" target="_blank"><?php echo $site->site_name; ?></a></td>
+							<td><a href="<?php echo wp_nonce_url( add_query_arg( array( 'edd_action' => 'deactivate_site', 'site_id' => $site->site_id, 'license' => $license->ID ) ), 'edd_deactivate_site_nonce' ); ?>"><?php _e( 'Deactivate Site', 'edd_sl' ); ?></a></td>
 						</tr>
 						<?php
 						$i++;

@@ -55,6 +55,9 @@ function edd_sl_show_upgrade_notice() {
 	$license_logs_updated    = edd_has_upgrade_completed( 'migrate_license_logs' );
 	$removed_legacy_licenses = edd_has_upgrade_completed( 'remove_legacy_licenses' );
 
+	// See https://github.com/easydigitaldownloads/EDD-Software-Licensing/issues/1499
+	$fix_no_url_check_activation_counts = edd_has_upgrade_completed( 'fix_no_url_check_activation_counts' );
+
 	if ( ! $licenses_migrated ) {
 
 
@@ -115,6 +118,23 @@ function edd_sl_show_upgrade_notice() {
 			'</div>',
 			esc_url( admin_url( 'index.php?page=edd-sl-upgrades&edd-upgrade=licenses_migration' ) )
 		);
+	}
+
+	if ( $licenses_migrated && ! $fix_no_url_check_activation_counts ) {
+		$url_checking_disabled = edd_software_licensing()->force_increase();
+		if ( false === $url_checking_disabled ) {
+			edd_set_upgrade_complete( 'fix_no_url_check_activation_counts' );
+		} else {
+			printf(
+				'<div class="updated">' .
+				'<p>' .
+				__( 'Easy Digital Downloads - Software Licensing needs to <a href="%s">update your license activation records</a>.', 'edd_sl' ) .
+				'</p>' .
+				'</div>',
+				esc_url( admin_url( 'index.php?page=edd-sl-upgrades&edd-upgrade=fix_no_url_check_activation_counts' ) )
+			);
+		}
+
 	}
 }
 add_action( 'admin_notices', 'edd_sl_show_upgrade_notice' );
@@ -373,6 +393,7 @@ function edd_sl_render_licenses_migration() {
 }
 add_action( 'edd_sl_render_licenses_migration', 'edd_sl_render_licenses_migration' );
 
+// Register all the Batch Processors for the Migration:
 function edd_sl_register_batch_license_migration() {
 	add_action( 'edd_batch_export_class_include', 'edd_sl_include_sl_license_migration_batch_processor', 10, 1 );
 }
@@ -425,6 +446,95 @@ function edd_sl_include_sl_legacy_license_removal_batch_processor( $class ) {
 
 	if ( 'EDD_SL_Remove_Legacy_Licenses' === $class ) {
 		require_once EDD_SL_PLUGIN_DIR . 'includes/admin/classes/class-sl-legacy-license-removal.php';
+	}
+
+}
+
+/**
+ * Fix an issue that was causing the _edd_sl_activation_count meta from being removed from all licenses when licenses
+ * with the meta key defined were deleted.
+ *
+ * @since 3.6.8
+ */
+function edd_sl_render_fix_no_url_check_activation_counts() {
+	if ( edd_has_upgrade_completed( 'fix_no_url_check_activation_counts' ) ) {
+		?>
+		<div class="notice notice-success">
+			<p>
+				<?php _e( 'This upgrade has already been completed.', 'edd_sl' ); ?>
+			</p>
+		</div>
+		<?php
+		return;
+	}
+	?>
+	<div id="edd-sl-migration-nav-warn" class="notice notice-info">
+		<p>
+			<?php _e( '<strong>Important:</strong> Please leave this screen open and do not navigate away until the process completes.', 'edd_sl' ); ?>
+		</p>
+	</div>
+
+	<style>
+		.dashicons.dashicons-yes { display: none; color: rgb(0, 128, 0); vertical-align: middle; }
+	</style>
+
+	<script>
+		$( document ).ready(function() {
+			$(document).on("DOMNodeInserted", function (e) {
+				var element = e.target;
+
+				if ( element.id === 'edd-batch-success' ) {
+					element = $(element);
+					var element_wrapper = element.parents().eq(4);
+					element_wrapper.find('.dashicons.dashicons-yes').show();
+					$('.edd-sl-fix-license-activations').hide();
+				}
+			});
+		});
+	</script>
+
+	<div class="metabox-holder">
+		<div class="postbox">
+			<h2 class="hndle">
+				<span><?php _e( 'Update License Activation Records', 'edd_sl' ); ?></span>
+				<span class="dashicons dashicons-yes"></span>
+			</h2>
+			<div class="inside update-licenses-control">
+				<p>
+					<?php _e( 'This will check your license activation counts, and use the activation logs to correct any discrepancies in the activation counts.', 'edd_sl' ); ?>
+				</p>
+				<form method="post" id="edd-sl-fix-license-activation-form" class="edd-export-form edd-import-export-form">
+					<span class="step-instructions-wrapper">
+
+						<?php wp_nonce_field( 'edd_ajax_export', 'edd_ajax_export' ); ?>
+
+						<span class="edd-sl-fix-license-activations allowed">
+							<input type="submit" id="fix-license-activation-submit" value="<?php _e( 'Update Activation Counts', 'edd_sl' ); ?>" class="button-primary"/>
+						</span>
+
+						<input type="hidden" name="edd-export-class" value="EDD_SL_License_Activation_Count_Fix" />
+						<span class="spinner"></span>
+
+					</span>
+				</form>
+			</div><!-- .inside -->
+		</div><!-- .postbox -->
+	</div>
+	<?php
+}
+add_action( 'edd_sl_render_fix_no_url_check_activation_counts', 'edd_sl_render_fix_no_url_check_activation_counts' );
+
+// Register the batch processor for the activation count fix:
+function edd_sl_register_batch_license_activation_count_fix() {
+	add_action( 'edd_batch_export_class_include', 'edd_sl_include_sl_license_activation_count_fix', 10, 1 );
+}
+add_action( 'edd_register_batch_exporter', 'edd_sl_register_batch_license_activation_count_fix', 10 );
+
+
+function edd_sl_include_sl_license_activation_count_fix( $class ) {
+
+	if ( 'EDD_SL_License_Activation_Count_Fix' === $class ) {
+		require_once EDD_SL_PLUGIN_DIR . 'includes/admin/classes/class-sl-fix-license-activation-counts.php';
 	}
 
 }

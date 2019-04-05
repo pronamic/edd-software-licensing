@@ -206,7 +206,7 @@ class EDD_SL_License_Meta_DB extends EDD_SL_DB {
 		$sql   = 'SELECT meta_key, meta_value FROM ' . $table . ' WHERE license_id = %d';
 		$meta  = $wpdb->get_results( $wpdb->prepare( $sql, $license_id ) );
 		foreach ( $meta as $meta_row ) {
-			$this->delete_meta( $license_id, $meta_row->meta_key, $meta_row->meta_value, true );
+			$this->delete_meta( $license_id, $meta_row->meta_key, $meta_row->meta_value );
 		}
 	}
 

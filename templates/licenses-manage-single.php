@@ -16,14 +16,16 @@ if( ! current_user_can( 'manage_licenses' ) && $user_id != get_current_user_id()
 $color = edd_get_option( 'checkout_color', 'gray' );
 $color = ( $color == 'inherit' ) ? '' : $color;
 
+
+$license = edd_software_licensing()->get_license( $license_id );
 // Retrieve all sites for the specified license
-$sites = edd_software_licensing()->get_sites( $license_id );
+$sites = $license->get_activations();
 ?>
 <p><a href="<?php echo esc_url( remove_query_arg( array( 'license_id', 'edd_sl_error', '_wpnonce' ) ) ); ?>" class="edd-manage-license-back edd-submit button <?php echo esc_attr( $color ); ?>"><?php _e( 'Go back', 'edd_sl' ); ?></a></p>
 <?php edd_sl_show_errors(); ?>
 <h5 class="edd-sl-manage-license-header"><?php _e( 'Manage License', 'edd_sl' ); ?></h5>
 <p class="edd-sl-manage-license-details">
-	<span class="edd-sl-manage-license-key"><?php _e( 'License', 'edd_sl' ); ?>: <?php echo '<code>' . edd_software_licensing()->get_license_key( $license_id ) . '</code>'; ?></span>
+	<span class="edd-sl-manage-license-key"><?php _e( 'License', 'edd_sl' ); ?>: <?php echo '<code>' . $license->key . '</code>'; ?></span>
 	<span class="edd-sl-manage-license-product"><?php _e( 'Product', 'edd_sl' ); ?>: <span><?php echo $download->get_name(); ?></span></span>
 </p>
 <table id="edd_sl_license_sites" class="edd_sl_table edd-table">
@@ -39,8 +41,8 @@ $sites = edd_software_licensing()->get_sites( $license_id );
 		<?php foreach ( $sites as $site ) : ?>
 			<tr class="edd_sl_license_row">
 				<?php do_action( 'edd_sl_license_sites_row_start', $license_id ); ?>
-				<td><?php echo $site; ?></td>
-				<td><a href="<?php echo wp_nonce_url( add_query_arg( array( 'edd_action' => 'deactivate_site', 'site_url' => $site, 'license' => $license_id ) ), 'edd_deactivate_site_nonce', '_wpnonce' ); ?>"><?php _e( 'Deactivate Site', 'edd_sl' ); ?></a></td>
+				<td><?php echo $site->site_name; ?></td>
+				<td><a href="<?php echo wp_nonce_url( add_query_arg( array( 'edd_action' => 'deactivate_site', 'site_id' => $site->site_id, 'license' => $license_id ) ), 'edd_deactivate_site_nonce', '_wpnonce' ); ?>"><?php _e( 'Deactivate Site', 'edd_sl' ); ?></a></td>
 				<?php do_action( 'edd_sl_license_sites_row_end', $license_id ); ?>
 			</tr>
 		<?php endforeach; ?>
@@ -53,8 +55,8 @@ $sites = edd_software_licensing()->get_sites( $license_id );
 	<?php endif; ?>
 </table>
 
-<?php $status   = edd_software_licensing()->get_license_status( $license_id ); ?>
-<?php $at_limit = edd_software_licensing()->is_at_limit( $license_id, $download_id ); ?>
+<?php $status   = $license->status; ?>
+<?php $at_limit = $license->is_at_limit(); ?>
 
 <?php if ( ! $at_limit && ( $status == 'active' || $status == 'inactive' ) && 'disabled' !== $status ) : ?>
 <form method="post" id="edd_sl_license_add_site_form" class="edd_sl_form">
