@@ -1,23 +1,36 @@
 <?php
 
+/**
+ * Registers the Software Licensing upgrades screen.
+ *
+ * @return void
+ */
 function edd_sl_register_upgrades_page() {
-
-	if( ! function_exists( 'EDD' ) ) {
-		return;
-	}
-
-	add_submenu_page( null, __( 'EDD SL Upgrades', 'edd_sl' ), __( 'EDD Upgrades', 'edd_sl' ), 'install_plugins', 'edd-sl-upgrades', 'edd_sl_upgrades_screen' );
+	add_submenu_page( 'index.php', __( 'EDD SL Upgrades', 'edd_sl' ), __( 'EDD Upgrades', 'edd_sl' ), 'manage_options', 'edd-sl-upgrades', 'edd_sl_upgrades_screen' );
+	add_action( 'admin_head', 'edd_sl_hide_upgrades_page' );
 }
 add_action( 'admin_menu', 'edd_sl_register_upgrades_page', 10 );
+
+/**
+ * Hides the upgrades page from the menu.
+ *
+ * @since 3.8.10
+ * @return void
+ */
+function edd_sl_hide_upgrades_page() {
+	remove_submenu_page( 'index.php', 'edd-sl-upgrades' );
+}
 
 function edd_sl_upgrades_screen() {
 	add_filter( 'edd_load_admin_scripts', '__return_true' );
 	?>
 	<div class="wrap">
-		<h2><?php _e( 'Software Licensing - Upgrades', 'edd_sl' ); ?></h2>
+		<h2><?php esc_html_e( 'Software Licensing - Upgrades', 'edd_sl' ); ?></h2>
 		<?php
-		$routine = sanitize_key( $_GET['edd-upgrade'] );
-		do_action( 'edd_sl_render_' . $routine );
+		if ( ! empty( $_GET['edd-upgrade'] ) ) {
+			$routine = sanitize_key( $_GET['edd-upgrade'] );
+			do_action( 'edd_sl_render_' . $routine );
+		}
 		?>
 	</div>
 	<?php
@@ -58,8 +71,10 @@ function edd_sl_show_upgrade_notice() {
 	// See https://github.com/easydigitaldownloads/EDD-Software-Licensing/issues/1499
 	$fix_no_url_check_activation_counts = edd_has_upgrade_completed( 'fix_no_url_check_activation_counts' );
 
-	if ( ! $licenses_migrated ) {
+	// See https://github.com/easydigitaldownloads/EDD-Software-Licensing/issues/1456
+	$increase_license_key_column = edd_has_upgrade_completed( 'increase_license_key_column' );
 
+	if ( ! $licenses_migrated ) {
 
 		// Check to see if we have licenses in the Database
 		$results      = $wpdb->get_row( "SELECT count(ID) as has_licenses FROM $wpdb->posts WHERE post_type = 'edd_license' LIMIT 0, 1" );
@@ -70,6 +85,11 @@ function edd_sl_show_upgrade_notice() {
 			edd_set_upgrade_complete( 'migrate_license_parent_child' );
 			edd_set_upgrade_complete( 'migrate_license_logs' );
 			edd_set_upgrade_complete( 'remove_legacy_licenses' );
+		} elseif ( function_exists( 'edd_get_orders' ) && ! edd_has_upgrade_completed( 'migrate_orders' ) ) {
+			printf(
+				'<div class="notice notice-info"><p>%s</p></div>',
+				esc_html__( 'Your Software Licensing database needs an upgrade. Once you have completed the migration to Easy Digital Downloads 3.0, the upgrade prompt will appear here.', 'edd_sl' )
+			);
 		} else {
 			printf(
 				'<div class="updated">' .
@@ -134,7 +154,13 @@ function edd_sl_show_upgrade_notice() {
 				esc_url( admin_url( 'index.php?page=edd-sl-upgrades&edd-upgrade=fix_no_url_check_activation_counts' ) )
 			);
 		}
+	}
 
+	if ( ! $increase_license_key_column ) {
+		global $wpdb;
+		$table_name = $wpdb->prefix . 'edd_licenses';
+		$wpdb->query( "ALTER TABLE {$table_name} MODIFY license_key varchar(255) NOT NULL;" );
+		edd_set_upgrade_complete( 'increase_license_key_column' );
 	}
 }
 add_action( 'admin_notices', 'edd_sl_show_upgrade_notice' );
@@ -190,7 +216,9 @@ function edd_sl_render_licenses_migration() {
 		.dashicons.dashicons-yes { display: none; color: rgb(0, 128, 0); vertical-align: middle; }
 	</style>
 	<?php if ( ! $removal_complete ) : ?>
+	<?php wp_enqueue_script( 'edd-admin-tools-export' ); ?>
 	<script>
+	( function ( $ ) {
 		$( document ).ready(function() {
 			$(document).on("DOMNodeInserted", function (e) {
 				var element = e.target;
@@ -228,6 +256,7 @@ function edd_sl_render_licenses_migration() {
 				}
 			});
 		});
+	} );
 	</script>
 	<?php endif; ?>
 
@@ -478,19 +507,22 @@ function edd_sl_render_fix_no_url_check_activation_counts() {
 		.dashicons.dashicons-yes { display: none; color: rgb(0, 128, 0); vertical-align: middle; }
 	</style>
 
+	<?php wp_enqueue_script( 'jquery' ); ?>
 	<script>
-		$( document ).ready(function() {
-			$(document).on("DOMNodeInserted", function (e) {
-				var element = e.target;
+		( function( $ ) {
+			$( document ).ready(function() {
+				$(document).on("DOMNodeInserted", function (e) {
+					var element = e.target;
 
-				if ( element.id === 'edd-batch-success' ) {
-					element = $(element);
-					var element_wrapper = element.parents().eq(4);
-					element_wrapper.find('.dashicons.dashicons-yes').show();
-					$('.edd-sl-fix-license-activations').hide();
-				}
+					if ( element.id === 'edd-batch-success' ) {
+						element = $(element);
+						var element_wrapper = element.parents().eq(4);
+						element_wrapper.find('.dashicons.dashicons-yes').show();
+						$('.edd-sl-fix-license-activations').hide();
+					}
+				});
 			});
-		});
+		}(jQuery) );
 	</script>
 
 	<div class="metabox-holder">

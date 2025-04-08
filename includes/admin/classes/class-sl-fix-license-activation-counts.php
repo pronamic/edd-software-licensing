@@ -117,7 +117,7 @@ class EDD_SL_License_Activation_Count_Fix extends EDD_Batch_Export {
 	public function get_percentage_complete() {
 
 		$items = $this->get_stored_data( 'edd_sl_license_ids_to_fix', false );
-		$total = is_countable( $items ) ? count( $items ) : 0;
+		$total = ! empty( $items ) ? count( $items ) : 0;
 
 		$percentage = 100;
 

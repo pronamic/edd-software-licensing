@@ -212,7 +212,8 @@ class EDD_SL_CLI extends EDD_CLI {
 
 						foreach( $payment_ids as $payment_id ) {
 
-							$customer_id = get_post_meta( $payment_id, '_edd_payment_customer_id', true );
+							$payment     = new EDD_Payment( $payment_id );
+							$customer_id = $payment->get_meta( '_edd_payment_customer_id' );
 							if ( ! empty( $customer_id ) ) {
 								break;
 							}
@@ -574,7 +575,9 @@ class EDD_SL_CLI extends EDD_CLI {
 
 			if ( ! array_key_exists( $license_id, $found_licenses ) ) {
 				$license = edd_software_licensing()->get_license( $license_id );
-				$found_licenses[ $license_id ] = $license;
+				if ( false !== $license ) {
+					$found_licenses[ $license_id ] = $license;
+				}
 			} else {
 				$license = $found_licenses[ $license_id ];
 			}

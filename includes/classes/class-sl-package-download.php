@@ -24,7 +24,15 @@ class EDD_SL_Package_Download {
 
 		$data = $this->parse_url();
 
-		if( ! empty( $data ) && is_array( $data ) ) {
+		if ( false === $data['success'] ) {
+			$message = ! empty( $data['message'] ) ? $data['message'] : __( 'An error has occurred, please contact support.', 'edd_sl' );
+			wp_die( $message, __( 'Error', 'edd_sl' ), array( 'response' => 401 ) );
+		}
+
+		if ( true === $data['success'] ) {
+
+			// Remove the 'success' key as we do not want it in the $_GET array.
+			unset( $data['success'] );
 
 			foreach ( $data as $key => $arg ) {
 				$_GET[ $key ] = $arg;
@@ -32,7 +40,7 @@ class EDD_SL_Package_Download {
 
 			do_action( 'edd_package_download' );
 
-			// We're firing a download URL, just get out
+			// We're firing a download URL, just get out.
 			wp_die();
 
 		}
@@ -44,21 +52,29 @@ class EDD_SL_Package_Download {
 	 * @since  3.2.4
 	 * @return array Array of parsed url information
 	 */
-	private function parse_url() {
+	public function parse_url() {
 
-		if( false === stristr( $_SERVER['REQUEST_URI'], 'edd-sl/package_download' ) ) {
-			return false; // Not a package download request
+		if ( false === stristr( $_SERVER['REQUEST_URI'], 'edd-sl/package_download' ) ) {
+
+			// Not a package download request.
+			return array();
+
 		}
 
-		$data      = array();
-		$url_parts = parse_url( $_SERVER['REQUEST_URI'] );
+		// Assume this will be a successful parsing.
+		$data = array( 'success' => true );
+
+		$url_parts = wp_parse_url( untrailingslashit( $_SERVER['REQUEST_URI'] ) );
 		$paths     = array_values( explode( '/', $url_parts['path'] ) );
 
 		$token  = end( $paths );
 		$values = explode( ':', base64_decode( $token ) );
 
 		if ( count( $values ) !== 6 ) {
-			wp_die( __( 'Invalid token supplied', 'edd_sl' ), __( 'Error', 'edd_sl' ), array( 'response' => 401 ) );
+			return array(
+				'success' => false,
+				'message' => __( 'Invalid token supplied', 'edd_sl' ),
+			);
 		}
 
 		$expires        = $values[0];
@@ -68,8 +84,11 @@ class EDD_SL_Package_Download {
 		$download_beta  = (bool) $values[5];
 
 
-		if (  ! edd_software_licensing()->is_download_id_valid_for_license( $download_id, $license_key ) ) {
-			wp_die( __( 'Invalid license supplied', 'edd_sl' ), __( 'Error', 'edd_sl' ), array( 'response' => 401 ) );
+		if ( ! edd_software_licensing()->is_download_id_valid_for_license( $download_id, $license_key ) ) {
+			return array(
+				'success' => false,
+				'message' => __( 'Invalid license supplied', 'edd_sl' ),
+			);
 		}
 
 		$license_check_args = array(
@@ -77,48 +96,87 @@ class EDD_SL_Package_Download {
 			'key'        => $license_key,
 			'item_id'    => $download_id,
 		);
+
 		$license_status = edd_software_licensing()->check_license( $license_check_args );
-		switch( $license_status ) {
+		switch ( $license_status ) {
 			case 'valid':
 				break;
+
 			case 'expired':
 				$renewal_link = add_query_arg( 'edd_license_key', $license_key, edd_get_checkout_uri() );
-				wp_die( sprintf( __( 'Your license has expired, please <a href="%s" title="Renew your license">renew it</a> to install this update.', 'edd_sl' ), $renewal_link ), __( 'Error', 'edd_sl' ), array( 'response' => 401 ) );
+				$data = array(
+					'success' => false,
+					'message' => sprintf( __( 'Your license has expired, please <a href="%s" title="Renew your license">renew it</a> to install this update.', 'edd_sl' ), $renewal_link ),
+				);
 				break;
+
 			case 'inactive':
 			case 'site_inactive':
-				wp_die( __( 'Your license has not been activated for this domain, please activate it first.', 'edd_sl' ), __( 'Error', 'edd_sl' ), array( 'response' => 401 ) );
+				$data = array(
+					'success' => false,
+					'message' => __( 'Your license has not been activated for this domain, please activate it first.', 'edd_sl' ),
+				);
 				break;
+
 			case 'disabled':
-				wp_die( __( 'Your license has been disabled.', 'edd_sl' ), __( 'Error', 'edd_sl' ), array( 'response' => 401 ) );
+				$data = array(
+					'success' => false,
+					'message' => __( 'Your license has been disabled.', 'edd_sl' ),
+				);
 				break;
+
 			default:
-				wp_die( __( 'Your license could not be validated.', 'edd_sl' ), __( 'Error', 'edd_sl' ), array( 'response' => 401 ) );
+				$data = array(
+					'success' => false,
+					'message' => __( 'Your license could not be validated.', 'edd_sl' ),
+				);
 				break;
+		}
+
+		if ( false === $data['success'] ) {
+			return $data;
 		}
 
 		$download = new EDD_SL_Download( $download_id );
 
-		$download_name  = $download->get_name();
-		if ( $download_beta ) {
-			$file_key      = $download->get_beta_upgrade_file_key();
+		$download_name = $download->get_name();
+		if ( $download_beta && $download->has_beta() ) {
+			$file_key = $download->get_beta_upgrade_file_key();
 		} else {
-			$file_key      = $download->get_upgrade_file_key();
+			$file_key = $download->get_upgrade_file_key();
 		}
 
 		$computed_hash = md5( $download_name . $file_key . $download_id . $license_key . (int) $expires );
+
+		/**
+		 * Filter the computed hash for a package download.
+		 *
+		 * Allows runtime alteration of the computed hash, to allow developers to modify the validation process of a package.
+		 *
+		 * @since 3.6
+		 *
+		 * @param string  $computed_hash The current MD5 hash that was calculated.
+		 * @param string  $download_name The name of the download being delivered.
+		 * @param int     $file_key      The file key from the associated files from the download.
+		 * @param int     $download_id   The ID of the download being delivered.
+		 * @param string  $license_key   The license key being validated for the package download.
+		 * @param int     $expires       The expiration of the package URL.
+		 */
 		$computed_hash = apply_filters( 'edd_sl_package_download_computed_hash', $computed_hash, $download_name, $file_key, $download_id, $license_key, (int) $expires );
+
 		if ( ! hash_equals( $computed_hash, $values[3] ) ) {
-			wp_die( __( 'Provided hash does not validate.', 'edd_sl' ), __( 'Error', 'edd_sl' ), array( 'response' => 401 ) );
+			return array(
+				'success' => false,
+				'message' => __( 'Provided hash does not validate.', 'edd_sl' ),
+			);
 		}
 
-		$data = array(
-			'expires'       => $expires,
-			'license'       => $license_key,
-			'id'            => $download_id,
-			'key'           => $computed_hash,
-			'beta'          => $download_beta
-		);
+
+		$data['expires'] = $expires;
+		$data['license'] = $license_key;
+		$data['id']      = $download_id;
+		$data['key']     = $computed_hash;
+		$data['beta']    = $download_beta;
 
 		return $data;
 
@@ -136,10 +194,10 @@ class EDD_SL_Package_Download {
 			$hours         = '+' . absint( edd_get_option( 'download_link_expiration', 24 ) ) . ' hours';
 			$expires       = strtotime( $hours, current_time( 'timestamp' ) );
 
-			if ( $download_beta ) {
-				$file_key      = $download->get_beta_upgrade_file_key();
+			if ( $download_beta && $download->has_beta() ) {
+				$file_key = $download->get_beta_upgrade_file_key();
 			} else {
-				$file_key      = $download->get_upgrade_file_key();
+				$file_key = $download->get_upgrade_file_key();
 			}
 
 			$hash          = md5( $download_name . $file_key . $download_id . $license_key . (int) $expires );
@@ -186,6 +244,9 @@ class EDD_SL_Package_Download {
 			}
 
 			$requested_file = $this->get_download_package( $id, $license, $hash, $expires, $download_beta );
+			if ( ! $requested_file ) {
+				wp_die( esc_html__( 'No download package available', 'edd_sl' ), esc_html__( 'Error', 'edd_sl' ), array( 'response' => 401 ) );
+			}
 
 			$file_extension = edd_get_file_extension( $requested_file );
 			$ctype          = edd_get_file_ctype( $file_extension );
@@ -328,11 +389,11 @@ class EDD_SL_Package_Download {
 	 * @param  int $expires         The TTL for this link
 	 * @return string               The URL for the download package
 	 */
-	public function get_download_package( $download_id = 0, $license_key = '', $hash, $expires = 0, $download_beta = false ) {
+	public function get_download_package( $download_id, $license_key, $hash, $expires = 0, $download_beta = false ) {
 
 		$download = new EDD_SL_Download( $download_id );
 
-		if ( $download_beta ) {
+		if ( $download_beta && $download->has_beta() ) {
 			$file_key  = $download->get_beta_upgrade_file_key();
 			$all_files = get_post_meta( $download_id, '_edd_sl_beta_files', true );
 		} else {
@@ -340,10 +401,16 @@ class EDD_SL_Package_Download {
 			$all_files = get_post_meta( $download_id, 'edd_download_files', true );
 		}
 
-		if ( $all_files && is_array( $all_files ) ) {
-			$file_url = $all_files[ $file_key ]['file'];
-		} else {
-			$file_url = '';
+		$file_url = '';
+		if ( $all_files ) {
+			if ( ! empty( $all_files[ $file_key ] ) && ! empty( $all_files[ $file_key ]['file'] ) ) {
+				$file_url = $all_files[ $file_key ]['file'];
+			} else {
+				$fallback_file = array_shift( $all_files );
+				if ( ! empty( $fallback_file['file'] ) ) {
+					$file_url = $fallback_file['file'];
+				}
+			}
 		}
 
 		$download_name = $download->get_name();

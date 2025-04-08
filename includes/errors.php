@@ -33,3 +33,22 @@ function edd_sl_show_errors() {
 
 	}
 }
+
+/**
+ * Outputs EDD SL error messages (when present) to an empty cart.
+ *
+ * @since 3.7
+ * @return void
+ */
+function edd_sl_cart_error_messages() {
+	$error   = ! empty( $_GET['edd-sl-error'] );
+	$message = empty( $_GET['message'] ) ? false : urldecode( $_GET['message'] );
+	if ( $error && $message ) {
+		?>
+		<div class="edd_errors">
+			<p class="edd_error"><?php echo esc_html( $message ); ?></p>
+		</div>
+		<?php
+	}
+}
+add_action( 'edd_cart_empty', 'edd_sl_cart_error_messages', 5 );

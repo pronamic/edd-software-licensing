@@ -30,7 +30,18 @@ class EDD_SL_DB extends EDD_DB {
 
 			}
 
-			$this->delete_cache( $license_id, 'edd_license_objects' );
+			if ( isset( $license_id ) ) {
+				$this->delete_cache( $license_id, 'edd_license_objects' );
+
+				/**
+				 * Triggers after a license or its meta has been updated.
+				 *
+				 * @since 3.8.2
+				 *
+				 * @param int $license_id ID of the license.
+				 */
+				do_action( 'edd_sl_db_updated', $license_id );
+			}
 		}
 
 		return $updated;
@@ -57,6 +68,15 @@ class EDD_SL_DB extends EDD_DB {
 
 			if ( ! empty( $license_id ) ) {
 				$this->delete_cache( $license_id, 'edd_license_objects' );
+
+				/**
+				 * Triggers after a license or its meta has been inserted.
+				 *
+				 * @since 3.8.2
+				 *
+				 * @param int $license_id ID of the license.
+				 */
+				do_action( 'edd_sl_db_inserted', $license_id );
 			}
 		}
 

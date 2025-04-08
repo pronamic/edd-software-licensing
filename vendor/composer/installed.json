@@ -1,0 +1,114 @@
+{
+    "packages": [
+        {
+            "name": "afragen/wordpress-plugin-readme-parser",
+            "version": "dev-master",
+            "version_normalized": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/afragen/wordpress-plugin-readme-parser.git",
+                "reference": "c3758599348148be684b3c4ad1105d09b6230d51"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/afragen/wordpress-plugin-readme-parser/zipball/c3758599348148be684b3c4ad1105d09b6230d51",
+                "reference": "c3758599348148be684b3c4ad1105d09b6230d51",
+                "shasum": ""
+            },
+            "require": {
+                "erusev/parsedown": "^1.7",
+                "php": ">=5.4"
+            },
+            "time": "2024-04-30T13:39:49+00:00",
+            "default-branch": true,
+            "type": "library",
+            "installation-source": "dist",
+            "autoload": {
+                "classmap": [
+                    "class-parser.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "WordPress.org",
+                    "homepage": "https://meta.trac.wordpress.org/browser/sites/trunk/wordpress.org/public_html/wp-content/plugins/plugin-directory/readme"
+                }
+            ],
+            "description": "A clone of the current WordPress.org Plugin Readme Parser, class-parser.php",
+            "keywords": [
+                "parser",
+                "readme",
+                "wordpress"
+            ],
+            "support": {
+                "issues": "https://github.com/afragen/wordpress-plugin-readme-parser/issues",
+                "source": "https://github.com/afragen/wordpress-plugin-readme-parser/tree/master"
+            },
+            "install-path": "../afragen/wordpress-plugin-readme-parser"
+        },
+        {
+            "name": "erusev/parsedown",
+            "version": "dev-1.8.x-beta",
+            "version_normalized": "dev-1.8.x-beta",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/erusev/parsedown.git",
+                "reference": "0476f3be5be7090fe4a2d9faf6e5e67f70deb82e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/erusev/parsedown/zipball/0476f3be5be7090fe4a2d9faf6e5e67f70deb82e",
+                "reference": "0476f3be5be7090fe4a2d9faf6e5e67f70deb82e",
+                "shasum": ""
+            },
+            "require": {
+                "ext-mbstring": "*",
+                "php": ">=7.1"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^7.5|^8.5|^9.6"
+            },
+            "time": "2024-07-18T07:01:16+00:00",
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-1.8.x-beta": "1.8.x-dev"
+                }
+            },
+            "installation-source": "dist",
+            "autoload": {
+                "psr-0": {
+                    "Parsedown": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Emanuil Rusev",
+                    "email": "hello@erusev.com",
+                    "homepage": "http://erusev.com"
+                }
+            ],
+            "description": "Parser for Markdown.",
+            "homepage": "http://parsedown.org",
+            "keywords": [
+                "markdown",
+                "parser"
+            ],
+            "support": {
+                "issues": "https://github.com/erusev/parsedown/issues",
+                "source": "https://github.com/erusev/parsedown/tree/1.8.x-beta"
+            },
+            "install-path": "../erusev/parsedown"
+        }
+    ],
+    "dev": false,
+    "dev-package-names": []
+}

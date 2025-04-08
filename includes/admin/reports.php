@@ -1,28 +1,19 @@
 <?php
-
+/**
+ * Reports
+ *
+ * @package   EDD-Software-Licensing
+ * @copyright Copyright (c) 2020, Sandhills Development, LLC
+ * @license   GPL2+
+ */
 
 /**
- * Adds "Renewals" to the report views
+ * Adds "Renewals" to the log views
  *
  * @access      public
  * @since       2.2
  * @return      void
-*/
-
-function edd_sl_add_renewals_view( $views ) {
-	$views['renewals'] = __( 'License Renewals', 'edd_sl' );
-	$views['upgrades'] = __( 'License Upgrades', 'edd_sl' );
-	return $views;
-}
-add_filter( 'edd_report_views', 'edd_sl_add_renewals_view' );
-
-/**
- * Adds "Renewals" to the report views
- *
- * @access      public
- * @since       2.2
- * @return      void
-*/
+ */
 
 function edd_sl_add_log_views( $views ) {
 	$views['renewal_notices'] = __( 'License Renewal Notices', 'edd_sl' );
@@ -30,365 +21,560 @@ function edd_sl_add_log_views( $views ) {
 }
 add_filter( 'edd_log_views', 'edd_sl_add_log_views' );
 
-
 /**
- * Show Commissions Graph
+ * Registers Software Licensing reports with the EDD3.0+ registry.
  *
- * @access      public
- * @since       2.2
- * @return      void
-*/
+ * @param EDD\Reports\Data\Report_Registry $reports
+ *
+ * @since 3.7
+ */
+function edd_sl_register_reports( $reports ) {
 
-function edd_sl_show_renewals_graph() {
+	try {
+		$options = EDD\Reports\get_dates_filter_options();
+		$dates   = EDD\Reports\get_filter_value( 'dates' );
+		$label   = $options[ $dates['range'] ];
 
-	if ( ! current_user_can( 'view_shop_reports' ) ) {
-		wp_die( __( 'You do not have permission to view this data', 'edd_sl' ), __( 'Error', 'edd_sl' ), array( 'response' => 401 ) );
+		/**
+		 * Renewals
+		 */
+		$reports->add_report( 'software_licensing_renewals', array(
+			'label'     => __( 'License Renewals', 'edd_sl' ),
+			'icon'      => 'chart-area',
+			'priority'  => 50,
+			'endpoints' => array(
+				'tiles' => array(
+					'software_licensing_renewals_number',
+					'software_licensing_renewal_earnings'
+				),
+				'charts' => array(
+					'software_licensing_renewals_chart'
+				)
+			)
+		) );
+
+		$reports->register_endpoint( 'software_licensing_renewals_number', array(
+			'label' => __( 'Number of Renewals', 'edd_sl' ),
+			'views' => array(
+				'tile' => array(
+					'data_callback' => 'edd_sl_license_renewals_number_report_callback',
+					'display_args'  => array(
+						'comparison_label' => $label
+					)
+				)
+			)
+		) );
+
+		$reports->register_endpoint( 'software_licensing_renewal_earnings', array(
+			'label' => __( 'Renewal Earnings', 'edd_sl' ),
+			'views' => array(
+				'tile' => array(
+					'data_callback' => 'edd_sl_license_renewal_earnings_report_callback',
+					'display_args'  => array(
+						'comparison_label' => $label
+					)
+				)
+			)
+		) );
+
+		$reports->register_endpoint( 'software_licensing_renewals_chart', array(
+			'label' => __( 'License Renewals', 'edd_sl' ),
+			'views' => array(
+				'chart' => array(
+					'data_callback' => 'edd_sl_license_renewals_chart_callback',
+					'type'          => 'line',
+					'options'       => array(
+						'datasets' => array(
+							'number' => array(
+								'label'                => __( 'Number of Renewals', 'edd_sl' ),
+								'borderColor'          => 'rgb(252,108,18)',
+								'backgroundColor'      => 'rgba(252,108,18,0.2)',
+								'fill'                 => true,
+								'borderDash'           => array( 2, 6 ),
+								'borderCapStyle'       => 'round',
+								'borderJoinStyle'      => 'round',
+								'pointRadius'          => 4,
+								'pointHoverRadius'     => 6,
+								'pointBackgroundColor' => 'rgb(255,255,255)',
+							),
+							'amount' => array(
+								'label'                => __( 'Earnings', 'edd_sl' ),
+								'borderColor'          => 'rgb(24,126,244)',
+								'backgroundColor'      => 'rgba(24,126,244,0.05)',
+								'fill'                 => true,
+								'borderWidth'          => 2,
+								'type'                 => 'currency',
+								'pointRadius'          => 4,
+								'pointHoverRadius'     => 6,
+								'pointBackgroundColor' => 'rgb(255,255,255)',
+							),
+						)
+					)
+				)
+			)
+		) );
+
+		/**
+		 * Upgrades
+		 */
+		$reports->add_report( 'software_licensing_upgrades', array(
+			'label'     => __( 'License Upgrades', 'edd_sl' ),
+			'icon'      => 'chart-area',
+			'priority'  => 51,
+			'endpoints' => array(
+				'tiles' => array(
+					'software_licensing_upgrades_number',
+					'software_licensing_upgrade_earnings'
+				),
+				'charts' => array(
+					'software_licensing_upgrades'
+				)
+			)
+		) );
+
+		$reports->register_endpoint( 'software_licensing_upgrades_number', array(
+			'label' => __( 'Number of Upgrades', 'edd_sl' ),
+			'views' => array(
+				'tile' => array(
+					'data_callback' => 'edd_sl_license_upgrades_number_report_callback',
+					'display_args'  => array(
+						'comparison_label' => $label
+					)
+				)
+			)
+		) );
+
+		$reports->register_endpoint( 'software_licensing_upgrade_earnings', array(
+			'label' => __( 'Upgrade Earnings', 'edd_sl' ),
+			'views' => array(
+				'tile' => array(
+					'data_callback' => 'edd_sl_license_upgrade_earnings_report_callback',
+					'display_args'  => array(
+						'comparison_label' => $label
+					)
+				)
+			)
+		) );
+
+		$reports->register_endpoint( 'software_licensing_upgrades', array(
+			'label' => __( 'License Upgrades', 'edd_sl' ),
+			'views' => array(
+				'chart' => array(
+					'data_callback' => 'edd_sl_license_upgrades_chart_callback',
+					'type'          => 'line',
+					'options'       => array(
+						'datasets' => array(
+							'number' => array(
+								'label'                => __( 'Number of Upgrades', 'edd_sl' ),
+								'borderColor'          => 'rgb(252,108,18)',
+								'backgroundColor'      => 'rgba(252,108,18,0.2)',
+								'fill'                 => true,
+								'borderDash'           => array( 2, 6 ),
+								'borderCapStyle'       => 'round',
+								'borderJoinStyle'      => 'round',
+								'pointRadius'          => 4,
+								'pointHoverRadius'     => 6,
+								'pointBackgroundColor' => 'rgb(255,255,255)',
+							),
+							'amount' => array(
+								'label'                => __( 'Earnings', 'edd_sl' ),
+								'borderColor'          => 'rgb(24,126,244)',
+								'backgroundColor'      => 'rgba(24,126,244,0.05)',
+								'fill'                 => true,
+								'borderWidth'          => 2,
+								'type'                 => 'currency',
+								'pointRadius'          => 4,
+								'pointHoverRadius'     => 6,
+								'pointBackgroundColor' => 'rgb(255,255,255)',
+							),
+						)
+					)
+				)
+			)
+		) );
+	} catch ( EDD_Exception $e ) {
+		edd_debug_log_exception( $e );
 	}
 
-	// retrieve the queried dates
-	$dates = edd_get_report_dates();
-
-	// Determine graph options
-	switch( $dates['range'] ) :
-		case 'today' :
-			$time_format = '%d/%b';
-			$tick_size   = 'hour';
-			$day_by_day  = true;
-			break;
-		case 'last_year' :
-			$time_format = '%b';
-			$tick_size   = 'month';
-			$day_by_day  = false;
-			break;
-		case 'this_year' :
-			$time_format = '%b';
-			$tick_size   = 'month';
-			$day_by_day  = false;
-			break;
-		case 'last_quarter' :
-			$time_format = '%b';
-			$tick_size   = 'month';
-			$day_by_day  = false;
-			break;
-		case 'this_quarter' :
-			$time_format = '%b';
-			$tick_size   = 'month';
-			$day_by_day  = false;
-			break;
-		case 'other' :
-			if( ( $dates['m_end'] - $dates['m_start'] ) >= 2 ) {
-				$time_format = '%b';
-				$tick_size   = 'month';
-				$day_by_day  = false;
-			} else {
-				$time_format = '%d/%b';
-				$tick_size   = 'day';
-				$day_by_day  = true;
-			}
-			break;
-		default:
-			$time_format = '%d/%b'; 	// Show days by default
-			$tick_size   = 'day'; 	// Default graph interval
-			$day_by_day  = true;
-			break;
-	endswitch;
-
-	$time_format = apply_filters( 'edd_graph_timeformat', $time_format );
-	$tick_size   = apply_filters( 'edd_graph_ticksize', $tick_size );
-	$totals      = (float) 0.00; // Total renewal earnings for time period shown
-
-	ob_start(); ?>
-	<div class="tablenav top">
-		<div class="alignleft actions"><?php edd_report_views(); ?></div>
-	</div>
-	<script type="text/javascript">
-	   jQuery( document ).ready( function($) {
-			$.plot(
-				$("#renewals_chart_div"),
-				[{
-					data: [
-						<?php
-
-						if( $dates['range'] == 'today' ) {
-
-							// Hour by hour
-							$hour  = 1;
-							$month = date( 'n' );
-							while ( $hour <= 23 ) :
-								$renewals = edd_sl_get_renewals_by_date( $dates['day'], $month, $dates['year'], $hour );
-								$totals   += $renewals['earnings'];
-								$date     = mktime( $hour, 0, 0, $month, $dates['day'], $dates['year'] ); ?>
-								[<?php echo $date * 1000; ?>, <?php echo $renewals['count']; ?>],
-								<?php
-								$hour++;
-							endwhile;
-
-						} elseif( $dates['range'] == 'this_week' || $dates['range'] == 'last_week' ) {
-
-							//Day by day
-							$day     = $dates['day'];
-							$day_end = $dates['day_end'];
-							$month   = $dates['m_start'];
-							while ( $day <= $day_end ) :
-								$renewals = edd_sl_get_renewals_by_date( $day, $month, $dates['year'] );
-								$totals += $renewals['earnings'];
-								$date = mktime( 0, 0, 0, $month, $day, $dates['year'] ); ?>
-								[<?php echo $date * 1000; ?>, <?php echo $renewals['count']; ?>],
-								<?php
-								$day++;
-							endwhile;
-
-						} else {
-
-							$y = $dates['year'];
-							while ( $y <= $dates['year_end'] ) :
-								$i = $dates['m_start'];
-								while ( $i <= $dates['m_end'] ) :
-									if ( $day_by_day ) :
-										$num_of_days = $i == $dates['m_end'] ? $dates['day_end'] : cal_days_in_month( CAL_GREGORIAN, $i, $y );
-										$d           = $i == $dates['m_start'] && $dates['day'] ? $dates['day'] : 1;
-										while ( $d <= $num_of_days ) :
-											$date     = mktime( 0, 0, 0, $i, $d, $y );
-											$renewals = edd_sl_get_renewals_by_date( $d, $i, $y );
-											$totals   += $renewals['earnings']; ?>
-											[<?php echo $date * 1000; ?>, <?php echo $renewals['count']; ?>],
-										<?php $d++; endwhile;
-									else :
-										$date     = mktime( 0, 0, 0, $i, 1, $y );
-										$renewals = edd_sl_get_renewals_by_date( null, $i, $y );
-										$totals   += $renewals['earnings'];
-										?>
-										[<?php echo $date * 1000; ?>, <?php echo $renewals['count']; ?>],
-									<?php
-									endif;
-									$i++;
-								endwhile;
-								$y++;
-							endwhile;
-						}
-						?>,
-					],
-					label: "<?php _e( 'Renewals', 'edd_sl' ); ?>",
-					id: 'renewals'
-				}],
-			{
-				series: {
-				   lines: { show: true },
-				   points: { show: true }
-				},
-				grid: {
-					show: true,
-					aboveData: false,
-					color: '#ccc',
-					backgroundColor: '#fff',
-					borderWidth: 2,
-					borderColor: '#ccc',
-					clickable: false,
-					hoverable: true
-				},
-				xaxis: {
-					mode: "time",
-					timeFormat: "<?php echo $time_format; ?>",
-					minTickSize: [1, "<?php echo $tick_size; ?>"],
-				},
-				yaxis: {
-					min: 0
-				}
-			});
-
-			function edd_flot_tooltip(x, y, contents) {
-				$('<div id="edd-flot-tooltip">' + contents + '</div>').css( {
-					position: 'absolute',
-					display: 'none',
-					top: y + 5,
-					left: x + 5,
-					border: '1px solid #fdd',
-					padding: '2px',
-					'background-color': '#fee',
-					opacity: 0.80
-				}).appendTo("body").fadeIn(200);
-			}
-
-			var previousPoint = null;
-			$("#renewals_chart_div").bind("plothover", function (event, pos, item) {
-				$("#x").text(pos.x.toFixed(2));
-				$("#y").text(pos.y.toFixed(2));
-				if (item) {
-					if (previousPoint != item.dataIndex) {
-						previousPoint = item.dataIndex;
-						$("#edd-flot-tooltip").remove();
-						var x = item.datapoint[0].toFixed(2),
-							y = item.datapoint[1].toFixed(2);
-						if( item.series.id == 'commissions' ) {
-							if( edd_vars.currency_pos == 'before' ) {
-								edd_flot_tooltip( item.pageX, item.pageY, item.series.label + ' ' + edd_vars.currency_sign + y );
-							} else {
-								edd_flot_tooltip( item.pageX, item.pageY, item.series.label + ' ' + y + edd_vars.currency_sign );
-							}
-						} else {
-							edd_flot_tooltip( item.pageX, item.pageY, item.series.label + ' ' + y.replace( '.00', '' ) );
-						}
-					}
-				} else {
-					$("#edd-flot-tooltip").remove();
-					previousPoint = null;
-				}
-			});
-	   });
-	</script>
-	<div class="metabox-holder" class="edd-sl-graph-controls">
-		<div class="postbox">
-			<h3><span><?php _e('License Renewals Over Time', 'edd_sl'); ?></span></h3>
-
-			<div class="inside">
-				<?php edd_reports_graph_controls(); ?>
-				 <div id="renewals_chart_div"></div>
-			</div>
-		</div>
-	</div>
-	<p id="edd_graph_totals"><strong><?php _e( 'Total renewal earnings for period shown: ', 'edd_sl' ); echo edd_currency_filter( edd_format_amount( $totals ) ); ?></strong></p>
-	<?php
-	echo ob_get_clean();
 }
-add_action('edd_reports_view_renewals', 'edd_sl_show_renewals_graph');
+add_action( 'edd_reports_init', 'edd_sl_register_reports' );
 
 /**
- * Show license upgrades
+ * Fetches the number of license renewals that were processed during this report period.
  *
- * @access      public
- * @since       3.3
- * @return      void
-*/
-function edd_sl_show_upgrades_graph() {
-
-	if ( ! current_user_can( 'view_shop_reports' ) ) {
-		wp_die( __( 'You do not have permission to view this data', 'edd_sl' ), __( 'Error', 'edd_sl' ), array( 'response' => 401 ) );
+ * @since 3.7
+ * @return int
+ */
+function edd_sl_license_renewals_number_report_callback() {
+	if ( ! function_exists( '\\EDD\\Reports\\get_dates_filter' ) ) {
+		return 0;
 	}
 
-	$dates      = edd_get_report_dates();
-	$day_by_day = true;
+	global $wpdb;
 
-	// Determine graph options
-	switch( $dates['range'] ) :
-		case 'last_year' :
-		case 'this_year' :
-		case 'last_quarter' :
-		case 'this_quarter' :
-			$day_by_day = false;
-			break;
-		case 'other' :
-			if( ( $dates['m_end'] - $dates['m_start'] ) >= 2 ) {
-				$day_by_day = false;
-			}
-			break;
-	endswitch;
+	$dates    = EDD\Reports\get_dates_filter( 'objects' );
+	$statuses = edd_get_complete_order_statuses();
 
-	$total = (float) 0.00; // Total upgrades value for time period shown
+	$number = $wpdb->get_var( $wpdb->prepare(
+		"SELECT COUNT(edd_o.id) FROM {$wpdb->edd_orders} edd_o
+			INNER JOIN {$wpdb->edd_ordermeta} edd_ometa ON( edd_o.id = edd_ometa.edd_order_id )
+			WHERE edd_o.type = 'sale'
+			AND edd_ometa.meta_key = '_edd_sl_is_renewal'
+			AND edd_o.status IN( '" . implode( "', '", $wpdb->_escape( $statuses ) ) . "' )
+			AND edd_o.date_created >= %s AND edd_o.date_created <= %s",
+		$dates['start']->copy()->format( 'mysql' ),
+		$dates['end']->copy()->format( 'mysql' )
+	) );
 
-	ob_start(); ?>
-	<div class="tablenav top">
-		<div class="alignleft actions"><?php edd_report_views(); ?></div>
-	</div>
-	<?php
-	$data = array();
+	return absint( $number );
+}
 
-	if( $dates['range'] == 'today' ) {
-		// Hour by hour
-		$hour  = 1;
-		$month = date( 'n' );
-
-		while ( $hour <= 23 ) :
-
-			$upgrades    = edd_sl_get_upgrades_by_date( $dates['day'], $month, $dates['year'], $hour );
-			$total      += $upgrades['earnings'];
-			$date        = mktime( $hour, 0, 0, $month, $dates['day'], $dates['year'] );
-			$data[]      = array( $date * 1000, (int) $upgrades['count'] );
-			$hour++;
-
-		endwhile;
-
-	} elseif( $dates['range'] == 'this_week' || $dates['range'] == 'last_week' ) {
-
-		//Day by day
-		$day     = $dates['day'];
-		$day_end = $dates['day_end'];
-		$month   = $dates['m_start'];
-
-		while ( $day <= $day_end ) :
-
-			$upgrades    = edd_sl_get_upgrades_by_date( $day, $month, $dates['year'], null );
-			$total      += $upgrades['earnings'];
-			$date        = mktime( 0, 0, 0, $month, $day, $dates['year'] );
-			$data[]      = array( $date * 1000, (int) $upgrades['count'] );
-			$day++;
-
-		endwhile;
-
-	} else {
-
-		$y = $dates['year'];
-		while ( $y <= $dates['year_end'] ) :
-			$i = $dates['m_start'];
-
-			while ( $i <= $dates['m_end'] ) :
-
-				if ( $day_by_day ) :
-
-					$num_of_days = $i == $dates['m_end'] ? $dates['day_end'] : cal_days_in_month( CAL_GREGORIAN, $i, $y );
-					$d           = $i == $dates['m_start'] && $dates['day'] ? $dates['day'] : 1;
-
-					while ( $d <= $num_of_days ) :
-
-						$date        = mktime( 0, 0, 0, $i, $d, $y );
-						$upgrades    = edd_sl_get_upgrades_by_date( $d, $i, $y, null );
-						$total      += $upgrades['earnings'];
-						$data[]      = array( $date * 1000, (int) $upgrades['count'] );
-						$d++;
-
-					endwhile;
-
-				else :
-
-					$date        = mktime( 0, 0, 0, $i, 1, $y );
-					$upgrades    = edd_sl_get_upgrades_by_date( null, $i, $y, null );
-					$total      += $upgrades['earnings'];
-					$data[]      = array( $date * 1000, (int) $upgrades['count'] );
-
-				endif;
-
-				$i++;
-
-			endwhile;
-			$y++;
-		endwhile;
+/**
+ * Fetches the total earnings from license renewals that were processed during this report period.
+ *
+ * @since 3.7
+ * @return string
+ */
+function edd_sl_license_renewal_earnings_report_callback() {
+	if ( ! function_exists( '\\EDD\\Reports\\get_dates_filter' ) ) {
+		return edd_currency_filter( edd_format_amount( 0 ) );
 	}
 
+	global $wpdb;
+
+	$dates    = EDD\Reports\get_dates_filter( 'objects' );
+	$column   = EDD\Reports\get_taxes_excluded_filter() ? 'total - tax' : 'total';
+	$statuses = edd_get_complete_order_statuses();
+
+	$earnings = $wpdb->get_var( $wpdb->prepare(
+		"SELECT SUM({$column}) FROM {$wpdb->edd_orders} edd_o
+			INNER JOIN {$wpdb->edd_ordermeta} edd_ometa ON( edd_o.id = edd_ometa.edd_order_id )
+			WHERE edd_o.type = 'sale'
+			AND edd_ometa.meta_key = '_edd_sl_is_renewal'
+			AND edd_o.status IN( '" . implode( "', '", $wpdb->_escape( $statuses ) ) . "' )
+			AND edd_o.date_created >= %s AND edd_o.date_created <= %s",
+		$dates['start']->copy()->format( 'mysql' ),
+		$dates['end']->copy()->format( 'mysql' )
+	) );
+
+	if ( is_null( $earnings ) ) {
+		$earnings = 0;
+	}
+
+	return edd_currency_filter( edd_format_amount( $earnings ) );
+}
+
+/**
+ * Fetches the data for the `software_licensing_renewals` report endpoint.
+ *
+ * @since 3.7
+ * @return array
+ */
+function edd_sl_license_renewals_chart_callback() {
 	$data = array(
-		__( 'License Upgrades', 'edd_sl' ) => $data
+		'number' => array(),
+		'amount' => array()
 	);
-	?>
 
-	<div class="metabox-holder" style="padding-top: 0;">
-		<div class="postbox">
-			<h3><span><?php _e( 'License Upgrades', 'edd_sl' ); ?></span></h3>
+	if ( ! function_exists( '\\EDD\\Reports\\get_dates_filter_day_by_day' ) ) {
+		return $data;
+	}
 
-			<div class="inside">
-				<?php
-					edd_reports_graph_controls();
-					$graph = new EDD_Graph( $data );
-					$graph->set( 'x_mode', 'time' );
-					$graph->display();
-				?>
-				<p id="edd_graph_totals">
-					<strong><?php _e( 'Total earnings from upgrades period shown: ', 'edd_sl' ); echo edd_currency_filter( edd_format_amount( $total ) ); ?></strong>
-				</p>
-			</div>
-		</div>
-	</div>
-	<?php
-	echo ob_get_clean();
+	global $wpdb;
+
+	$dates          = EDD\Reports\get_dates_filter( 'objects' );
+	$day_by_day     = EDD\Reports\get_dates_filter_day_by_day();
+	$hour_by_hour   = EDD\Reports\get_dates_filter_hour_by_hour();
+	$column         = EDD\Reports\get_taxes_excluded_filter() ? 'total - tax' : 'total';
+	$statuses       = edd_get_complete_order_statuses();
+	$converted_date = edd_sl_get_column_conversion( 'edd_o.date_created' );
+	$date_format    = '%%Y-%%m';
+	if ( $hour_by_hour ) {
+		$date_format = '%%Y-%%m-%%d %%H:00:00';
+	} elseif ( $day_by_day ) {
+		$date_format = '%%Y-%%m-%%d';
+	}
+
+	$results = $wpdb->get_results(
+		$wpdb->prepare(
+			"SELECT COUNT(edd_o.id) AS number, SUM({$column}) AS amount, DATE_FORMAT({$converted_date},\"{$date_format}\") AS date
+			FROM {$wpdb->edd_orders} edd_o
+			INNER JOIN {$wpdb->edd_ordermeta} edd_ometa ON( edd_o.id = edd_ometa.edd_order_id )
+			WHERE edd_o.type = 'sale'
+			AND edd_ometa.meta_key = '_edd_sl_is_renewal'
+			AND edd_o.status IN( '" . implode( "', '", $wpdb->_escape( $statuses ) ) . "' )
+			AND edd_o.date_created >= %s AND edd_o.date_created <= %s
+			GROUP BY DATE(date)
+			ORDER BY DATE(date)",
+			$dates['start']->copy()->format( 'mysql' ),
+			$dates['end']->copy()->format( 'mysql' )
+		)
+	);
+
+	$number = $amount = array();
+
+	try {
+		// Initialise all arrays with timestamps and set values to 0.
+		while ( strtotime( $dates['start']->copy()->format( 'mysql' ) ) <= strtotime( $dates['end']->copy()->format( 'mysql' ) ) ) {
+			$timestamp = strtotime( $dates['start']->copy()->format( 'mysql' ) );
+
+			$number[ $timestamp ][0] = $timestamp;
+			$number[ $timestamp ][1] = 0;
+
+			$amount[ $timestamp ][0] = $timestamp;
+			$amount[ $timestamp ][1] = 0.00;
+
+			// Loop through each date there were renewals, which we queried from the database.
+			foreach ( $results as $result ) {
+
+				$timezone         = new DateTimeZone( 'UTC' );
+				$date_of_db_value = new DateTime( $result->date, $timezone );
+				$date_on_chart    = new DateTime( $dates['start'], $timezone );
+
+				// Add any renewals that happened during this hour.
+				if ( $hour_by_hour ) {
+					// If the date of this db value matches the date on this line graph/chart, set the y axis value for the chart to the number in the DB result.
+					if ( $date_of_db_value->format( 'Y-m-d H' ) === $date_on_chart->format( 'Y-m-d H' ) ) {
+						$number[ $timestamp ][1] += $result->number;
+						$amount[ $timestamp ][1] += abs( $result->amount );
+					}
+					// Add any renewals that happened during this day.
+				} elseif ( $day_by_day ) {
+					// If the date of this db value matches the date on this line graph/chart, set the y axis value for the chart to the number in the DB result.
+					if ( $date_of_db_value->format( 'Y-m-d' ) === $date_on_chart->format( 'Y-m-d' ) ) {
+						$number[ $timestamp ][1] += $result->number;
+						$amount[ $timestamp ][1] += abs( $result->amount );
+					}
+					// Add any renewals that happened during this month.
+				} else {
+					// If the date of this db value matches the date on this line graph/chart, set the y axis value for the chart to the number in the DB result.
+					if ( $date_of_db_value->format( 'Y-m' ) === $date_on_chart->format( 'Y-m' ) ) {
+						$number[ $timestamp ][1] += $result->number;
+						$amount[ $timestamp ][1] += abs( $result->amount );
+					}
+				}
+			}
+
+			// Move the chart along to the next hour/day/month to get ready for the next loop.
+			if ( $hour_by_hour ) {
+				$dates['start']->addHour( 1 );
+			} elseif ( $day_by_day ) {
+				$dates['start']->addDays( 1 );
+			} else {
+				$dates['start']->addMonth( 1 );
+			}
+		}
+	} catch ( \Exception $e ) {
+
+	}
+
+	return array(
+		'number' => array_values( $number ),
+		'amount' => array_values( $amount ),
+	);
 }
-add_action( 'edd_reports_view_upgrades', 'edd_sl_show_upgrades_graph' );
+
+/**
+ * Get the time zone converted dates for the query.
+ * This is a copy of EDD\Reports\get_column_conversion() from EDD 3.1.1.4.
+ *
+ * @since 3.8.8
+ * @param string $column
+ * @return string
+ */
+function edd_sl_get_column_conversion( $column = 'date_created' ) {
+	if ( function_exists( 'EDD\Reports\get_column_conversion' ) ) {
+		return EDD\Reports\get_column_conversion( $column );
+	}
+
+	$date       = EDD()->utils->date( 'now', edd_get_timezone_id(), false );
+	$gmt_offset = $date->getOffset();
+	if ( empty( $gmt_offset ) ) {
+		return $column;
+	}
+
+	// Output the offset in the proper format.
+	$hours   = abs( floor( $gmt_offset / HOUR_IN_SECONDS ) );
+	$minutes = abs( floor( ( $gmt_offset / MINUTE_IN_SECONDS ) % MINUTE_IN_SECONDS ) );
+	$math    = ( $gmt_offset >= 0 ) ? '+' : '-';
+
+	$formatted_offset = ! empty( $minutes ) ? "{$hours}:{$minutes}" : $hours . ':00';
+
+	return "CONVERT_TZ({$column}, '+00:00', '{$math}{$formatted_offset}')";
+}
+
+/**
+ * Fetches the number of license upgrades that were processed during this report period.
+ *
+ * @since 3.7
+ * @return int
+ */
+function edd_sl_license_upgrades_number_report_callback() {
+	if ( ! function_exists( '\\EDD\\Reports\\get_dates_filter' ) ) {
+		return 0;
+	}
+
+	global $wpdb;
+
+	$dates = EDD\Reports\get_dates_filter( 'objects' );
+
+	$number = $wpdb->get_var( $wpdb->prepare(
+		"SELECT COUNT(edd_o.id) FROM {$wpdb->edd_orders} edd_o
+			INNER JOIN {$wpdb->edd_ordermeta} edd_ometa ON( edd_o.id = edd_ometa.edd_order_id )
+			WHERE edd_o.type = 'sale'
+			AND edd_ometa.meta_key = '_edd_sl_upgraded_payment_id'
+			AND edd_o.status IN( 'complete', 'revoked' )
+			AND edd_o.date_created >= %s AND edd_o.date_created <= %s",
+		$dates['start']->copy()->format( 'mysql' ),
+		$dates['end']->copy()->format( 'mysql' )
+	) );
+
+	return absint( $number );
+}
+
+/**
+ * Fetches the total earnings from license upgrades that were processed during this report period.
+ *
+ * @since 3.7
+ * @return string
+ */
+function edd_sl_license_upgrade_earnings_report_callback() {
+	if ( ! function_exists( '\\EDD\\Reports\\get_dates_filter' ) ) {
+		return edd_currency_filter( edd_format_amount( 0 ) );
+	}
+
+	global $wpdb;
+
+	$dates  = EDD\Reports\get_dates_filter( 'objects' );
+	$column = EDD\Reports\get_taxes_excluded_filter() ? 'total - tax' : 'total';
+
+	$earnings = $wpdb->get_var( $wpdb->prepare(
+		"SELECT SUM({$column}) FROM {$wpdb->edd_orders} edd_o
+			INNER JOIN {$wpdb->edd_ordermeta} edd_ometa ON( edd_o.id = edd_ometa.edd_order_id )
+			WHERE edd_o.type = 'sale'
+			AND edd_ometa.meta_key = '_edd_sl_upgraded_payment_id'
+			AND edd_o.status IN( 'complete', 'revoked' )
+			AND edd_o.date_created >= %s AND edd_o.date_created <= %s",
+		$dates['start']->copy()->format( 'mysql' ),
+		$dates['end']->copy()->format( 'mysql' )
+	) );
+
+	if ( is_null( $earnings ) ) {
+		$earnings = 0;
+	}
+
+	return edd_currency_filter( edd_format_amount( $earnings ) );
+}
+
+/**
+ * Fetches the data for the `software_licensing_upgrades` report endpoint.
+ *
+ * @since 3.7
+ * @return array
+ */
+function edd_sl_license_upgrades_chart_callback() {
+	$data = array(
+		'number' => array(),
+		'amount' => array()
+	);
+
+	if ( ! function_exists( '\\EDD\\Reports\\get_dates_filter_day_by_day' ) ) {
+		return $data;
+	}
+
+	global $wpdb;
+
+	$dates          = EDD\Reports\get_dates_filter( 'objects' );
+	$day_by_day     = EDD\Reports\get_dates_filter_day_by_day();
+	$hour_by_hour   = EDD\Reports\get_dates_filter_hour_by_hour();
+	$column         = EDD\Reports\get_taxes_excluded_filter() ? 'total - tax' : 'total';
+	$statuses       = edd_get_complete_order_statuses();
+	$converted_date = edd_sl_get_column_conversion( 'edd_o.date_created' );
+	$date_format    = '%%Y-%%m';
+	if ( $hour_by_hour ) {
+		$date_format = '%%Y-%%m-%%d %%H:00:00';
+	} elseif ( $day_by_day ) {
+		$date_format = '%%Y-%%m-%%d';
+	}
+
+	$results = $wpdb->get_results(
+		$wpdb->prepare(
+			"SELECT COUNT(edd_o.id) AS number, SUM({$column}) AS amount, DATE_FORMAT({$converted_date},\"{$date_format}\") AS date
+			FROM {$wpdb->edd_orders} edd_o
+			INNER JOIN {$wpdb->edd_ordermeta} edd_ometa ON( edd_o.id = edd_ometa.edd_order_id )
+			WHERE edd_o.type = 'sale'
+			AND edd_ometa.meta_key = '_edd_sl_upgraded_payment_id'
+			AND edd_o.status IN( '" . implode( "', '", $wpdb->_escape( $statuses ) ) . "' )
+			AND edd_o.date_created >= %s AND edd_o.date_created <= %s
+			GROUP BY DATE(date)
+			ORDER BY DATE(date)",
+			$dates['start']->copy()->format( 'mysql' ),
+			$dates['end']->copy()->format( 'mysql' )
+		)
+	);
+
+	$number = $amount = array();
+
+	try {
+		// Initialise all arrays with timestamps and set values to 0.
+		while ( strtotime( $dates['start']->copy()->format( 'mysql' ) ) <= strtotime( $dates['end']->copy()->format( 'mysql' ) ) ) {
+			$timestamp = strtotime( $dates['start']->copy()->format( 'mysql' ) );
+
+			$number[ $timestamp ][0] = $timestamp;
+			$number[ $timestamp ][1] = 0;
+
+			$amount[ $timestamp ][0] = $timestamp;
+			$amount[ $timestamp ][1] = 0.00;
+
+			// Loop through each date there were renewals, which we queried from the database.
+			foreach ( $results as $result ) {
+
+				$timezone         = new DateTimeZone( 'UTC' );
+				$date_of_db_value = new DateTime( $result->date, $timezone );
+				$date_on_chart    = new DateTime( $dates['start'], $timezone );
+
+				// Add any renewals that happened during this hour.
+				if ( $hour_by_hour ) {
+					// If the date of this db value matches the date on this line graph/chart, set the y axis value for the chart to the number in the DB result.
+					if ( $date_of_db_value->format( 'Y-m-d H' ) === $date_on_chart->format( 'Y-m-d H' ) ) {
+						$number[ $timestamp ][1] += $result->number;
+						$amount[ $timestamp ][1] += abs( $result->amount );
+					}
+					// Add any renewals that happened during this day.
+				} elseif ( $day_by_day ) {
+					// If the date of this db value matches the date on this line graph/chart, set the y axis value for the chart to the number in the DB result.
+					if ( $date_of_db_value->format( 'Y-m-d' ) === $date_on_chart->format( 'Y-m-d' ) ) {
+						$number[ $timestamp ][1] += $result->number;
+						$amount[ $timestamp ][1] += abs( $result->amount );
+					}
+					// Add any renewals that happened during this month.
+				} else {
+					// If the date of this db value matches the date on this line graph/chart, set the y axis value for the chart to the number in the DB result.
+					if ( $date_of_db_value->format( 'Y-m' ) === $date_on_chart->format( 'Y-m' ) ) {
+						$number[ $timestamp ][1] += $result->number;
+						$amount[ $timestamp ][1] += abs( $result->amount );
+					}
+				}
+			}
+
+			// Move the chart along to the next hour/day/month to get ready for the next loop.
+			if ( $hour_by_hour ) {
+				$dates['start']->addHour( 1 );
+			} elseif ( $day_by_day ) {
+				$dates['start']->addDays( 1 );
+			} else {
+				$dates['start']->addMonth( 1 );
+			}
+		}
+	} catch ( \Exception $e ) {
+
+	}
+
+	return array(
+		'number' => array_values( $number ),
+		'amount' => array_values( $amount ),
+	);
+}
 
 function edd_sl_show_renewal_notices_table() {
 	include EDD_SL_PLUGIN_DIR . 'includes/admin/classes/class-sl-renewal-notice-logs.php';

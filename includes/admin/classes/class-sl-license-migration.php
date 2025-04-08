@@ -81,7 +81,7 @@ class EDD_SL_License_Migration extends EDD_Batch_Export {
 
 			foreach ( $step_items as $item ) {
 
-				$license_post = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->posts} WHERE post_type = 'edd_license' AND ID = %d", $item ), 0 );
+				$license_post = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->posts} WHERE post_type = 'edd_license' AND ID = %d", $item ) );
 
 				// Prevent an already migrated item from being migrated.
 				$migrated = $wpdb->get_var( "SELECT meta_id FROM {$license_meta_db->table_name} WHERE meta_key = '_edd_sl_legacy_id' AND meta_value = $license_post->ID" );
@@ -202,7 +202,8 @@ class EDD_SL_License_Migration extends EDD_Batch_Export {
 
 						foreach( $payment_ids as $payment_id ) {
 
-							$customer_id = get_post_meta( $payment_id, '_edd_payment_customer_id', true );
+							$payment     = new EDD_Payment( $payment_id );
+							$customer_id = $payment->get_meta( '_edd_payment_customer_id' );
 							if ( ! empty( $customer_id ) ) {
 								break;
 							}
@@ -248,95 +249,10 @@ class EDD_SL_License_Migration extends EDD_Batch_Export {
 						foreach ( $payment_ids as $payment_id ) {
 							$license_meta_db->add_meta( $new_license_id, '_edd_sl_payment_id', absint( $payment_id ) ) ;
 
-							// We need to go directly to the db here to avoid any class performance impacts.
-							// TODO: Update this for EDD 3.0 custom tables.
-							$meta_data = $wpdb->get_row( "SELECT meta_id, meta_value FROM $wpdb->postmeta WHERE post_id = {$payment_id} AND meta_key = '_edd_payment_meta'" );
-
-							if ( ! empty( $meta_data ) ) {
-
-								$payment_meta = maybe_unserialize( $meta_data->meta_value );
-								if ( ! empty( $payment_meta ) ) {
-
-									// Update the downloads array.
-									if ( isset( $payment_meta['downloads'] ) && is_array( $payment_meta['downloads'] ) ) {
-										foreach ( $payment_meta['downloads'] as $key => $item ) {
-
-											if ( isset( $item['item_number'] ) ) {
-												$item_number     = true;
-												$item_license_id = ! empty( $item['item_number']['options']['license_id'] ) ? intval( $item['item_number']['options']['license_id'] ) : 0;
-											} else {
-												$item_number     = false;
-												$item_license_id = ! empty( $item['options']['license_id'] ) ? intval( $item['options']['license_id'] ) : 0;
-											}
-
-											if ( empty( $item_license_id ) || $item_license_id !== (int) $license_post->ID ) {
-												continue;
-											}
-
-											if ( $item_number ) {
-												$payment_meta['downloads'][ $key ]['item_number']['options']['license_id'] = $new_license_id;
-											} else {
-												$payment_meta['downloads'][ $key ]['options']['license_id'] = $new_license_id;
-											}
-
-										}
-									}
-
-									// Update the cart_details array.
-									if ( isset( $payment_meta['cart_details'] ) && is_array( $payment_meta['cart_details'] ) ) {
-
-										foreach ( $payment_meta['cart_details'] as $key => $item ) {
-
-											if ( isset( $item['item_number'] ) ) {
-												$item_number     = true;
-												$item_license_id = ! empty( $item['item_number']['options']['license_id'] ) ? intval( $item['item_number']['options']['license_id'] ) : 0;
-											} else {
-												$item_number     = false;
-												$item_license_id = ! empty( $item['options']['license_id'] ) ? intval( $item['options']['license_id'] ) : 0;
-											}
-
-											if ( empty( $item_license_id ) || $item_license_id !== (int) $license_post->ID ) {
-												continue;
-											}
-
-											if ( $item_number ) {
-												$payment_meta['cart_details'][ $key ]['item_number']['options']['license_id'] = $new_license_id;
-											} else {
-												$payment_meta['cart_details'][ $key ]['options']['license_id'] = $new_license_id;
-											}
-
-											// Add the license meta for the upgrade or renewal date
-											$action = false;
-											if ( $item_number ) {
-												if ( ! empty( $payment_meta['cart_details'][ $key ]['item_number']['options']['is_upgrade'] ) ) {
-													$action = 'upgrade';
-												} elseif ( ! empty( $payment_meta['cart_details'][ $key ]['item_number']['options']['is_renewal'] ) ) {
-													$action = 'renewal';
-												}
-											} else {
-												if ( ! empty( $payment_meta['cart_details'][ $key ]['options']['is_upgrade'] ) ) {
-													$action = 'upgrade';
-												} elseif ( ! empty( $payment_meta['cart_details'][ $key ]['options']['is_renewal'] ) ) {
-													$action = 'renewal';
-												}
-											}
-
-											$completed_date = get_post_meta( $payment_id, '_edd_completed_date', true );
-
-											if ( ! empty( $action ) && ! empty( $completed_date ) ) {
-												$license_meta_db->add_meta( $new_license_id, '_edd_sl_' . $action . '_date', $completed_date );
-											}
-
-										}
-
-									}
-
-									// Update by direct query to avoid any issues with class instantiation.
-									$payment_meta = serialize( wp_slash( $payment_meta ) );
-									$wpdb->query( "UPDATE {$wpdb->postmeta} SET meta_value = '{$payment_meta}' WHERE meta_id = {$meta_data->meta_id} LIMIT 1" );
-
-								}
-
+							if ( function_exists( 'edd_get_order' ) ) {
+								$this->update_meta_30( $payment_id, $new_license_id, $license_post );
+							} else {
+								$this->update_meta_29( $payment_id, $new_license_id, $license_post );
 							}
 						}
 					}
@@ -422,6 +338,160 @@ class EDD_SL_License_Migration extends EDD_Batch_Export {
 	}
 
 	/**
+	 * Updates the payment and license metadata in EDD 3.0.
+	 * We need to go directly to the db here to avoid any class performance impacts.
+	 *
+	 * @param int    $payment_id
+	 * @param int    $new_license_id
+	 * @param object $license_post
+	 * @return void
+	 */
+	private function update_meta_30( $payment_id, $new_license_id, $license_post ) {
+		global $wpdb;
+
+		$order_items = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $wpdb->edd_order_items WHERE order_id = %d", $payment_id ) );
+		if ( empty( $order_items ) ) {
+			return;
+		}
+
+		$license_meta_db = edd_software_licensing()->license_meta_db;
+
+		foreach ( $order_items as $order_item ) {
+			$meta_objects = $wpdb->get_results( $wpdb->prepare( "SELECT meta_key, meta_value FROM $wpdb->edd_order_itemmeta WHERE edd_order_item_id = %d", $order_item->id ) );
+			if ( empty( $meta_objects ) ) {
+				continue;
+			}
+			$meta = wp_list_pluck( $meta_objects, 'meta_value', 'meta_key' );
+			if ( empty( $meta['_option_license_id'] ) ) {
+				continue;
+			}
+			$order_item_license_id = intval( $meta['_option_license_id'] );
+			if ( $order_item_license_id !== (int) $license_post->ID ) {
+				continue;
+			}
+			edd_update_order_item_meta(
+				$order_item->id,
+				'_option_license_id',
+				$new_license_id,
+				$license_post->ID
+			);
+
+			if ( ! empty( $meta['_option_is_upgrade'] ) ) {
+				$action = 'upgrade';
+			} elseif ( ! empty( $meta['_option_is_renewal'] ) ) {
+				$action = 'renewal';
+			}
+
+			$order = $wpdb->get_row( $wpdb->prepare( "SELECT date_completed FROM $wpdb->edd_orders WHERE id = %d", $payment_id ) );
+			if ( ! empty( $action ) && ! empty( $order->date_completed ) ) {
+				$license_meta_db->add_meta( $new_license_id, "_edd_sl_{$action}_date", $order->date_completed );
+			}
+		}
+	}
+
+	/**
+	 * Updates the payment and license metadata in EDD 2.x.
+	 * We need to go directly to the db here to avoid any class performance impacts.
+	 *
+	 * @param int    $payment_id
+	 * @param int    $new_license_id
+	 * @param object $license_post
+	 * @return void
+	 */
+	private function update_meta_29( $payment_id, $new_license_id, $license_post ) {
+		global $wpdb;
+
+		$meta_data = $wpdb->get_row( "SELECT meta_id, meta_value FROM $wpdb->postmeta WHERE post_id = {$payment_id} AND meta_key = '_edd_payment_meta'" );
+
+		if ( empty( $meta_data ) ) {
+			return;
+		}
+
+		$payment_meta = maybe_unserialize( $meta_data->meta_value );
+		if ( empty( $payment_meta ) ) {
+			return;
+		}
+
+		$license_meta_db = edd_software_licensing()->license_meta_db;
+
+		// Update the downloads array.
+		if ( isset( $payment_meta['downloads'] ) && is_array( $payment_meta['downloads'] ) ) {
+			foreach ( $payment_meta['downloads'] as $key => $item ) {
+
+				if ( isset( $item['item_number'] ) ) {
+					$item_number     = true;
+					$item_license_id = ! empty( $item['item_number']['options']['license_id'] ) ? intval( $item['item_number']['options']['license_id'] ) : 0;
+				} else {
+					$item_number     = false;
+					$item_license_id = ! empty( $item['options']['license_id'] ) ? intval( $item['options']['license_id'] ) : 0;
+				}
+
+				if ( empty( $item_license_id ) || $item_license_id !== (int) $license_post->ID ) {
+					continue;
+				}
+
+				if ( $item_number ) {
+					$payment_meta['downloads'][ $key ]['item_number']['options']['license_id'] = $new_license_id;
+				} else {
+					$payment_meta['downloads'][ $key ]['options']['license_id'] = $new_license_id;
+				}
+			}
+		}
+
+		// Update the cart_details array.
+		if ( isset( $payment_meta['cart_details'] ) && is_array( $payment_meta['cart_details'] ) ) {
+
+			foreach ( $payment_meta['cart_details'] as $key => $item ) {
+
+				if ( isset( $item['item_number'] ) ) {
+					$item_number     = true;
+					$item_license_id = ! empty( $item['item_number']['options']['license_id'] ) ? intval( $item['item_number']['options']['license_id'] ) : 0;
+				} else {
+					$item_number     = false;
+					$item_license_id = ! empty( $item['options']['license_id'] ) ? intval( $item['options']['license_id'] ) : 0;
+				}
+
+				if ( empty( $item_license_id ) || $item_license_id !== (int) $license_post->ID ) {
+					continue;
+				}
+
+				if ( $item_number ) {
+					$payment_meta['cart_details'][ $key ]['item_number']['options']['license_id'] = $new_license_id;
+				} else {
+					$payment_meta['cart_details'][ $key ]['options']['license_id'] = $new_license_id;
+				}
+
+				// Add the license meta for the upgrade or renewal date
+				$action = false;
+				if ( $item_number ) {
+					if ( ! empty( $payment_meta['cart_details'][ $key ]['item_number']['options']['is_upgrade'] ) ) {
+						$action = 'upgrade';
+					} elseif ( ! empty( $payment_meta['cart_details'][ $key ]['item_number']['options']['is_renewal'] ) ) {
+						$action = 'renewal';
+					}
+				} else {
+					if ( ! empty( $payment_meta['cart_details'][ $key ]['options']['is_upgrade'] ) ) {
+						$action = 'upgrade';
+					} elseif ( ! empty( $payment_meta['cart_details'][ $key ]['options']['is_renewal'] ) ) {
+						$action = 'renewal';
+					}
+				}
+
+				$payment        = new EDD_Payment( $payment_id );
+				$completed_date = $payment->get_meta( '_edd_completed_date' );
+
+				if ( ! empty( $action ) && ! empty( $completed_date ) ) {
+					$license_meta_db->add_meta( $new_license_id, '_edd_sl_' . $action . '_date', $completed_date );
+				}
+			}
+		}
+
+		// Update by direct query to avoid any issues with class instantiation.
+		$payment_meta = serialize( wp_slash( $payment_meta ) );
+		$wpdb->query( "UPDATE {$wpdb->postmeta} SET meta_value = '{$payment_meta}' WHERE meta_id = {$meta_data->meta_id} LIMIT 1" );
+	}
+
+	/**
 	 * Return the calculated completion percentage
 	 *
 	 * @since 3.6
@@ -430,7 +500,7 @@ class EDD_SL_License_Migration extends EDD_Batch_Export {
 	public function get_percentage_complete() {
 
 		$items = $this->get_stored_data( 'edd_sl_legacy_license_ids', false );
-		$total = count( $items );
+		$total = is_array( $items ) ? count( $items ) : 0;
 
 		$percentage = 100;
 

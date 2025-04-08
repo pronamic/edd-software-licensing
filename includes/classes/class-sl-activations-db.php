@@ -26,12 +26,14 @@ class EDD_SL_Activations_DB extends EDD_SL_DB {
 
 		$this->table_name  = $wpdb->prefix . 'edd_license_activations';
 		$this->primary_key = 'site_id';
-		$this->version     = '1.0';
+		$this->version     = '1.1';
 
-		if ( ! $this->table_exists( $this->table_name ) ) {
-			$this->create_table();
+		$db_version = get_option( $this->table_name . '_db_version' );
+		if ( version_compare( $db_version, $this->version, '>=' ) ) {
+			return;
 		}
 
+		$this->create_table();
 	}
 
 	/**
@@ -301,7 +303,8 @@ class EDD_SL_Activations_DB extends EDD_SL_DB {
 		activated TINYINT(1) NOT NULL,
 		is_local TINYINT(1) NOT NULL,
 		PRIMARY KEY  (site_id),
-		UNIQUE KEY (site_name,license_id)
+		UNIQUE KEY site_name (site_name,license_id),
+		KEY license_id_activated (license_id,activated)
 		) CHARACTER SET utf8 COLLATE utf8_general_ci;";
 
 		dbDelta( $sql );

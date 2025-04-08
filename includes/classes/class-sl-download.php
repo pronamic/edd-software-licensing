@@ -48,16 +48,18 @@ class EDD_SL_Download extends EDD_Download {
 	 * @return int|boolean
 	 */
 	public function get_activation_limit( $price_id = false ) {
-		$limit = false;
+		$limit = 0;
 
 		remove_filter( 'get_post_metadata', '_eddsl_get_meta_backcompat', 99 );
 
 		if ( false === $price_id || ! $this->has_variable_prices() ) {
-			$limit = get_post_meta( $this->ID, '_edd_sl_limit', true );
+			if ( metadata_exists( 'post', $this->ID, '_edd_sl_limit' ) ) {
+				$limit = get_post_meta( $this->ID, '_edd_sl_limit', true );
+			}
 		} else {
 			$price_limit = $this->get_price_activation_limit( $price_id );
 
-			if( false !== $price_limit ) {
+			if ( false !== $price_limit ) {
 				$limit = $price_limit;
 			}
 		}
@@ -78,8 +80,8 @@ class EDD_SL_Download extends EDD_Download {
 	public function get_price_activation_limit( $price_id ) {
 		$prices = $this->get_prices();
 
-		if ( isset( $prices[ $price_id ][ 'license_limit' ] ) ) {
-			return absint( $prices[ $price_id ][ 'license_limit' ] );
+		if ( isset( $prices[ $price_id ]['license_limit'] ) && is_numeric( $prices[ $price_id ]['license_limit'] ) ) {
+			return absint( $prices[ $price_id ]['license_limit'] );
 		}
 
 		return false;
@@ -138,22 +140,35 @@ class EDD_SL_Download extends EDD_Download {
 	/**
 	 * Get the unit for licenses as days, weeks, months, or years
 	 *
+	 * @param int|false $price_id Price ID.
+	 *
 	 * @since 3.5
-	 * @return mixed
+	 * @return string|false
 	 */
-	public function get_expiration_unit() {
+	public function get_expiration_unit( $price_id = false ) {
 		$exp_unit   = get_post_meta( $this->ID, '_edd_sl_exp_unit', true );
-		return $exp_unit;
+
+		/**
+		 * Filters the download expiration unit.
+		 *
+		 * @since 3.7.3
+		 *
+		 * @param string|false $exp_unit
+		 * @param int          $download_id
+		 * @param int|false    $price_id
+		 */
+		return apply_filters( 'edd_sl_download_expiration_unit', $exp_unit, $this->get_ID(), $price_id );
 	}
 
 	/**
 	 * Return a expiration unit that is consistent with the length unit.
 	 *
 	 * @since 3.5.4
+	 * @param bool|int $price_id The price ID for a variable product (optional).
 	 * @return string
 	 */
-	public function get_expiration_unit_nicename() {
-		$exp_unit = $this->get_expiration_unit();
+	public function get_expiration_unit_nicename( $price_id = false ) {
+		$exp_unit = $this->get_expiration_unit( $price_id );
 
 		switch( $exp_unit ) {
 			case 'years':
@@ -178,7 +193,7 @@ class EDD_SL_Download extends EDD_Download {
 				break;
 		}
 
-		return ucfirst( _n( $singular, $plural, $this->get_expiration_length(), 'edd_sl' ) );
+		return ucfirst( _n( $singular, $plural, $this->get_expiration_length( $price_id ), 'edd_sl' ) );
 	}
 
 	/**
@@ -204,12 +219,24 @@ class EDD_SL_Download extends EDD_Download {
 	/**
 	 * Return the numeric length of the download licenses.
 	 *
+	 * @param int|false $price_id
+	 *
 	 * @since 3.5
-	 * @return mixed
+	 * @return int|false
 	 */
-	public function get_expiration_length() {
+	public function get_expiration_length( $price_id = false ) {
 		$exp_length = get_post_meta( $this->ID, '_edd_sl_exp_length', true );
-		return $exp_length;
+
+		/**
+		 * Filters the expiration length.
+		 *
+		 * @since 3.7.3
+		 *
+		 * @param int|false $exp_length
+		 * @param int       $download_id
+		 * @param int|false $price_id
+		 */
+		return apply_filters( 'edd_sl_download_expiration_length', $exp_length, $this->get_ID(), $price_id );
 	}
 
 	/**
@@ -262,11 +289,20 @@ class EDD_SL_Download extends EDD_Download {
 	 * Retrieve the changelog for a licensed download.
 	 *
 	 * @since  3.6
-	 *ok time
+	 * @since  3.6.10 Added $truncate varaible to allow supporting the `<!--more-->` tag.
+	 *
+	 * @param boolean $truncate If the changelog should be truncated.
 	 * @return string
 	 */
-	public function get_changelog() {
-		$changelog = get_post_meta( $this->ID, '_edd_sl_changelog', true );
+	public function get_changelog( $truncate = false ) {
+		$changelog    = stripslashes( get_post_meta( $this->ID, '_edd_sl_changelog', true ) );
+		$has_more_tag = strpos( $changelog, '<!--more-->' );
+
+		if ( $truncate && false !== $has_more_tag ) {
+			$changelog = trim( substr( $changelog, 0, $has_more_tag ) );
+
+			$changelog .= "\n\n" . trailingslashit( get_permalink( $this->ID ) ) . 'changelog';
+		}
 
 		return apply_filters( 'edd_sl_download_changelog', $changelog, $this->ID );
 	}
@@ -303,4 +339,19 @@ class EDD_SL_Download extends EDD_Download {
 		return apply_filters( 'edd_sl_beta_files', $beta_files, $this );
 	}
 
+	/**
+	 * Retrieves the download version requirements.
+	 *
+	 * @since 3.8
+	 * @return array
+	 */
+	public function get_requirements() {
+		$requirements = get_post_meta( $this->ID, '_edd_sl_required_versions', true );
+
+		if ( ! is_array( $requirements ) ) {
+			$requirements = array();
+		}
+
+		return $requirements;
+	}
 }

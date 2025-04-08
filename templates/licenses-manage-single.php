@@ -18,6 +18,10 @@ $color = ( $color == 'inherit' ) ? '' : $color;
 
 
 $license = edd_software_licensing()->get_license( $license_id );
+if ( false === $license ) {
+	return;
+}
+
 // Retrieve all sites for the specified license
 $sites = $license->get_activations();
 ?>
@@ -62,7 +66,7 @@ $sites = $license->get_activations();
 <form method="post" id="edd_sl_license_add_site_form" class="edd_sl_form">
 	<div>
 		<span><?php _e( 'Use this form to authorize a new site URL for this license. Enter the full site URL.', 'edd_sl' ); ?></span>
-		<input type="text" name="site_url" class="edd-input" value="http://"/>
+		<input type="text" name="site_url" class="edd-input" value="https://"/>
 		<input type="submit" class="button-primary button" value="<?php _e( 'Add Site', 'edd_sl' ); ?>"/>
 		<input type="hidden" name="license_id" value="<?php echo esc_attr( $license_id ); ?>"/>
 		<input type="hidden" name="edd_action" value="insert_site"/>

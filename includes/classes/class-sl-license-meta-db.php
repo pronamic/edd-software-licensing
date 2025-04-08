@@ -28,7 +28,8 @@ class EDD_SL_License_Meta_DB extends EDD_SL_DB {
 		$this->primary_key = 'meta_id';
 		$this->version     = '1.0';
 
-		if ( ! $this->table_exists( $this->table_name ) ) {
+		$db_version = get_option( $this->table_name . '_db_version' );
+		if ( version_compare( $db_version, $this->version, '<' ) ) {
 			$this->create_table();
 		}
 
@@ -97,6 +98,17 @@ class EDD_SL_License_Meta_DB extends EDD_SL_DB {
 		return get_metadata( 'license', $license_id, $meta_key, $single );
 	}
 
+	/**
+	 * Given a meta key, value combination, return license ID(s) that match.
+	 *
+	 * @since 3.6
+	 *
+	 * @param string $meta_key   The meta key being searched for.
+	 * @param string $meta_value The meta value being searched for.
+	 * @param bool   $single     If the license ID should be returned (true) or all found license ids (false).
+	 *
+	 * @return int|array
+	 */
 	public function get_license_id( $meta_key = '', $meta_value = '', $single = false ) {
 		global $wpdb;
 		if ( empty( $meta_key ) ) {
@@ -109,7 +121,8 @@ class EDD_SL_License_Meta_DB extends EDD_SL_DB {
 			$license_id = $wpdb->get_col( $wpdb->prepare( "SELECT license_id FROM {$this->table_name} WHERE meta_key = %s AND meta_value = %s", $meta_key, $meta_value ), 0 );
 		}
 
-		return (int) $license_id;
+		// If $single, return the single license id, else return the array of ids run through absint.
+		return $single ? (int) $license_id : array_map( 'absint', $license_id );
 	}
 
 	/**
@@ -126,7 +139,7 @@ class EDD_SL_License_Meta_DB extends EDD_SL_DB {
 	 * @access  private
 	 * @since   3.6
 	 */
-	public function add_meta( $license_id = 0, $meta_key = '', $meta_value, $unique = false ) {
+	public function add_meta( $license_id, $meta_key, $meta_value, $unique = false ) {
 		$license_id = $this->sanitize_license_id( $license_id );
 		if ( false === $license_id ) {
 			return false;
@@ -134,6 +147,10 @@ class EDD_SL_License_Meta_DB extends EDD_SL_DB {
 
 		if ( $unique ) {
 			$license = edd_software_licensing()->get_license( $license_id );
+			if ( false === $license ) {
+				return false;
+			}
+
 			$existing_meta = $license->get_meta( $meta_key, true );
 			if ( ! empty( $existing_meta ) ) {
 				return false;
@@ -162,7 +179,7 @@ class EDD_SL_License_Meta_DB extends EDD_SL_DB {
 	 * @access  private
 	 * @since   3.6
 	 */
-	public function update_meta( $license_id = 0, $meta_key = '', $meta_value, $prev_value = '' ) {
+	public function update_meta( $license_id, $meta_key, $meta_value, $prev_value = '' ) {
 		$license_id = $this->sanitize_license_id( $license_id );
 		if ( false === $license_id ) {
 			return false;

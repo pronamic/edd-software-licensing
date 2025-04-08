@@ -1,0 +1,177 @@
+.edd-sl-keys-input {
+	width: 100%;
+}
+
+#edd-payment-licenses .inside {
+	margin: 0;
+	padding: 0;
+}
+
+#edd-payment-licenses th {
+	font-weight:  600;
+	font-size: 13px;
+}
+
+#edd-payment-licenses .inside>.inside {
+	margin: 11px 0;
+	padding: 0 12px;
+}
+
+#edd-payment-licenses .inside table {
+	border-width: 0 0 1px 0;
+}
+
+.edd-sl-graph-controls {
+	padding-top: 0;
+}
+
+#renewals_chart_div {
+	height: 300px;
+}
+
+#edd_sl_renewal_notices td,
+#edd_sl_renewal_notices th {
+	padding-left: 10px;
+}
+
+.edd-repeatable-upgrade-wrapper:not(:first-of-type) {
+	margin-top: 12px;
+}
+
+.edd-sl-upgrade-paths-row {
+	display: flex;
+	justify-content: flex-start;
+	align-items: flex-end;
+	gap: 12px;
+}
+
+.edd-sl-upgrade-paths-row .edd-form-group {
+	flex: 0 0 125px;
+}
+
+.edd-sl-upgrade-paths-row .sl-upgrade-download {
+	flex-grow: 1;
+}
+
+.edd-sl-upgrade-paths-row .edd-form-group input[type="checkbox"]+label {
+	display: inline-block;
+}
+
+.edd-form-group__input--discount {
+	max-width: 100%;
+	width: 100px;
+}
+
+.edd-sl-retroactive-licensing .ui-progressbar-value {
+	margin-top: -19px !important;
+}
+
+#edd-item-card-wrapper #license-key {
+	font-family: monospace;
+}
+
+#edd-item-card-wrapper .edd-sl-license-card-notices {
+	display: none;
+}
+
+#edd-item-tables-wrapper .licensed-urls tr > th:first-child,
+#edd-item-tables-wrapper .licensed-urls tr > td:first-child,
+#edd-item-tables-wrapper .related-licenses tr > th:first-child,
+#edd-item-tables-wrapper .related-licenses tr > td:first-child,
+#edd-item-tables-wrapper .upgrades tr > th:first-child,
+#edd-item-tables-wrapper .upgrades tr > td:first-child {
+	text-align: left;
+}
+
+#edd-item-tables-wrapper .licensed-urls tr > td:only-child,
+#edd-item-tables-wrapper .upgrades tr > td:only-child {
+	text-align: center;
+}
+
+#edd-item-tables-wrapper .license-logs tr > th,
+#edd-item-tables-wrapper .license-logs tr > td {
+	text-align: left;
+}
+
+#edd-item-tables-wrapper .licensed-urls .edd-sl-add-licensed-url-row td:only-child {
+	background-color: #f9f9f9;
+	border-top: 1px solid #e5e5e5;
+	text-align: left;
+	width: 100%;
+}
+
+#edd-item-tables-wrapper .licensed-urls .edd-sl-add-licensed-url-td input[type="text"],
+#edd-item-tables-wrapper .upgrades input[type="text"] {
+	width: 20em;
+	max-width: 100%;
+}
+
+.edd-sl-license-card-actions a{
+	display: inline-block;
+}
+
+.edd-sl-license-card #edd_sl_update_license {
+	display: none;
+}
+
+.edd-item-info.delete-license {
+	text-align: center;
+	margin-top: 5px;
+	margin-bottom: 10px;
+	min-height: 185px;
+}
+
+.edd_sl_banner_container {
+	position: relative;
+}
+
+.edd_upload_banner {
+	background: #fff;
+	display: block;
+	padding: 2px 8px 2px;
+	position: absolute;
+	top: 3px;
+	right: 7px;
+}
+
+/* These can be removed when EDD 3.0 is standard. */
+div.edd-custom-price-option-section-content.edd-form-row {
+	display: flex;
+	gap: 12px;
+	padding-right: 0;
+}
+
+.edd-form-row__column {
+	display: inline-flex;
+	flex-direction: column;
+	justify-content: flex-end;
+	margin-bottom: 0;
+}
+
+.edd-form-group__label {
+	display: block;
+	margin-bottom: 8px;
+	padding: 0;
+}
+
+.edd-form-group input[type="checkbox"] + label,
+.edd-form-group input[type="radio"] + label {
+	display: unset;
+}
+
+@media screen and (min-width: 851px) and (max-width: 1120px), (max-width: 656px) {
+	.edd-sl-upgrade-paths-row {
+		flex-wrap: wrap;
+	}
+
+	.edd-sl-upgrade-paths-row .sl-upgrade-download {
+		flex-basis: 100%;
+	}
+}
+
+@media screen and (max-width: 656px) {
+	#edd-item-tables-wrapper .related-payments th:first-child,
+	#edd-item-tables-wrapper .related-payments td:first-child {
+		display: none;
+	}
+}

@@ -12,6 +12,7 @@ function edd_sl_add_license_meta_box() {
 	add_meta_box( 'edd_sl_upgrade_paths_box', __( 'License Upgrade Paths', 'edd_sl' ), 'edd_sl_render_license_upgrade_paths_meta_box', 'download', 'normal', 'core' );
 	add_meta_box( 'edd-generate-missing-licenses', __( 'Generate Missing Licenses', 'edd_sl' ), 'edd_sl_missing_keys_metabox', 'download', 'side', 'low' );
 	add_meta_box( 'edd_sl_beta_box', __( 'Beta Version', 'edd_sl' ), 'edd_sl_render_beta_version_meta_box', 'download', 'normal', 'core' );
+	add_meta_box( 'edd_sl_requirements_box', __( 'Download Requirements', 'edd_sl' ), 'edd_sl_requirements_fields', 'download', 'side', 'low' );
 
 }
 add_action( 'add_meta_boxes', 'edd_sl_add_license_meta_box', 100 );
@@ -71,8 +72,8 @@ function edd_sl_render_licenses_meta_box() {
 			echo '<td class="edd_field_type_text" colspan="2">';
 				do_action( 'edd_sl_license_metabox_before_activation_limit', $post->ID );
 				echo '<label for="edd_sl_limit"><strong>' . __( 'Activation Limit', 'edd_sl' ) . '</strong></label><br/>';
-				echo '<input type="number" class="medium-text" style="width:50px;" name="edd_sl_limit" id="edd_sl_limit" value="' . esc_attr( $limit ) . '"/>&nbsp;';
-				echo __( 'Limit number of times this license can be activated. Use 0 for unlimited. If using variable prices, set the limit for each price option.', 'edd_sl' );
+				echo '<input type="number" class="small-text" name="edd_sl_limit" id="edd_sl_limit" value="' . esc_attr( $limit ) . '"/>&nbsp;';
+				esc_html_e( 'Limit number of times this license can be activated. Leave empty for unlimited. If using variable prices, set the limit for each price option.', 'edd_sl' );
 				printf(
 					'<span alt="f223" class="edd-help-tip dashicons dashicons-editor-help" title="' . esc_attr( '%s' ) . '"></span>',
 					__( '<strong>Activation Limit</strong>: Set the number of activations allowed per license. If individual activation limits are set for variable pricing, they take precedence. If your product is a bundle, the activation limit set here will override the activation limits set on the individual products.', 'edd_sl' )
@@ -83,11 +84,15 @@ function edd_sl_render_licenses_meta_box() {
 
 		echo '<tr' . $display_no_bundle . ' class="edd_sl_toggled_row edd_sl_nobundle_row">';
 			echo '<td class="edd_field_type_text" colspan="2">';
+			echo '<div class="edd-form-group">';
 				do_action( 'edd_sl_license_metabox_before_version', $post->ID );
-				echo '<label for="edd_sl_version"><strong>' . __( 'Version Number', 'edd_sl' ) . '</strong></label><br/>';
-				echo '<input type="text" class="medium-text" style="width:50px;" name="edd_sl_version" id="edd_sl_version" value="' . esc_attr( $version ) . '"/>&nbsp;';
-				echo __( 'Enter the current version number.', 'edd_sl' );
+				echo '<div class="edd-form-group__control">';
+				echo '<label for="edd_sl_version" class="edd-form-group__label"><strong>' . esc_html__( 'Version Number', 'edd_sl' ) . '</strong></label>';
+				echo '<input type="text" class="medium-text" name="edd_sl_version" id="edd_sl_version" value="' . esc_attr( $version ) . '"/>&nbsp;';
+				echo '</div>';
+				echo '<p class="edd-form-group__help description">' . esc_html__( 'Enter the current version number.', 'edd_sl' ) . '</p>';
 				do_action( 'edd_sl_license_metabox_after_version', $post->ID );
+			echo '</div>';
 			echo '</td>';
 		echo '</tr>';
 
@@ -101,7 +106,7 @@ function edd_sl_render_licenses_meta_box() {
 					echo '<input ' . checked( true, $is_limited, false ) . ' type="radio" id="edd_license_is_limited" name="edd_sl_is_lifetime" value="0" /><label for="edd_license_is_limited">' . __( 'Limited', 'edd_sl' ) . '</label>';
 				echo '</p>';
 				echo '<p'  . $display_length . ' class="edd_sl_toggled_row" id="edd_license_length_wrapper">';
-					echo '<input type="number" id="edd_sl_exp_length" name="edd_sl_exp_length" class="medium-text" style="width:50px;" value="' . $exp_length . '"/>&nbsp;';
+					echo '<input type="number" id="edd_sl_exp_length" name="edd_sl_exp_length" class="small-text" value="' . $exp_length . '"/>&nbsp;';
 					echo '<select name="edd_sl_exp_unit" id="edd_sl_exp_unit">';
 						echo '<option value="days"' . selected( 'days', $exp_unit, false ) . '>' . __( 'Days', 'edd_sl' ) . '</option>';
 						echo '<option value="weeks"' . selected( 'weeks', $exp_unit, false ) . '>' . __( 'Weeks', 'edd_sl' ) . '</option>';
@@ -130,16 +135,21 @@ function edd_sl_render_licenses_meta_box() {
 
 					echo '<br />';
 
-					$disabled_readonly = $disable_discount ? ' disabled="disabled" readonly="readonly" ' : '';
-					echo '<p>';
-					echo '<label for="edd_sl_renewal_discount"><strong>' . __( 'Renewal Discount', 'edd_sl' ) . '</strong></label><br/>';
-					echo '<input ' . $disabled_readonly . ' type="number" step="0.01" class="medium-text" style="width:50px;" name="edd_sl_renewal_discount" id="edd_sl_renewal_discount" value="' . esc_attr( $discount ) . '"/>&nbsp;';
-					echo __( 'Enter a discount amount as a percentage, such as 10, or leave blank to use the global value.', 'edd_sl' );
+					$disabled_readonly = $disable_discount ? 'disabled readonly ' : '';
+					echo '<div class="edd-form-group">';
+					echo '<div class="edd-form-group__control">';
+					echo '<label for="edd_sl_renewal_discount" class="edd-form-group__label"><strong>' . esc_html__( 'Renewal Discount', 'edd_sl' ) . '</strong></label>';
+					echo '<input ' . esc_attr( $disabled_readonly ) . 'type="number" step="0.01" class="small-text" name="edd_sl_renewal_discount" id="edd_sl_renewal_discount" value="' . esc_attr( $discount ) . '"/>&nbsp;';
+					echo '</div>';
+					echo '<p class="edd-form-group__help description">';
+					esc_html_e( 'Enter a discount amount as a percentage, such as 10, or leave blank to use the global value.', 'edd_sl' );
 					printf(
-						'<span alt="f223" class="edd-help-tip dashicons dashicons-editor-help" title="' . esc_attr( '%s' ) . '"></span>',
-						__( '<strong>When is this renewal discount used?</strong>: When the user is on the checkout page renewing their license, this discount will be automatically applied to their renewal purchase.', 'edd_sl' )
+						'<span alt="f223" class="edd-help-tip dashicons dashicons-editor-help" title="<strong>%s</strong> %s"></span>',
+						esc_attr__( 'When is this renewal discount used?', 'edd_sl' ),
+						esc_attr__( 'When the user is on the checkout page renewing their license, this discount will be automatically applied to their renewal purchase.', 'edd_sl' )
 					);
 					echo '</p>';
+					echo '</div>';
 
 					do_action( 'edd_sl_license_metabox_after_renewal_discount', $post->ID );
 				echo '</td>';
@@ -167,6 +177,7 @@ function edd_sl_render_licenses_meta_box() {
 			echo '</td>';
 		echo '</tr>';
 
+		edd_sl_staged_rollout_fields( $post );
 
 		echo '<tr' . $display_no_bundle . ' class="edd_sl_toggled_row edd_sl_nobundle_row">';
 			echo '<td class="edd_field_type_textarea" colspan="2">';
@@ -209,138 +220,185 @@ function edd_sl_render_licenses_meta_box() {
  *
  * @since 1.0
  */
-function edd_sl_render_license_upgrade_paths_meta_box()	{
-
+function edd_sl_render_license_upgrade_paths_meta_box() {
 	global $post;
 	$paths = edd_sl_get_upgrade_paths( $post->ID );
-?>
+	?>
+	<p class="description"><?php esc_html_e( 'Configure the optional upgrade paths for customers. ', 'edd_sl' ); ?></p>
 	<div id="edd_sl_upgrade_paths_wrapper" class="edd_meta_table_wrap">
-		<table class="widefat edd_repeatable_table" width="100%" cellpadding="0" cellspacing="0">
-			<thead>
-				<tr>
-					<th class="sl-upgrade-download"><?php echo edd_get_label_singular(); ?></th>
-					<th class="sl-upgrade-price-option"><?php _e( 'Price Option', 'edd_sl' ); ?></th>
-					<th class="sl-upgrade-prorate"><?php _e( 'Prorate', 'edd_sl' ); ?></th>
-					<th class="sl-upgrade-discount"><?php _e( 'Additional Discount', 'edd_sl' ); ?></th>
-					<th class="sl-upgrade-remove"></th>
-				</tr>
-			</thead>
-			<tbody>
-			<?php
+		<div class="widefat edd_repeatable_table">
+			<div class="edd-sl-upgrade-path-fields edd-repeatables-wrap">
+				<?php
 				if ( ! empty( $paths ) && is_array( $paths ) ) :
-					foreach ( $paths as $key => $value ) :
-			?>
-					<tr class="edd-repeatable-upgrade-wrapper edd_repeatable_row" data-key="<?php echo esc_attr( $key ); ?>">
-						<td>
-							<?php
-							echo EDD()->html->product_dropdown( array(
-								'name'     => 'edd_sl_upgrade_paths[' . $key . '][download_id]',
-								'id'       => 'edd_sl_upgrade_paths_' . $key,
-								'selected' => $value['download_id'],
-								'multiple' => false,
-								'chosen'   => true,
-								'class'    => 'edd-sl-upgrade-path-download',
-							) );
-							?>
-						</td>
-						<td class="pricing">
-							<?php
-
-								if( edd_has_variable_prices( $value['download_id'] ) ) {
-
-									$options = array();
-									$prices = edd_get_variable_prices( $value['download_id'] );
-									if ( ! empty( $prices ) ) {
-										foreach ( $prices as $price_key => $price ) {
-											$options[ $price_key ] = $prices[ $price_key ]['name'];
-										}
-									}
-
-									echo EDD()->html->select( array(
-										'name'             => 'edd_sl_upgrade_paths[' . $key . '][price_id]',
-										'options'          => $options,
-										'selected'         => $value['price_id'],
-										'show_option_none' => false,
-										'show_option_all'  => false,
-										'class'            => 'edd-sl-upgrade-path-price-id'
-									) );
-								} else {
-									_e( 'N/A', 'edd_sl' );
-								}
-							?>
-						</td>
-						<td class="sl-upgrade-prorate">
-							<?php echo EDD()->html->checkbox( array(
-								'name'    => 'edd_sl_upgrade_paths[' . $key . '][pro_rated]',
-								'value'   => '1',
-								'current' => ! empty( $value['pro_rated'] ) ? 1 : 0
-							) );
-
-							do_action( 'sl_after_prorate_checkbox', $key, $value );
-
-							?>
-						</td>
-						<td>
-							<?php echo EDD()->html->text( array(
-								'name'  => 'edd_sl_upgrade_paths[' . $key . '][discount]',
-								'value' => esc_attr( $value['discount'] ),
-								'placeholder' => __( 'Amount', 'edd_sl' ),
-								'class' => 'edd-price-field'
-							) ); ?>
-						</td>
-						<td>
-							<a href="#" class="edd_remove_repeatable" data-type="file" style="background: url(<?php echo admin_url('/images/xit.gif'); ?>) no-repeat;">&times;</a>
-						</td>
-					</tr>
-			<?php
+					foreach ( $paths as $key => $args ) :
+						$index = ! empty( $value['index'] ) ? $value['index'] : $key;
+						?>
+						<div class="edd-repeatable-upgrade-wrapper edd_repeatable_row" data-key="<?php echo esc_attr( $key ); ?>">
+							<?php do_action( 'edd_sl_render_upgrade_row', $key, $args, $index ); ?>
+						</div>
+						<?php
 					endforeach;
 				else :
-			?>
-				<tr class="edd-repeatable-upgrade-wrapper edd_repeatable_row" data-key="1">
-					<td>
+					?>
+					<div class="edd-repeatable-upgrade-wrapper edd_repeatable_row" data-key="1">
 						<?php
-						echo EDD()->html->product_dropdown( array(
-							'name'     => 'edd_sl_upgrade_paths[1][download_id]',
-							'id'       => 'edd_sl_upgrade_paths_1',
-							'selected' => ! empty( $post->status ) ? $post->ID : false,
-							'multiple' => false,
-							'chosen'   => true,
-							'class'    => 'edd-sl-upgrade-path-download',
-						) );
+						do_action( 'edd_sl_render_upgrade_row', 1, array(), 1 );
 						?>
-					</td>
-					<td class="pricing">
-						<?php _e( 'N/A', 'edd_sl' ); ?>
-					</td>
-					<td class="sl-upgrade-prorate">
-						<?php echo EDD()->html->checkbox( array(
-							'name'    => 'edd_sl_upgrade_paths[1][pro_rated]',
-							'value'   => '1'
-						) ); ?>
-					</td>
-					<td>
-						<?php echo EDD()->html->text( array(
-							'name'  => 'edd_sl_upgrade_paths[1][discount]',
-							'placeholder' => __( 'Amount', 'edd_sl' ),
-							'class' => 'edd-price-field'
-						) ); ?>
-					</td>
-					<td>
-						<a href="#" class="edd_remove_repeatable" data-type="file" style="background: url(<?php echo admin_url('/images/xit.gif'); ?>) no-repeat;">&times;</a>
-					</td>
-				</tr>
-			<?php endif; ?>
-				<tr>
-					<td class="submit" colspan="4" style="float: none; clear:both; background: #fff;">
-						<a class="button-secondary edd_add_repeatable" style="margin: 6px 0 10px;"><?php _e( 'Add New Upgrade Path', 'edd_sl' ); ?></a>
-					</td>
-				</tr>
-			</tbody>
-		</table>
+					</div>
+					<?php
+				endif;
+				$edd_is_30 = function_exists( 'edd_get_orders' );
+				if ( $edd_is_30 ) {
+					?>
+					</div> <!-- edd-sl-upgrade-path-fields edd-repeatables-wrap -->
+					<div class="edd-add-repeatable-row">
+						<button class="button-secondary edd_add_repeatable"><?php esc_html_e( 'Add New Upgrade Path', 'edd_sl' ); ?></button>
+					</div>
+					<?php
+				} else {
+					?>
+					<div class="edd-add-repeatable-row">
+						<div class="submit" style="float: none; clear:both; background: #fff;">
+							<a class="button-secondary edd_add_repeatable"><?php esc_html_e( 'Add New Upgrade Path', 'edd_sl' ); ?></a>
+						</div>
+					</div>
+					</div> <!-- edd-sl-upgrade-path-fields edd-repeatables-wrap -->
+					<?php
+				}
+				?>
+		</div>
 	</div>
-	<p class="description"><?php _e( 'Configure the optional upgrade paths for customers. ', 'edd_sl' ); ?></p>
+	<?php
+}
 
-<?php
+add_action( 'edd_sl_render_upgrade_row', 'edd_sl_render_upgrade_row', 10, 4 );
+/**
+ * Render the individual upgrade path rows.
+ * Approach and markup borrowed from edd_render_price_row().
+ *
+ * @param int   $key     The array key associated with the row.
+ * @param array $args    The array of args needed to build the row.
+ * @param int   $index   The index of the current row.
+ *
+ * @since 3.7
+ * @return void
+ */
+function edd_sl_render_upgrade_row( $key, $args, $index ) {
+	$defaults = array(
+		'download_id' => '',
+		'discount'    => '',
+		'price_id'    => '',
+		'prorated'    => false,
+	);
+
+	$args = wp_parse_args( $args, $defaults );
+	?>
+	<div class="edd-repeatable-row-header edd-draghandle-anchor">
+		<span class="edd-repeatable-row-title" title="<?php esc_html_e( 'Upgrade Path', 'edd_sl' ); ?>">
+			<?php
+			/* translators: number of current upgrade path */
+			printf( esc_html__( 'Upgrade Path: %s', 'edd_sl' ), '<span class="edd_price_id">' . esc_attr( $key ) . '</span>' );
+			?>
+			<input type="hidden" name="edd_sl_upgrade_path[<?php echo esc_attr( $key ); ?>][index]" class="edd_repeatable_index" value="<?php echo esc_attr( $index ); ?>"/>
+		</span>
+		<?php
+		$actions = array(
+			'remove' => '<a class="edd-remove-row edd-delete" data-type="file" aria-label="' . __( 'Remove upgrade path', 'edd_sl' ) . '">' . __( 'Remove', 'edd_sl' ) . '</a>',
+		);
+		?>
+		<span class="edd-repeatable-row-actions">
+			<?php echo implode( '&nbsp;&#124;&nbsp;', $actions ); ?>
+		</span>
+	</div>
+	<div class="edd-form-row edd-repeatable-row-standard-fields edd-sl-upgrade-paths-row">
+		<div class="edd-form-group edd-form-row__column edd-sl-option-download sl-upgrade-download">
+			<label class="edd-form-group__label" for="edd_sl_upgrade_paths_<?php echo esc_attr( $key ); ?>">
+				<?php esc_html_e( 'Download', 'edd_sl' ); ?>
+			</label>
+
+			<div class="edd-form-group__control">
+				<?php
+				echo EDD()->html->product_dropdown(
+					array(
+						'name'     => 'edd_sl_upgrade_paths[' . esc_attr( $key ) . '][download_id]',
+						'id'       => 'edd_sl_upgrade_paths_' . esc_attr( $key ),
+						'selected' => ! empty( $args['download_id'] ) ? esc_attr( $args['download_id'] ) : false,
+						'multiple' => false,
+						'chosen'   => true,
+						'class'    => 'edd-sl-upgrade-path-download edd-form-group__input',
+					)
+				);
+				?>
+			</div>
+		</div>
+		<div class="edd-form-group edd-form-row__column edd-sl-option-pricing">
+			<label for="edd_sl_upgrade_paths_<?php echo esc_attr( $key ); ?>_price_id" class="edd-form-group__label edd-repeatable-row-setting-label"><?php esc_html_e( 'Price Option', 'edd_sl' ); ?></label>
+			<div class="edd-form-group__control edd-sl-upgrade-price-control">
+			<?php
+			if ( edd_has_variable_prices( $args['download_id'] ) ) {
+
+				$options = array();
+				$prices  = edd_get_variable_prices( $args['download_id'] );
+				if ( ! empty( $prices ) ) {
+					foreach ( $prices as $price_key => $price ) {
+						$options[ $price_key ] = $prices[ $price_key ]['name'];
+					}
+				}
+				echo EDD()->html->select(
+					array(
+						'name'                 => 'edd_sl_upgrade_paths[' . esc_attr( $key ) . '][price_id]',
+						'id'                   => 'edd_sl_upgrade_paths_' . esc_attr( $key ) . '_price_id',
+						'options'              => $options,
+						'selected'             => esc_attr( $args['price_id'] ),
+						'show_option_none'     => false,
+						'show_option_all'      => false,
+						'class'                => 'edd-sl-upgrade-path-price-id edd-form-group__input',
+						'show_variations_only' => true,
+					)
+				);
+			} else {
+				esc_html_e( 'N/A', 'edd_sl' );
+			}
+			?>
+			</div>
+		</div>
+		<div class="edd-form-group edd-form-row__column edd-sl-upgrade-prorate sl-upgrade-prorate">
+			<div class="edd-form-group__control">
+			<?php
+				echo EDD()->html->checkbox(
+					array(
+						'name'    => 'edd_sl_upgrade_paths[' . esc_attr( $key ) . '][pro_rated]',
+						'id'      => 'edd_sl_upgrade_paths[' . esc_attr( $key ) . '][pro_rated]',
+						'value'   => '1',
+						'current' => ! empty( $args['pro_rated'] ) ? 1 : 0,
+					)
+				);
+				?>
+				<label for="edd_sl_upgrade_paths[<?php echo esc_attr( $key ); ?>][pro_rated]" class="edd-repeatable-row-setting-label"><?php esc_html_e( 'Prorate', 'edd_sl' ); ?></label>
+				<?php
+
+				do_action( 'sl_after_prorate_checkbox', $key, $args );
+				?>
+			</div>
+		</div>
+		<div class="edd-form-group edd-form-row__column edd-sl-upgrade-discount sl-upgrade-discount">
+			<label for="edd_sl_upgrade_paths_<?php echo esc_attr( $key ); ?>_discount" class="edd-repeatable-row-setting-label"><?php esc_html_e( 'Discount', 'edd_sl' ); ?></label>
+			<div class="edd-form-group__control">
+				<?php
+				echo EDD()->html->text(
+					array(
+						'name'        => 'edd_sl_upgrade_paths[' . esc_attr( $key ) . '][discount]',
+						'id'          => 'edd_sl_upgrade_paths_' . esc_attr( $key ) . '_discount',
+						'value'       => esc_attr( $args['discount'] ),
+						'placeholder' => esc_html__( 'Amount', 'edd_sl' ),
+						'class'       => 'edd-form-group__input edd-form-group__input--discount',
+					)
+				);
+				?>
+			</div>
+		</div>
+	</div>
+	<?php
 }
 
 /**
@@ -359,69 +417,39 @@ function edd_sl_missing_keys_metabox( $post ) {
 }
 
 /**
- * Price rows header
+ * Disable "Software Licensing Settings" section in Advanced Settings view for Variable Pricing.
  *
- * @access      public
- * @since       2.5
- * @return      void
- */
-
-function edd_sl_prices_header( $download_id ) {
-?>
-	<th>
-		<?php _e( 'Activation Limit', 'edd_sl' ); ?>
-		<span alt="f223" class="edd-help-tip dashicons dashicons-editor-help" title="<?php _e( '<strong>Activation Limit</strong>: For each variable pricing option, set the number of activations allowed per license. Use 0 for unlimited. If your product is a bundle, the activation limits set here will override the activation limits set on the individual products.', 'edd_sl' ); ?>"></span>
-	</th>
-<?php
-}
-add_action( 'edd_download_price_table_head', 'edd_sl_prices_header', 800 );
-
-function edd_sl_lifetime_header( $download_id ) {
-?>
-	<th>
-		<?php _e( 'Lifetime', 'edd_sl' ); ?>
-		<span alt="f223" class="edd-help-tip dashicons dashicons-editor-help" title="<?php _e( '<strong>Lifetime</strong>: Check this setting to provide licenses that never expire.', 'edd_sl' ); ?>"></span>
-	</th>
-<?php
-}
-add_action( 'edd_download_price_table_head', 'edd_sl_lifetime_header', 801 );
-
-/**
- * Activation limit for price options
+ * @since 3.7
  *
- * @access      public
- * @since       2.5
- * @return      void
+ * @param int   $download_id Download ID.
+ * @param int   $price_id    Price ID.
+ * @param array $args        Custom parameters.
  */
-
-function edd_sl_price_option_activation_limit( $download_id, $price_id, $args ) {
-	$limit = edd_software_licensing()->get_price_activation_limit( $download_id, $price_id );
-?>
-	<td class="sl-limit">
-		<input type="number" min="0" step="1" name="edd_variable_prices[<?php echo $price_id; ?>][license_limit]" id="edd_variable_prices[<?php echo $price_id; ?>][license_limit]" size="4" value="<?php echo absint( $limit ); ?>" />
-	</td>
-<?php
-}
-add_action( 'edd_download_price_table_row', 'edd_sl_price_option_activation_limit', 800, 3 );
-
-/**
- * Activation limit for price options
- *
- * @access      public
- * @since       2.5
- * @return      void
- */
-
-function edd_sl_price_option_lifetime( $download_id, $price_id, $args ) {
+function edd_sl_licensing_price_section( $download_id, $price_id, $args ) {
+	$limit       = edd_software_licensing()->get_price_activation_limit( $download_id, $price_id );
 	$is_lifetime = edd_software_licensing()->get_price_is_lifetime( $download_id, $price_id );
-?>
-	<td class="sl-lifetime">
-		<input <?php checked( true, $is_lifetime, true ); ?> type="checkbox" name="edd_variable_prices[<?php echo $price_id; ?>][is_lifetime]" id="edd_variable_prices[<?php echo $price_id; ?>][is_lifetime]" value="1" />
-	</td>
-<?php
-}
-add_action( 'edd_download_price_table_row', 'edd_sl_price_option_lifetime', 801, 3 );
+	?>
+	<div class="edd-custom-price-option-section edd-custom-price-option-section--software-licensing">
+		<span class="edd-custom-price-option-section-title"><?php esc_html_e( 'Software Licensing Settings', 'edd_sl' ); ?></span>
+		<div class="edd-custom-price-option-section-content edd-form-row">
+			<div class="edd-form-group edd-form-row__column">
+				<label for="edd_variable_prices[<?php echo esc_attr( $price_id ); ?>][license_limit]" class="edd-form-group__label"><?php esc_html_e( 'Activation Limit', 'edd_sl' ); ?><span alt="f223" class="edd-help-tip dashicons dashicons-editor-help" title="<?php printf( '<strong>%s</strong>: %s', esc_html__( 'Activation Limit', 'edd_sl' ), esc_html__( 'For each variable pricing option, set the number of activations allowed per license. Use 0 or leave empty for unlimited. If your product is a bundle, the activation limits set here will override the activation limits set on the individual products.', 'edd_sl' ) ); ?>"></span></label>
+				<div class="edd-form-group__control">
+					<input class="edd-form-group__input small-text" type="number" min="0" step="1" name="edd_variable_prices[<?php echo esc_attr( $price_id ); ?>][license_limit]" id="edd_variable_prices[<?php echo esc_attr( $price_id ); ?>][license_limit]" value="<?php echo false !== $limit ? absint( $limit ) : ''; ?>">
+				</div>
+			</div>
 
+			<div class="edd-form-group edd-form-row__column">
+				<div class="edd-form-group__control">
+					<input class="edd-form-group__input" <?php checked( true, $is_lifetime, true ); ?> type="checkbox" name="edd_variable_prices[<?php echo esc_attr( $price_id ); ?>][is_lifetime]" id="edd_variable_prices[<?php echo esc_attr( $price_id ); ?>][is_lifetime]" value="1">
+					<label for="edd_variable_prices[<?php echo esc_attr( $price_id ); ?>][is_lifetime]" class="edd-form-group__label"><?php esc_html_e( 'Lifetime', 'edd_sl' ); ?><span alt="f223" class="edd-help-tip dashicons dashicons-editor-help" title="<?php printf( '<strong>%s</strong>: %s', esc_html__( 'Lifetime', 'edd_sl' ), esc_html__( 'Check this setting to provide licenses that never expire.', 'edd_sl' ) ); ?>"></span></label>
+				</div>
+			</div>
+		</div>
+	</div>
+	<?php
+}
+add_action( 'edd_download_price_option_row', 'edd_sl_licensing_price_section', 800, 3 );
 
 /**
  * Save data from meta box
@@ -456,34 +484,33 @@ function edd_sl_download_meta_box_save( $post_id ) {
 		delete_post_meta( $post_id, '_edd_sl_enabled' );
 	}
 
-	if ( isset( $_POST['edd_sl_limit'] ) ) {
-		update_post_meta( $post_id, '_edd_sl_limit', ( int ) $_POST['edd_sl_limit'] );
+	if ( ! empty( $_POST['edd_sl_limit'] ) ) {
+		update_post_meta( $post_id, '_edd_sl_limit', (int) $_POST['edd_sl_limit'] );
 	} else {
 		delete_post_meta( $post_id, '_edd_sl_limit' );
 	}
 
-	if ( isset( $_POST['edd_sl_version'] ) ) {
-		update_post_meta( $post_id, '_edd_sl_version', ( string ) $_POST['edd_sl_version'] );
+	if ( ! empty( $_POST['edd_sl_version'] ) ) {
+		update_post_meta( $post_id, '_edd_sl_version', (string) $_POST['edd_sl_version'] );
 	} else {
 		delete_post_meta( $post_id, '_edd_sl_version' );
 	}
 
-	if ( isset( $_POST['edd_sl_upgrade_file'] ) && $_POST['edd_sl_upgrade_file'] !== false ) {
+	if ( isset( $_POST['edd_sl_upgrade_file'] ) && false !== $_POST['edd_sl_upgrade_file'] ) {
 
 		$file_id = intval( $_POST['edd_sl_upgrade_file'] );
 		$files   = edd_get_download_files( $post_id );
 
-		if ( $file_id !== '-1' && array_key_exists( $file_id, $files ) ) {
-			update_post_meta( $post_id, '_edd_sl_upgrade_file_key', $file_id  );
+		if ( '-1' !== $file_id && is_array( $files ) && array_key_exists( $file_id, $files ) ) {
+			update_post_meta( $post_id, '_edd_sl_upgrade_file_key', $file_id );
 		} else {
 			delete_post_meta( $post_id, '_edd_sl_upgrade_file_key' );
 		}
-
 	} else {
 		delete_post_meta( $post_id, '_edd_sl_upgrade_file_key' );
 	}
 
-	if ( isset( $_POST['edd_sl_changelog'] ) ) {
+	if ( ! empty( $_POST['edd_sl_changelog'] ) ) {
 		update_post_meta( $post_id, '_edd_sl_changelog', addslashes( $_POST['edd_sl_changelog'] ) ) ;
 	} else {
 		delete_post_meta( $post_id, '_edd_sl_changelog' );
@@ -495,87 +522,144 @@ function edd_sl_download_meta_box_save( $post_id ) {
 	}
 
 	if ( isset( $_POST['edd_sl_exp_unit'] ) ) {
-		update_post_meta( $post_id, '_edd_sl_exp_unit', addslashes( $_POST['edd_sl_exp_unit'] ) ) ;
+		update_post_meta( $post_id, '_edd_sl_exp_unit', addslashes( $_POST['edd_sl_exp_unit'] ) );
 	} else {
 		delete_post_meta( $post_id, '_edd_sl_exp_unit' );
 	}
 
-	if ( isset( $_POST['edd_sl_exp_length'] ) ) {
+	if ( ! empty( $_POST['edd_sl_exp_length'] ) ) {
 		update_post_meta( $post_id, '_edd_sl_exp_length', addslashes( $_POST['edd_sl_exp_length'] ) ) ;
 	} else {
 		delete_post_meta( $post_id, '_edd_sl_exp_length' );
 	}
 
-	if ( isset( $_POST['edd_sl_disable_renewal_discount'] ) ) {
+	if ( ! empty( $_POST['edd_sl_disable_renewal_discount'] ) ) {
 		update_post_meta( $post_id, '_edd_sl_disable_renewal_discount', 1 );
 	} else {
 		delete_post_meta( $post_id, '_edd_sl_disable_renewal_discount' );
 	}
 
-	if ( isset( $_POST['edd_sl_renewal_discount'] ) ) {
+	if ( ! empty( $_POST['edd_sl_renewal_discount'] ) ) {
 		update_post_meta( $post_id, '_edd_sl_renewal_discount', edd_sanitize_amount( $_POST['edd_sl_renewal_discount'] ) );
 	} else {
 		delete_post_meta( $post_id, '_edd_sl_renewal_discount' );
 	}
 
-	if ( isset( $_POST['edd_sl_keys'] ) ) {
+	if ( ! empty( $_POST['edd_sl_keys'] ) ) {
 		update_post_meta( $post_id, '_edd_sl_keys', addslashes( $_POST['edd_sl_keys'] ) ) ;
 	} else {
 		delete_post_meta( $post_id, '_edd_sl_keys' );
 	}
 
-	if( ! empty( $_POST['edd_sl_upgrade_paths'] ) && is_array( $_POST['edd_sl_upgrade_paths'] ) ) {
+	if ( ! empty( $_POST['edd_sl_upgrade_paths'] ) && is_array( $_POST['edd_sl_upgrade_paths'] ) ) {
 
 		$upgrade_paths = array();
 
-		foreach( $_POST['edd_sl_upgrade_paths'] as $key => $path ) {
+		foreach ( $_POST['edd_sl_upgrade_paths'] as $key => $path ) {
 
-			if( empty( $path['download_id'] ) ) {
+			$upgrade_download_id = ! empty( $path['download_id'] ) ? absint( $path['download_id'] ) : false;
+			if ( empty( $upgrade_download_id ) ) {
 				continue;
 			}
 
-			$upgrade_paths[ $key ][ 'download_id' ] = absint( $path['download_id'] );
-			$upgrade_paths[ $key ][ 'price_id' ]    = isset( $path['price_id'] ) ? absint( $path['price_id'] ) : false;
-			$upgrade_paths[ $key ][ 'discount' ]    = edd_sanitize_amount( $path['discount'] );
-			$upgrade_paths[ $key ][ 'pro_rated' ]   = isset( $path['pro_rated'] ) ? 1 : 0;
+			$upgrade_paths[ $key ]['download_id'] = $upgrade_download_id;
+			$upgrade_paths[ $key ]['price_id']    = isset( $path['price_id'] ) ? absint( $path['price_id'] ) : false;
+			$upgrade_paths[ $key ]['discount']    = edd_sanitize_amount( $path['discount'] );
+			$upgrade_paths[ $key ]['pro_rated']   = isset( $path['pro_rated'] ) ? 1 : 0;
 
 		}
 
-		update_post_meta( $post_id, '_edd_sl_upgrade_paths', $upgrade_paths );
-
-	} else {
-		delete_post_meta( $post_id, '_edd_sl_upgrade_paths' );
+		if ( ! empty( $upgrade_paths ) ) {
+			update_post_meta( $post_id, '_edd_sl_upgrade_paths', $upgrade_paths );
+		} else {
+			delete_post_meta( $post_id, '_edd_sl_upgrade_paths' );
+		}
 	}
 
-	if ( isset( $_POST['edd_sl_beta_enabled'] ) ) {
+	if ( ! empty( $_POST['edd_sl_beta_enabled'] ) ) {
 		update_post_meta( $post_id, '_edd_sl_beta_enabled', true );
 	} else {
 		delete_post_meta( $post_id, '_edd_sl_beta_enabled' );
 	}
 
-	if ( isset( $_POST['edd_sl_beta_version'] ) ) {
+	if ( ! empty( $_POST['edd_sl_beta_version'] ) ) {
 		update_post_meta( $post_id, '_edd_sl_beta_version', sanitize_text_field( $_POST['edd_sl_beta_version'] ) );
 	} else {
 		delete_post_meta( $post_id, '_edd_sl_beta_version' );
 	}
 
-	if ( isset( $_POST['edd_sl_beta_files'] ) && $_POST['edd_sl_beta_files'] !== false ) {
+	if ( isset( $_POST['edd_sl_beta_files'] ) && false !== $_POST['edd_sl_beta_files'] ) {
 		$beta_files = apply_filters( 'edd_metabox_save_beta_files', $_POST['edd_sl_beta_files'] );
-		update_post_meta( $post_id, '_edd_sl_beta_files', $beta_files );
-	} else {
-		delete_post_meta( $post_id, '_edd_sl_beta_files' );
+		if ( $beta_files ) {
+			update_post_meta( $post_id, '_edd_sl_beta_files', $beta_files );
+		} else {
+			delete_post_meta( $post_id, '_edd_sl_beta_files' );
+		}
 	}
 
+	// edd_sl_beta_upgrade_file is a hidden input with a value of '1' so this will always be added.
 	if ( isset( $_POST['edd_sl_beta_upgrade_file'] ) && $_POST['edd_sl_beta_upgrade_file'] !== false ) {
 		update_post_meta( $post_id, '_edd_sl_beta_upgrade_file_key', ( int ) $_POST['edd_sl_beta_upgrade_file'] );
 	} else {
 		delete_post_meta( $post_id, '_edd_sl_beta_upgrade_file_key' );
 	}
 
-	if ( isset( $_POST['edd_sl_beta_changelog'] ) ) {
+	if ( ! empty( $_POST['edd_sl_beta_changelog'] ) ) {
 		update_post_meta( $post_id, '_edd_sl_beta_changelog', wp_kses( stripslashes( $_POST['edd_sl_beta_changelog'] ), wp_kses_allowed_html( 'post' ) ) );
 	} else {
 		delete_post_meta( $post_id, '_edd_sl_beta_changelog' );
+	}
+
+	// Required platform versions
+	$required_versions = array();
+	if ( ! empty( $_POST['edd_sl_required_versions'] ) ) {
+		$required_versions = array_filter( array_map( 'sanitize_text_field', $_POST['edd_sl_required_versions'] ) );
+	}
+	if ( ! empty( $required_versions ) ) {
+		update_post_meta( $post_id, '_edd_sl_required_versions', $required_versions );
+	} else {
+		delete_post_meta( $post_id, '_edd_sl_required_versions' );
+	}
+
+	// Staged rollouts
+	if ( isset( $_POST['edd_sr_rollouts_enabled'] ) && isset( $_POST['edd_license_enabled'] ) ) {
+		update_post_meta( $post_id, 'edd_sr_enabled', true );
+	} else {
+		delete_post_meta( $post_id, 'edd_sr_enabled' );
+	}
+
+	if ( isset( $_POST['edd_sr_batch_enabled'] ) && isset( $_POST['edd_sr_rollouts_enabled'] ) ) {
+		update_post_meta( $post_id, 'edd_sr_batch_enabled', true );
+	} else {
+		delete_post_meta( $post_id, 'edd_sr_batch_enabled' );
+	}
+
+	if ( isset( $_POST['edd_sr_version_enabled'] ) && isset( $_POST['edd_sr_rollouts_enabled'] )) {
+		update_post_meta( $post_id, 'edd_sr_version_enabled', true );
+	} else {
+		delete_post_meta( $post_id, 'edd_sr_version_enabled' );
+	}
+
+	// @todo Remove this at a later date.
+	delete_post_meta( $post_id, 'edd_sr_batch_min' );
+
+	if ( isset( $_POST['edd_sr_batch_max'] ) ) {
+		update_post_meta( $post_id, 'edd_sr_batch_max', (int) $_POST['edd_sr_batch_max'] );
+	} else {
+		delete_post_meta( $post_id, 'edd_sr_batch_max' );
+	}
+
+	if ( isset( $_POST['edd_sr_version_limit'] ) ) {
+		$above_below = $_POST['edd_sr_version_limit'] === '1' ? 1 : 0;
+		update_post_meta( $post_id, 'edd_sr_version_limit', $above_below );
+	} else {
+		delete_post_meta( $post_id, 'edd_sr_version_limit' );
+	}
+
+	if ( isset( $_POST['edd_sr_version'] ) ) {
+		update_post_meta( $post_id, 'edd_sr_version', (string) $_POST['edd_sr_version'] );
+	} else {
+		delete_post_meta( $post_id, 'edd_sr_version' );
 	}
 
 }
@@ -612,7 +696,7 @@ function edd_sl_payment_details_meta_box( $payment_id = 0 ) {
 
 			if( is_array( $child_licenses ) && count( $child_licenses ) > 0 ) {
 				foreach( $child_licenses as $child_key => $child ) {
-					if( $child->post_parent == $license->ID ) {
+					if ( $child->parent == $license->ID ) {
 						$licenses[] = $child;
 						unset( $child_licenses[$child_key] );
 					}
@@ -644,7 +728,7 @@ function edd_sl_payment_details_meta_box( $payment_id = 0 ) {
 							<tr class="<?php if ( $i % 2 == 0 ) { echo 'alternate'; } ?>">
 								<td class="name column-name">
 									<?php
-									if( $license->post_parent ) {
+									if ( $license->parent ) {
 										echo '&#8212; ';
 									}
 
@@ -669,9 +753,20 @@ function edd_sl_payment_details_meta_box( $payment_id = 0 ) {
 			<?php endif; ?>
 			<?php if ( current_user_can( 'manage_licenses' ) ) : ?>
 			<div class="inside">
-				<p><?php _e( 'Use this to generate missing license keys for this purchase. If you add a product to the purchase, click this after saving the payment.', 'edd_sl' ); ?></p>
-				<a href="<?php echo wp_nonce_url( add_query_arg( array( 'posts' => $payment_id ), admin_url( 'edit.php?post_type=download&page=edd-tools&tab=general' ) ), 'edd_sl_retroactive', 'edd_sl_retroactive' ); ?>" class="button-secondary">
-					<?php _e( 'Generate License Keys', 'edd_sl' ); ?>
+				<p><?php esc_html_e( 'Missing license keys for this purchase? Use the Retroactive Licensing Processor tool to create them.', 'edd_sl' ); ?></p>
+				<?php
+				$url = add_query_arg(
+					array(
+						'posts'     => urlencode( $payment_id ),
+						'post_type' => 'download',
+						'page'      => 'edd-tools',
+						'tab'       => 'general#edd-sl-retroactive-processor',
+					),
+					admin_url( 'edit.php' )
+				);
+				?>
+				<a href="<?php echo esc_url( wp_nonce_url( $url, 'edd_sl_retroactive', 'edd_sl_retroactive' ) ); ?>" class="button-secondary">
+					<?php esc_html_e( 'Generate License Keys', 'edd_sl' ); ?>
 				</a>
 			</div>
 			<?php endif; ?>
@@ -718,7 +813,6 @@ function edd_sl_save_readme_metabox($fields) {
 	$fields[] = '_edd_readme_location';
 	$fields[] = '_edd_readme_plugin_homepage';
 	$fields[] = '_edd_readme_plugin_added';
-	$fields[] = '_edd_readme_plugin_last_updated';
 	$fields[] = '_edd_readme_meta';
 	$fields[] = '_edd_readme_sections';
 	$fields[] = '_edd_readme_plugin_banner_high';
@@ -764,12 +858,12 @@ function edd_sl_readme_meta_box_settings( $post_id ) {
 			'title'       => __( 'Download details', 'edd_sl' ),
 			'description' => __( 'Use the following data from the remote readme.txt file . ', 'edd_sl' ),
 			'settings'    => array(
-				'tested_up_to' => __( 'Tested Up To (WordPress Version)', 'edd_sl' ),
-				'stable_tag'   => __( 'Stable Tag', 'edd_sl' ),
-				'contributors' => __( 'Contributors', 'edd_sl' ),
-				'donate_link'  => __( 'Donate Link', 'edd_sl' ),
-				'license'      => __( 'License', 'edd_sl' ),
-				'license_uri'  => __( 'License URI', 'edd_sl' ),
+				'tested_up_to'      => __( 'Tested Up To (WordPress Version)', 'edd_sl' ),
+				'stable_tag'        => __( 'Stable Tag', 'edd_sl' ),
+				'contributors'      => __( 'Contributors', 'edd_sl' ),
+				'donate_link'       => __( 'Donate Link', 'edd_sl' ),
+				'license'           => __( 'License', 'edd_sl' ),
+				'remaining_content' => __( 'Other product details', 'edd_sl' ),
 			)
 		),
 		'readme_sections' => array(
@@ -778,9 +872,9 @@ function edd_sl_readme_meta_box_settings( $post_id ) {
 			'settings'    => array(
 				'description'                => __( 'Description (default: Product content field)', 'edd_sl' ),
 				'installation'               => __( 'Installation', 'edd_sl' ),
-				'frequently_asked_questions' => __( 'FAQ', 'edd_sl' ),
+				'faq'                        => __( 'FAQ', 'edd_sl' ),
 				'changelog'                  => __( 'Changelog (default: "Change Log" field)', 'edd_sl' ),
-				'remaining_content'          => __( 'Other Content', 'edd_sl' )
+				'remaining_content'          => __( 'Other tabs in the readme.txt', 'edd_sl' ),
 			)
 		)
 	);
@@ -790,7 +884,7 @@ function edd_sl_readme_meta_box_settings( $post_id ) {
 		<span class="howto"><?php _e( 'What is the URL of the readme.txt file for the download?', 'edd_sl' ); ?></span>
 	</p>
 	<p>
-		<input type="text" name="_edd_readme_location" class="widefat" id="edd_readme_location" value="<?php echo esc_attr( $readme_location ); ?>" size="50" placeholder="http://example.com/wp-content/plugins/example/readme.txt"/>
+		<input type="text" name="_edd_readme_location" class="widefat" id="edd_readme_location" value="<?php echo esc_attr( $readme_location ); ?>" size="50" placeholder="https://example.com/wp-content/plugins/example/readme.txt"/>
 	</p>
 <?php
 
@@ -819,7 +913,7 @@ function edd_sl_readme_meta_box_settings( $post_id ) {
 	</p>
 	<p>
 		<div class="edd_sl_banner_container">
-			<input type="text" name="_edd_readme_plugin_banner_high" class="widefat" id="edd_readme_plugin_banner_high" value="<?php echo esc_attr( $plugin_banner_high ); ?>" size="50" placeholder="http://www.example.com/banner-1544x500.jpg"/>
+			<input type="text" name="_edd_readme_plugin_banner_high" class="widefat" id="edd_readme_plugin_banner_high" value="<?php echo esc_attr( $plugin_banner_high ); ?>" size="50" placeholder="https://www.example.com/banner-1544x500.jpg"/>
 			<span class="edd_upload_banner">
 				<a href="#" data-uploader-title="<?php _e( 'Insert Image', 'edd_sl' ); ?>" data-uploader-button-text="<?php _e( 'Insert', 'edd_sl' ); ?>" class="edd_upload_banner_button" onclick="return false;"><?php _e( 'Upload an Image', 'edd_sl' ); ?></a>
 			</span>
@@ -832,7 +926,7 @@ function edd_sl_readme_meta_box_settings( $post_id ) {
 	</p>
 	<p>
 		<div class="edd_sl_banner_container">
-			<input type="text" name="_edd_readme_plugin_banner_low" class="widefat" id="edd_readme_plugin_banner_low" value="<?php echo esc_attr( $plugin_banner_low ); ?>" size="50" placeholder="http://www.example.com/banner-772x250.jpg"/>
+			<input type="text" name="_edd_readme_plugin_banner_low" class="widefat" id="edd_readme_plugin_banner_low" value="<?php echo esc_attr( $plugin_banner_low ); ?>" size="50" placeholder="https://www.example.com/banner-772x250.jpg"/>
 			<span class="edd_upload_banner">
 				<a href="#" data-uploader-title="<?php _e( 'Insert Image', 'edd_sl' ); ?>" data-uploader-button-text="<?php _e( 'Insert', 'edd_sl' ); ?>" class="edd_upload_banner_button" onclick="return false;"><?php _e( 'Upload an Image', 'edd_sl' ); ?></a>
 			</span>
@@ -842,7 +936,6 @@ function edd_sl_readme_meta_box_settings( $post_id ) {
 
 	$plugin_homepage     = get_post_meta( $post_id, '_edd_readme_plugin_homepage', true );
 	$plugin_added        = get_post_meta( $post_id, '_edd_readme_plugin_added', true );
-	$plugin_last_updated = get_post_meta( $post_id, '_edd_readme_plugin_last_updated', true );
 
 ?>
 	<p>
@@ -850,19 +943,17 @@ function edd_sl_readme_meta_box_settings( $post_id ) {
 		<span class="howto"><?php _e('Leave blank to use the default plugin homepage (the URL of this Download page)', 'edd_sl' ); ?></span>
 	</p>
 	<p>
-		<input type="text" name="_edd_readme_plugin_homepage" class="widefat" id="edd_readme_plugin_homepage" value="<?php echo esc_attr( $plugin_homepage ); ?>" size="50" placeholder="http://www.plugin-homepage.com"/>
+		<input type="text" name="_edd_readme_plugin_homepage" class="widefat" id="edd_readme_plugin_homepage" value="<?php echo esc_attr( $plugin_homepage ); ?>" size="50" placeholder="https://www.plugin-homepage.com"/>
 	</p>
 
 	<p><strong><?php _e( 'Plugin Dates:', 'edd_sl' ); ?></strong></p>
 
 	<p><label for="edd_readme_plugin_added"><input type="checkbox" name="_edd_readme_plugin_added" id="edd_readme_plugin_added" value="1" <?php checked(!empty($plugin_added), true); ?> /> <?php _e('Use Download "Published on" date as Plugin Added date?', 'edd_sl' ); ?></label></p>
 
-	<p><label for="edd_readme_plugin_last_updated"><input type="checkbox" name="_edd_readme_plugin_last_updated" id="edd_readme_plugin_last_updated" value="1" <?php checked(!empty($plugin_last_updated), true); ?> /> <?php _e('Use the last time this Download was modified as the "Last Modified" date?', 'edd_sl' ); ?></label></p>
-
 	<?php
 
 	// Release some memory
-	unset( $plugin_last_updated, $plugin_last_updated, $plugin_banner_high, $plugin_banner_low, $plugin_homepage, $output, $readme_location, $readme_sections, $readme_settings );
+	unset( $plugin_banner_high, $plugin_banner_low, $plugin_homepage, $output, $readme_location, $readme_sections, $readme_settings );
 }
 
 /**
@@ -892,7 +983,7 @@ function edd_sl_render_beta_version_meta_box() {
 		echo '<span alt="f223" class="edd-help-tip dashicons dashicons-editor-help" title="<strong>' . __( 'Beta Version', 'edd_sl' ) . '</strong>: ' . __( 'Check this and configure your beta version to deliver beta updates to any users who have opted in.', 'edd_sl' ) . '"></span>';
 	echo '</p>';
 
-	echo '<p class="edd_sl_beta_docs_link">' . sprintf( __( 'For information on releasing beta versions, please %s.', 'edd_sl' ), '<a href="http://docs.easydigitaldownloads.com/article/1722-software-licensing-releasing-beta-versions" target="_blank">' . __( 'see our documentation', 'edd_sl' ) . '</a>' ) . '</p>';
+	echo '<p class="edd_sl_beta_docs_link">' . sprintf( __( 'For information on releasing beta versions, please %s.', 'edd_sl' ), '<a href="https://docs.easydigitaldownloads.com/article/1722-software-licensing-releasing-beta-versions" target="_blank">' . __( 'see our documentation', 'edd_sl' ) . '</a>' ) . '</p>';
 
 	$files = get_post_meta( $post->ID, '_edd_sl_beta_files', true );
 
@@ -994,3 +1085,145 @@ function edd_sl_sanitize_file_save( $files ) {
 	return $return;
 }
 add_filter( 'edd_metabox_save_beta_files', 'edd_sl_sanitize_file_save' );
+
+/**
+ * Add new minimum version required fields.
+ *
+ * @since 3.8
+ * @param WP_Post $post The current post object.
+ *
+ * @return void
+ */
+function edd_sl_requirements_fields( $post ) {
+
+	?>
+	<p><?php esc_html_e( 'Optionally set minimum version requirements for your download. Users whose sites/platforms do not meet the minimum requirements will not have access to automatic updates.', 'edd_sl' ); ?></p>
+	<?php
+
+	$requirements = edd_sl_get_platforms();
+	$metadata     = get_post_meta( $post->ID, '_edd_sl_required_versions', true );
+	foreach ( $requirements as $key => $label ) {
+		$value = ! empty( $metadata[ $key ] ) ? $metadata[ $key ] : '';
+		?>
+		<div class="edd-form-group">
+			<div class="edd-form-group__control">
+				<label class="edd-form-group__label" for="edd_sl_required_versions_<?php echo esc_attr( $key ); ?>"><?php printf( __( '%s Version Required:', 'edd_sl' ), $label ); ?></label>
+				<?php
+				echo EDD()->html->text(
+					array(
+						'name'  => 'edd_sl_required_versions[' . $key . ']',
+						'id'    => 'edd_sl_required_versions_' . $key,
+						'value' => esc_html( $value ),
+						'class' => 'edd-form-group__input widefat',
+					)
+				);
+				?>
+			</div>
+		</div>
+		<?php
+	}
+}
+
+/**
+ * Render the staged rollouts information.
+ *
+ * @param WP_Post $post
+ *
+ * @since 3.8
+ */
+function edd_sl_staged_rollout_fields( $post ) {
+
+	$sr_enabled      = get_post_meta( $post->ID, 'edd_sr_enabled', true ) ? true : false;
+	$sl_enabled      = get_post_meta( $post->ID, '_edd_sl_enabled', true ) ? true : false;
+	$batch_enabled   = get_post_meta( $post->ID, 'edd_sr_batch_enabled', true ) ? true : false;
+	$batch_min       = get_post_meta( $post->ID, 'edd_sr_batch_min', true );
+	$batch_max       = get_post_meta( $post->ID, 'edd_sr_batch_max', true );
+	$version_enabled = get_post_meta( $post->ID, 'edd_sr_version_enabled', true ) ? true : false;
+	$version         = get_post_meta( $post->ID, 'edd_sr_version', true );
+	$display         = $sr_enabled ? '' : ' style="display:none;"';
+	$batch_display   = $batch_enabled ? '' : ' style="display:none;"';
+	$version_display = $version_enabled ? '' : ' style="display:none;"';
+	$sr_disabled     = $sl_enabled ? '' : ' disabled';
+
+	// Double call for PHP 5.2 compat
+	$is_above_below = get_post_meta( $post->ID, 'edd_sr_version_limit', true );
+	$is_above_below = empty( $is_above_below );
+
+	?>
+	<tr <?php echo $sl_enabled ? '' : ' style="display: none;"'; ?> class="edd_sl_toggled_row">
+		<td class="edd-form-group" colspan="2">
+			<strong><?php esc_html_e( 'Staged Rollouts', 'edd_sl' ); ?></strong>
+			<div class="edd-form-group__control">
+				<input type="checkbox" name="edd_sr_rollouts_enabled" id="edd_sr_rollouts_enabled" class="edd-form-group__input" value="1" <?php checked( true, $sr_enabled ); echo $sr_disabled; ?>/>&nbsp;
+				<label for="edd_sr_rollouts_enabled"><?php esc_html_e( 'Enable staged rollouts', 'edd_sl' ); ?></label>
+				<?php
+				printf(
+					'<span alt="f223" class="edd-help-tip dashicons dashicons-editor-help" title="' . esc_attr( '%s' ) . '"></span>',
+					__( '<strong>Staged Rollouts</strong>: A Staged Rollout is a method of releasing updates to your software to only a defined percentage of installations, as opposed to releasing the update to all of your customers at the same time. <br /><br /><strong>How does this work?</strong> Staged rollouts uses the Software Licensing update API to determine which installations are shown the update during the staged rollout, based on the settings you define below. Customers will be able to download the staged version from your website immediately for fresh installs.', 'edd_sl' )
+				);
+				?>
+			</div>
+		</td>
+	</tr>
+
+	<tr <?php echo $display; ?> class="edd_sr_toggled_row edd_sl_toggled_row">
+		<td class="edd-form-group" colspan="2">
+			<div class="edd-form-group__control">
+				<input type="checkbox" name="edd_sr_batch_enabled" id="edd_sr_batch_enabled" class="edd-form-group__input" value="1" <?php checked( true, $batch_enabled ); ?>/>&nbsp;
+				<label for="edd_sr_batch_enabled"><?php esc_html_e( 'Release update to a percentage of active installations', 'edd_sl' ); ?></label>
+				<?php
+				printf(
+					'<span alt="f223" class="edd-help-tip dashicons dashicons-editor-help" title="' . esc_attr( '%s' ) . '"></span>',
+					__( '<strong>Percentage</strong>: You can define any number between 1 and 100 here. Once a percentage has been set, a portion of active installations will receive the update. You can gradually increase this number as you progress through \'stages\' of your rollout (update). An increase in percentage will add new installations to the pool. Once you feel confident in the stability of your software, complete your staged rollout by unchecking the Enable Staged Rollouts checkbox.', 'edd_sl' )
+				);
+				?>
+			</div>
+		</td>
+	</tr>
+
+	<tr <?php echo $batch_display; ?> class="edd_sr_batch_row edd_sl_toggled_row">
+		<td class="edd-form-group edd_sr_toggled_row" id="edd_rollouts_batch_wrapper">
+			<div class="edd-form-group__control">
+				<label for="edd_sr_batch_max" class="edd-form-group__label">
+					<?php esc_html_e( 'The percentage of active installations that should be eligible to update to the new version.', 'edd_sl' ); ?>
+				</label>
+				<input type="number" min="1" max="100" id="edd_sr_batch_max" name="edd_sr_batch_max" class="edd-form-group__input small-text" value="<?php echo $batch_max ? (int) $batch_max : 50; ?>"/> %
+			</div>
+		</td>
+	</tr>
+
+	<tr <?php echo $display; ?> class="edd_sr_toggled_row edd_sl_toggled_row">
+		<td class="edd-form-group" colspan="2">
+			<div class="edd-form-group__control">
+				<input type="checkbox" name="edd_sr_version_enabled" id="edd_sr_version_enabled" class="edd-form-group__input" value="1" <?php checked( true, $version_enabled ); ?>/>&nbsp;
+				<label for="edd_sr_version_enabled"><?php esc_html_e( 'Release update by version', 'edd_sl' ); ?></label>
+				<?php
+				printf(
+					'<span alt="f223" class="edd-help-tip dashicons dashicons-editor-help" title="' . esc_attr( '%s' ) . '"></span>',
+					__( '<strong>Version Requirement</strong>: You can further control the release by only allowing customers on specific versions of this download to be presented with the update. For example, you may only want to start showing the update to customers on your most recent previous major version. For other dependency version requirements, use the Download Requirements metabox.', 'edd_sl' )
+				);
+				?>
+			</div>
+		</td>
+	</tr>
+
+	<tr <?php echo $version_display; ?> class="edd_sr_version_row edd_sl_toggled_row">
+		<td>
+			<fieldset class="edd-form-group edd-form-row">
+				<legend><?php esc_html_e( 'Show the new version only to customers whose installed version meets these requirements.', 'edd_sl' ); ?></legend>
+				<div class="edd-form-row__column edd-form-group__control">
+					<label for="edd_sr_version_limit_below" class="edd-form-group__label"><?php esc_html_e( 'Installed version is:', 'edd_sl' ); ?></label>
+					<select id="edd_sr_version_limit_below" name="edd_sr_version_limit" class="edd-form-group__input">
+						<option value="0" <?php echo selected( true, $is_above_below, false ); ?>><?php esc_html_e( 'Less than or equal to', 'edd_sl' ); ?></option>
+						<option value="1" <?php echo selected( false, $is_above_below, false ); ?>><?php esc_html_e( 'Greater than or equal to', 'edd_sl' ); ?></option>
+					</select>
+				</div>
+				<div class="edd-form-group__control edd-form-row__column">
+					<label for="edd_sr_version" class="edd-form-group__label"><?php esc_html_e( 'Version Number:', 'edd_sl' ); ?></label>
+					<input type="text" class="medium-text" name="edd_sr_version" id="edd_sr_version" value="<?php echo esc_attr( $version ); ?>"/>
+				</div>
+			</fieldset>
+		</td>
+	</tr>
+	<?php
+}

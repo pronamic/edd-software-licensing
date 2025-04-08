@@ -1,0 +1,125 @@
+/** License Status Styles **/
+.edd-sl-active {
+	color: green;
+}
+
+.edd-sl-inactive {
+	color: gray;
+}
+
+.edd-sl-expired {
+	color: #dc3232;
+}
+
+.edd_sl_license_row .view-key-wrapper {
+	position: relative;
+}
+
+.edd_sl_license_row input.edd_sl_license_key {
+	display: block;
+	width: 100%;
+	margin: 8px 0 0 0;
+	border: none;
+	outline: none;
+	padding: 0;
+	cursor: pointer;
+}
+
+.edd_sl_license_row span.edd_sl_license_key {
+	display: none;
+	position: absolute;
+	left: 0;
+	top: 30px;
+	z-index: 999;
+	border: 1px solid #ddd;
+	background: #f0f0f0;
+	padding: 4px;
+	width: 20em;
+	max-width: inherit;
+	text-align: center;
+}
+
+.edd-sl-child-licenses {
+	margin-top: 8px;
+	margin-bottom: 0;
+	width: auto;
+}
+
+.edd-sl-child-licenses .edd_sl_license_key {
+	margin-top: 0;
+}
+
+.edd-sl-child {
+	margin-bottom: 8px;
+}
+
+.edd_sl_license_row .edd-sl-child span {
+	display: block;
+}
+
+#edd_checkout_form_wrap fieldset#edd_sl_renewal_fields {
+	padding: 1.387em;
+	background: #fafafa;
+	border: 1px solid #eee;
+}
+
+#edd_checkout_form_wrap #edd-license-key-container-wrap {
+	padding: 0 0 1em 0;
+}
+
+#edd-cancel-license-renewal {
+	background-color: transparent;
+	border-color: transparent;
+	outline: none;
+	margin: 0;
+	padding: 0;
+	font-weight: normal;
+	vertical-align: middle;
+}
+
+#edd-cancel-license-renewal:hover {
+	background-color: transparent;
+}
+
+#edd-cancel-license-renewal {
+	color: #dc3232;
+}
+
+.edd-sl-multiple-keys-notice {
+	padding: 1em 0 0;
+	margin: 0;
+}
+
+.edd-sl-manage-license-key,
+.edd-sl-manage-license-product {
+	display: block;
+}
+
+.edd-sl-upgrade-link {
+	display: block;
+}
+
+.edd-sl-upgrade-details span,
+.edd-sl-renewal-details span,
+.edd-sl-renewal-discount-details span {
+	font-size: .9em;
+}
+
+.edd-sl-upgrade-details .edd-sl-upgrade-label,
+.edd-sl-renewal-details .edd-sl-renewal-label,
+.edd-sl-renewal-discount-details .edd-sl-renewal-discount-label {
+	font-weight: 600;
+}
+
+.edd-sl-upgrade-details .edd-sl-upgrade-key,
+.edd-sl-renewal-details .edd-sl-renewal-key,
+.edd-sl-renewal-discount-details .edd-sl-renewal-discount-amount {
+	font-style: italic;
+	word-break: keep-all;
+}
+
+@media screen and (min-width: 480px) {
+	.edd-blocks-receipt__row-item.edd-blocks-receipt__row-item--license-key {
+		grid-template-columns: 200px 1fr;
+	}
+}

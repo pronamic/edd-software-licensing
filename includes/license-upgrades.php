@@ -1,7 +1,7 @@
 <?php
 
-// Exit if accessed directly
-if ( ! defined( 'ABSPATH' ) ) exit;
+// Exit if accessed directly.
+defined( 'ABSPATH' ) || exit; // @codeCoverageIgnore
 
 /**
  * Retrieve upgrade paths for a Download
@@ -11,11 +11,14 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  */
 function edd_sl_get_upgrade_paths( $download_id = 0 ) {
 
-	if( empty( $download_id ) ) {
-		return false;
+	if ( empty( $download_id ) ) {
+		return array();
 	}
 
 	$paths = get_post_meta( $download_id, '_edd_sl_upgrade_paths', true );
+	if ( empty( $paths ) && ! is_array( $paths ) ) {
+		$paths = array();
+	}
 
 	/* paths look like this
 	$paths = array(
@@ -48,12 +51,11 @@ function edd_sl_get_upgrade_path( $download_id = 0, $upgrade_id = 0 ) {
 	$upgrade  = false;
 	$upgrades = edd_sl_get_upgrade_paths( $download_id );
 
-	if( isset( $upgrades[ $upgrade_id ] ) ) {
+	if ( isset( $upgrades[ $upgrade_id ] ) ) {
 		$upgrade = $upgrades[ $upgrade_id ];
 	}
 
 	return apply_filters( 'edd_sl_get_upgrade_path', $upgrade, $download_id, $upgrade_id );
-
 }
 
 /**
@@ -64,63 +66,62 @@ function edd_sl_get_upgrade_path( $download_id = 0, $upgrade_id = 0 ) {
  */
 function edd_sl_get_license_upgrades( $license_id = 0 ) {
 
-	$upgrade_paths = false;
+	$upgrade_paths = array();
+	$license       = edd_software_licensing()->get_license( $license_id );
 
-	if ( ! empty( $license_id ) ) {
-		$license    = edd_software_licensing()->get_license( $license_id );
-		$payment    = edd_get_payment( $license->payment_id );
+	if ( false !== $license ) {
 
-		if ( 'publish' === $payment->status ) {
+		$status_is_upgradable = false;
 
-			$upgrade_paths = edd_sl_get_upgrade_paths( $license->download_id );
-
-			if ( is_array( $upgrade_paths ) ) {
-
-				foreach ( $upgrade_paths as $key => $path ) {
-
-					if ( $license->get_download()->has_variable_prices() ) {
-
-						// If there is a different product in the upgrade paths, upgrade is available
-						if ( (int) $path['download_id'] === (int) $license->download_id ) {
-
-							// If same download but with a more expensive price ID is in upgrade paths, upgrade is available
-							if ( (int) $path['price_id'] !== (int) $license->price_id ) {
-
-								if ( edd_get_price_option_amount( $path['download_id'], $path['price_id'] ) <= edd_get_price_option_amount( $license->download_id, $license->price_id ) ) {
-
-									unset( $upgrade_paths[ $key ] );
-
-								}
-
-							} else {
-
-								if ( edd_get_price_option_amount( $path['download_id'], $path['price_id'] ) <= edd_get_price_option_amount( $license->download_id, $license->price_id ) ) {
-
-									unset( $upgrade_paths[ $key ] );
-
-								}
-
-							}
-
-						}
-
-					} else {
-
-						// If there is a different product in the upgrade paths, upgrade is available
-						if ( (int) $path['download_id'] === (int) $license->download_id ) {
-
-							unset( $upgrade_paths[ $key ] );
-
-						}
-
-					}
-
-				}
-
+		// In EDD 3.0, we check for an order item which is deliverable.
+		if ( function_exists( 'edd_count_order_items' ) ) {
+			$status_is_upgradable = (bool) edd_count_order_items(
+				array(
+					'order_id__in' => $license->payment_ids,
+					'status'       => edd_get_deliverable_order_item_statuses(),
+					'product_id'   => $license->download_id,
+				)
+			);
+		} else {
+			// In EDD 2.x, we just need the payment status.
+			$payment = edd_get_payment( $license->payment_id );
+			if ( ! empty( $payment->status ) && in_array( $payment->status, array( 'complete', 'publish' ), true ) ) {
+				$status_is_upgradable = true;
 			}
-
+		}
+		if ( $status_is_upgradable ) {
+			$upgrade_paths = edd_sl_get_upgrade_paths( $license->download_id );
 		}
 
+		if ( ! empty( $upgrade_paths ) && is_array( $upgrade_paths ) ) {
+
+			foreach ( $upgrade_paths as $key => $path ) {
+
+				if ( $license->get_download()->has_variable_prices() ) {
+
+					// If there is a different product in the upgrade paths, upgrade is available
+					if ( (int) $path['download_id'] === (int) $license->download_id ) {
+
+						// If same download but with a more expensive price ID is in upgrade paths, upgrade is available
+						if ( (int) $path['price_id'] !== (int) $license->price_id ) {
+
+							if ( edd_get_price_option_amount( $path['download_id'], $path['price_id'] ) <= edd_get_price_option_amount( $license->download_id, $license->price_id ) ) {
+								unset( $upgrade_paths[ $key ] );
+							}
+						} elseif ( edd_get_price_option_amount( $path['download_id'], $path['price_id'] ) <= edd_get_price_option_amount( $license->download_id, $license->price_id ) ) {
+
+								unset( $upgrade_paths[ $key ] );
+						}
+					}
+				} else {
+
+					// If there is a different product in the upgrade paths, upgrade is available
+					if ( (int) $path['download_id'] === (int) $license->download_id ) {
+						unset( $upgrade_paths[ $key ] );
+					}
+				}
+			}
+		}
 	}
 
 	return apply_filters( 'edd_sl_get_license_upgrade_paths', $upgrade_paths, $license_id );
@@ -134,59 +135,56 @@ function edd_sl_get_license_upgrades( $license_id = 0 ) {
  */
 function edd_sl_license_has_upgrades( $license_id = 0 ) {
 
-	$ret = false;
-
 	if ( empty( $license_id ) ) {
-		$ret = false;
+		return false;
 	}
 
-	$license    = edd_software_licensing()->get_license( $license_id );
+	$license = edd_software_licensing()->get_license( $license_id );
+	if ( false === $license || in_array( $license->status, array( 'disabled', 'revoked' ), true ) ) {
+		return false;
+	}
+
+	$ret = false;
 
 	if ( empty( $license->parent ) ) {
-		$download_id   = edd_software_licensing()->get_download_id( $license_id );
-		$price_id      = edd_software_licensing()->get_price_id( $license_id );
+		$download_id = edd_software_licensing()->get_download_id( $license_id );
+		$price_id    = edd_software_licensing()->get_price_id( $license_id );
 
 		$upgrade_paths = edd_sl_get_upgrade_paths( $download_id );
 		$payment_id    = edd_software_licensing()->get_payment_id( $license_id );
 		$payment       = new EDD_Payment( $payment_id );
 
-		if ( is_array( $upgrade_paths ) && 'publish' === $payment->status ) {
+		if ( is_array( $upgrade_paths ) && ( 'publish' === $payment->status || 'complete' === $payment->status ) ) {
 
-			foreach( $upgrade_paths as $path ) {
+			foreach ( $upgrade_paths as $path ) {
 
 				if ( edd_has_variable_prices( $download_id ) ) {
 
-					// If there is a different product in the upgrade paths, upgrade is available
+					// If there is a different product in the upgrade paths, upgrade is available.
 					if ( (int) $path['download_id'] !== (int) $download_id ) {
 
 						$ret = true;
 
 					} else {
 
-						// If same download but with a more expensive price ID is in upgrade paths, upgrade is available
+						// If same download but with a more expensive price ID is in upgrade paths, upgrade is available.
 						if ( (int) $path['price_id'] !== (int) $price_id ) {
 
-							if( edd_get_price_option_amount( $path['download_id'], $path['price_id'] ) > edd_get_price_option_amount( $download_id, $price_id ) ) {
+							if ( edd_get_price_option_amount( $path['download_id'], $path['price_id'] ) > edd_get_price_option_amount( $download_id, $price_id ) ) {
 
 								$ret = true;
 
 							}
-
 						}
-
 					}
-
 				} else {
 
 					// If there is a different product in the upgrade paths, upgrade is available
-					if( (int) $path['download_id'] !== (int) $download_id ) {
+					if ( (int) $path['download_id'] !== (int) $download_id ) {
 						$ret = true;
 					}
-
 				}
-
 			}
-
 		}
 	}
 
@@ -205,13 +203,16 @@ function edd_sl_get_license_upgrade_url( $license_id = 0, $upgrade_id = 0 ) {
 	$download_id = edd_software_licensing()->get_download_id( $license_id );
 	$upgrades    = edd_sl_get_upgrade_paths( $download_id );
 
-	if( is_array( $upgrades ) && isset( $upgrades[ $upgrade_id ] ) ) {
+	if ( is_array( $upgrades ) && isset( $upgrades[ $upgrade_id ] ) ) {
 
-		$url = add_query_arg( array(
-			'edd_action' => 'sl_license_upgrade',
-			'license_id' => $license_id,
-			'upgrade_id' => $upgrade_id
-		), edd_get_checkout_uri() );
+		$url = add_query_arg(
+			array(
+				'edd_action' => 'sl_license_upgrade',
+				'license_id' => $license_id,
+				'upgrade_id' => $upgrade_id,
+			),
+			edd_get_checkout_uri()
+		);
 
 	}
 
@@ -230,41 +231,70 @@ function edd_sl_get_license_upgrade_cost( $license_id = 0, $upgrade_id = 0 ) {
 	$download    = new EDD_SL_Download( $download_id );
 	$upgrades    = edd_sl_get_upgrade_paths( $download_id );
 
-	if( $download->has_variable_prices() ) {
+	/**
+	 * Allow using the previously paid amount as the $old_price
+	 *
+	 * Some store owners would prefer that the old price be based off what was previously paid, instead of what
+	 * the current price ID value is. Returning false here, allows the $old_price to be based on the last amount paid
+	 * instead of the current price of the Price ID, in the event it has been changed.
+	 *
+	 * @since 3.6.4
+	 *
+	 * @param bool             Should we use the current price of the Price ID for prorated estimates.
+	 * @param int  $license_id The License ID requesting the prorated cost.
+	 * @param int  $download_id The Download ID associated with the license.
+	 */
+	$use_current_price = apply_filters( 'edd_sl_use_current_price_proration', true, $license_id, $download_id );
+
+	if ( $download->has_variable_prices() ) {
 
 		$price_id = edd_software_licensing()->get_price_id( $license_id );
 
 		if ( false !== $price_id && '' !== $price_id ) {
 
-			$prices    = $download->get_prices();
+			$prices = $download->get_prices();
 
-			/**
-			 * Allow using the previously paid amount as the $old_price
-			 *
-			 * Some store owners would prefer that the old price be based off what was previously paid, instead of what
-			 * the current price ID value is. Returning false here, allows the $old_price to be based on the last amount paid
-			 * instead of the current price of the Price ID, in the event it has been changed.
-			 *
-			 * @since 3.6.4
-			 *
-			 * @param bool             Should we use the current price of the Price ID for prorated estimates.
-			 * @param int  $license_id The License ID requesting the prorated cost.
-			 * @param int  $download_id The Download ID associated with the license.
-			 */
-			$use_current_price = apply_filters( 'edd_sl_use_current_price_proration', true, $license_id, $download_id );
 			if ( array_key_exists( $price_id, $prices ) && $use_current_price ) {
 
 				// The old price ID still exists, use the current price of it as the old price.
 				$old_price = edd_get_price_option_amount( $download_id, $price_id );
 
 			} else {
+				$old_price = 0.00;
 
 				// The old price ID was removed, so just figure out what they paid last.
-				$license         = edd_software_licensing()->get_license( $license_id );
+				$license = edd_software_licensing()->get_license( $license_id );
+				if ( false !== $license ) {
+					$last_payment_id = max( $license->payment_ids );
+					$payment         = edd_get_payment( $last_payment_id );
+
+					foreach ( $payment->cart_details as $item ) {
+						if ( (int) $item['id'] !== $download->ID ) {
+							continue;
+						}
+
+						$old_price = $item['item_price'];
+						break;
+					}
+				}
+			}
+		} else {
+
+			$old_price = edd_get_lowest_price_option( $download_id );
+
+		}
+	} else {
+
+		$old_price = edd_get_download_price( $download_id );
+
+		if ( ! $use_current_price ) {
+
+			$license = edd_software_licensing()->get_license( $license_id );
+
+			if ( false !== $license ) {
 				$last_payment_id = max( $license->payment_ids );
 				$payment         = edd_get_payment( $last_payment_id );
 
-				$old_price = 0.00;
 				foreach ( $payment->cart_details as $item ) {
 					if ( (int) $item['id'] !== $download->ID ) {
 						continue;
@@ -273,44 +303,32 @@ function edd_sl_get_license_upgrade_cost( $license_id = 0, $upgrade_id = 0 ) {
 					$old_price = $item['item_price'];
 					break;
 				}
-
 			}
-
-		} else {
-
-			$old_price = edd_get_lowest_price_option( $download_id );
-
 		}
-
-	} else {
-
-		$old_price = edd_get_download_price( $download_id );
-
 	}
 
+	$price_id = isset( $upgrades[ $upgrade_id ]['price_id'] ) && false !== $upgrades[ $upgrade_id ]['price_id'] ? $upgrades[ $upgrade_id ]['price_id'] : false;
+	if ( is_numeric( $price_id ) ) {
 
-	if ( isset( $upgrades[ $upgrade_id ][ 'price_id' ] ) && false !== $upgrades[ $upgrade_id ][ 'price_id' ] ) {
-
-		$new_price = edd_get_price_option_amount( $upgrades[ $upgrade_id ][ 'download_id' ], $upgrades[ $upgrade_id ][ 'price_id' ] );
+		$new_price = edd_get_price_option_amount( $upgrades[ $upgrade_id ]['download_id'], $price_id );
 
 	} else {
 
-		$new_price = edd_get_download_price( $upgrades[ $upgrade_id ][ 'download_id' ] );
+		$new_price = edd_get_download_price( $upgrades[ $upgrade_id ]['download_id'] );
 
 	}
 
 	$cost = $new_price;
 
-	if ( ! empty( $upgrades[ $upgrade_id ][ 'pro_rated' ] ) ) {
+	if ( ! empty( $upgrades[ $upgrade_id ]['pro_rated'] ) ) {
 
-		$cost = edd_sl_get_pro_rated_upgrade_cost( $license_id, $old_price, $new_price );
+		$cost = edd_sl_get_pro_rated_upgrade_cost( $license_id, $old_price, $new_price, $upgrades[ $upgrade_id ]['download_id'], $price_id );
 
 	}
 
+	if ( isset( $upgrades[ $upgrade_id ]['discount'] ) ) {
 
-	if ( isset( $upgrades[ $upgrade_id ][ 'discount' ] ) ) {
-
-		$cost -= $upgrades[ $upgrade_id ][ 'discount' ];
+		$cost -= $upgrades[ $upgrade_id ]['discount'];
 
 	}
 
@@ -331,9 +349,11 @@ function edd_sl_get_license_upgrade_cost( $license_id = 0, $upgrade_id = 0 ) {
  * @param int $license_id ID of license being upgraded
  * @param float|int $old_price Price of the license being upgraded
  * @param float|int $new_price Price of the new license level
+ * @param int $upgrade_id ID of the new download
+ * @param false|int       Price ID of the new download (for variable products)
  * @return float The prorated cost to upgrade the license
  */
-function edd_sl_get_pro_rated_upgrade_cost( $license_id = 0, $old_price, $new_price ) {
+function edd_sl_get_pro_rated_upgrade_cost( $license_id, $old_price, $new_price, $upgrade_id = 0, $price_id = false ) {
 	$proration_method = edd_get_option( 'edd_sl_proration_method', 'cost-based' );
 	$proration_method = apply_filters( 'edd_sl_proration_method', $proration_method, $license_id, $old_price, $new_price );
 
@@ -342,7 +362,7 @@ function edd_sl_get_pro_rated_upgrade_cost( $license_id = 0, $old_price, $new_pr
 	if ( $proration_method == 'cost-based' || apply_filters( 'edd_sl_license_upgrade_pro_rate_simple', false ) ) {
 		$prorated = edd_sl_get_cost_based_pro_rated_upgrade_cost( $license_id, $old_price, $new_price );
 	} else {
-		$prorated = edd_sl_get_time_based_pro_rated_upgrade_cost( $license_id, $old_price, $new_price );
+		$prorated = edd_sl_get_time_based_pro_rated_upgrade_cost( $license_id, $old_price, $new_price, $upgrade_id, $price_id );
 	}
 
 	return apply_filters( 'edd_sl_get_pro_rated_upgrade_cost', $prorated, $license_id, $old_price, $new_price );
@@ -357,7 +377,7 @@ function edd_sl_get_pro_rated_upgrade_cost( $license_id = 0, $old_price, $new_pr
  * @param float|int $new_price Price of the new license level
  * @return float The prorated cost to upgrade the license
  */
-function edd_sl_get_cost_based_pro_rated_upgrade_cost( $license_id = 0, $old_price, $new_price ) {
+function edd_sl_get_cost_based_pro_rated_upgrade_cost( $license_id, $old_price, $new_price ) {
 	$prorated = $new_price - $old_price;
 
 	return apply_filters( 'edd_sl_get_cost_based_pro_rated_upgrade_cost', $prorated, $license_id, $old_price, $new_price );
@@ -367,12 +387,15 @@ function edd_sl_get_cost_based_pro_rated_upgrade_cost( $license_id = 0, $old_pri
  * Calculate the prorated cost based on cost
  *
  * @since 3.5
- * @param int $license_id ID of license being upgraded
- * @param float|int $old_price Price of the license being upgraded
- * @param float|int $new_price Price of the new license level
+ * @param int       $license_id ID of license being upgraded
+ * @param float|int $old_price  Price of the license being upgraded
+ * @param float|int $new_price  Price of the new license level
+ * @param int       $upgrade_id ID of the new download
+ * @param false|int $price_id   Price ID of the new download (for variable products)
+ *
  * @return float The prorated cost to upgrade the license
  */
-function edd_sl_get_time_based_pro_rated_upgrade_cost( $license_id = 0, $old_price, $new_price ) {
+function edd_sl_get_time_based_pro_rated_upgrade_cost( $license_id, $old_price, $new_price, $upgrade_id = 0, $price_id = false ) {
 
 	$license = edd_software_licensing()->get_license( $license_id );
 
@@ -385,29 +408,61 @@ function edd_sl_get_time_based_pro_rated_upgrade_cost( $license_id = 0, $old_pri
 	$payment_id  = edd_software_licensing()->get_payment_id( $license_id );
 
 	// Convert $license_length value from "+1 years" to # of seconds in that period of time, not a timestamp
-	$current_time           = current_time( 'timestamp', true );
+	$current_time           = time();
 	$license_length         = edd_software_licensing()->get_license_length( $license_id, $payment_id, $download_id );
 	$midnight_today         = strtotime( 'today midnight' );
 	$license_length_seconds = strtotime( $license_length, $midnight_today ) - $midnight_today;
 	$seconds_until_expires  = absint( edd_software_licensing()->get_license_expiration( $license_id ) - $current_time + ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ) );
-	$seconds_since_purchase = $license_length_seconds - $seconds_until_expires;
+	$seconds_used           = $license_length_seconds - $seconds_until_expires;
 	$minimum_time           = apply_filters( 'edd_sl_get_time_based_pro_rated_minimum_time', DAY_IN_SECONDS );
 
 	// If the license has been purchased within the minimum time fall back on cost-based
-	if( $minimum_time >= $seconds_since_purchase ) {
+	if ( $minimum_time >= $seconds_used ) {
 		return edd_sl_get_cost_based_pro_rated_upgrade_cost( $license_id, $old_price, $new_price );
 	}
 
-	// Get the percent of the remaining time as a decimal (.24 => 24% remaining)
-	$percent_remaining_decimal = 1 - abs( ( $seconds_until_expires - $license_length_seconds ) / $license_length_seconds );
+	// Percentage used of current license.
+	$percent_used_decimal = $seconds_used / $license_length_seconds;
 
-	// Take the difference in price, and multiply by remaining license time
-	$prorated = ( $new_price - $old_price ) * $percent_remaining_decimal;
+	// "Unused" price of current license.
+	$credit = $old_price * abs( 1 - $percent_used_decimal );
+
+	// Set the new license length to false before seeing if a new license length can be calculated.
+	$new_length = false;
+
+	// If the new download ID is provided, use that for calculating the prorated cost.
+	if ( $upgrade_id ) {
+		$new_length = edd_sl_get_product_license_length( $upgrade_id, $price_id );
+		if ( $new_length && 'lifetime' !== $new_length ) {
+			$new_license_length_seconds = strtotime( $new_length, $midnight_today ) - $midnight_today;
+
+			// Recalculate the percentage used based on the new license length.
+			$percent_used_decimal = $seconds_used / $new_license_length_seconds;
+		}
+	}
+
+	// Lifetime upgrades are calculated differently because the amount of time left is unlimited.
+	if ( 'lifetime' === $new_length ) {
+		$prorated = $new_price - $credit;
+	} else {
+		// What percentage of the new license time is left (in decimal form).
+		$percent_remaining_decimal = abs( 1 - $percent_used_decimal );
+		$prorated                  = ( $new_price * $percent_remaining_decimal ) - $credit;
+	}
 
 	$prorated = round( $prorated, edd_currency_decimal_filter() );
 
-	return apply_filters( 'edd_sl_get_time_based_pro_rated_upgrade_cost', $prorated, $license_id, $old_price, $new_price );
-
+	/**
+	 * Filters the time based prorated upgrade cost.
+	 *
+	 * @param float     $prorated   The final cost of the upgrade (rounded).
+	 * @param int       $license_id The license ID to be upgraded.
+	 * @param float     $old_price  The original price paid for the license.
+	 * @param float     $new_price  The price of the new license.
+	 * @param false|int $upgrade_id The ID for the new download.
+	 * @param false|int $price_id   The price ID for the new download.
+	 */
+	return apply_filters( 'edd_sl_get_time_based_pro_rated_upgrade_cost', $prorated, $license_id, $old_price, $new_price, $upgrade_id, $price_id );
 }
 
 /**
@@ -418,80 +473,92 @@ function edd_sl_get_time_based_pro_rated_upgrade_cost( $license_id = 0, $old_pri
  */
 function edd_sl_add_upgrade_to_cart( $data ) {
 
-	// Only allow upgrading when the payment ID for the license is completed
-	$payment_id = edd_software_licensing()->get_payment_id( $data['license_id'] );
-	$payment    = new EDD_Payment( $payment_id );
-	if ( 'publish' !== $payment->status ) {
+	$license_id = false;
+	if ( ! empty( $data['license_id'] ) ) {
+		$license_id = $data['license_id'];
+	} elseif ( ! empty( $data['license_key'] ) ) {
+		$license_id = edd_software_licensing()->get_license_by_key( $data['license_key'] );
+	}
+
+	if ( ! $license_id ) {
 		return;
 	}
 
-	$download_id = edd_software_licensing()->get_download_id( $data['license_id'] );
-
-	$cart_contents = edd_get_cart_contents();
-	$allow_upgrade = true;
-
-	if( 'expired' === edd_software_licensing()->get_license_status( $data['license_id'] ) ) {
-
-		$is_expired    = true;
-		$allow_upgrade = false;
-
+	$license = edd_software_licensing()->get_license( $license_id );
+	if ( in_array( $license->status, array( 'revoked', 'disabled' ), true ) ) {
+		return;
 	}
 
-	$upgrade = edd_sl_get_upgrade_path( $download_id, $data['upgrade_id'] );
-	$license = edd_software_licensing()->get_license( $data['license_id'] );
+	// Only allow upgrading when the payment ID for the license is completed
+	$payment_id     = edd_software_licensing()->get_payment_id( $license_id );
+	$payment_status = edd_get_payment_status( $payment_id );
+	if ( ! in_array( $payment_status, array( 'publish', 'complete', 'partially_refunded' ), true ) ) {
+		return;
+	}
+
+	$allow_upgrade = true;
+	if ( 'expired' === $license->status ) {
+		$allow_upgrade = 'expired';
+	}
+
+	$upgrade = edd_sl_get_upgrade_path( $license->download_id, $data['upgrade_id'] );
 
 	// Verify that this upgrade is not the same price ID as the current license.
 	if ( (int) $upgrade['download_id'] === (int) $license->download_id && (int) $upgrade['price_id'] === (int) $license->price_id ) {
-
-		$allow_upgrade    = false;
-		$invalid_price_id = true;
-
+		$allow_upgrade = 'mismatch';
 	}
 
-	if ( $allow_upgrade ) {
+	if ( true === $allow_upgrade ) {
 
 		// If this license ID is already in the cart, remove it to add the new choice
-		foreach ( $cart_contents as $key => $item ) {
+		foreach ( edd_get_cart_contents() as $key => $item ) {
 
-			if ( isset( $item['options']['license_id'] ) && $item['options']['license_id'] == $data['license_id'] ) {
+			if ( isset( $item['options']['license_id'] ) && $item['options']['license_id'] == $license_id ) {
 
 				// Replace any existing upgrades and/or renewals for this license
 				edd_remove_from_cart( $key );
 				break;
 			}
+
+			if ( ! empty( $item['item_number']['options']['is_renewal'] ) ) {
+				$allow_upgrade = 'renewal';
+				break;
+			}
 		}
 
-		$options     = array(
+		$options = array(
 			'price_id'   => $upgrade['price_id'],
 			'is_upgrade' => true,
 			'upgrade_id' => $data['upgrade_id'],
-			'license_id' => $data['license_id'],
-			'cost'       => edd_sl_get_license_upgrade_cost( $data['license_id'], $data['upgrade_id'] ),
+			'license_id' => $license_id,
+			'cost'       => edd_sl_get_license_upgrade_cost( $license_id, $data['upgrade_id'] ),
 		);
 
 		edd_add_to_cart( $upgrade['download_id'], $options );
 
 	} else {
 
-		if( ! empty( $is_expired ) ) {
+		switch ( $allow_upgrade ) {
+			case 'expired':
+				edd_set_error( 'edd-sl-expired-license', __( 'Your license key is expired. It must be renewed before it can be upgraded.', 'edd_sl' ) );
+				break;
 
-			edd_set_error( 'edd-sl-expired-license', __( 'Your license key is expired. It must be renewed before it can be upgraded.', 'edd_sl' ) );
+			case 'invalid_price_id':
+				edd_set_error( 'edd-sl-invalid-price-id', __( 'Invalid price ID specified for upgrade.', 'edd_sl' ) );
+				break;
 
-		} elseif ( ! empty( $invalid_price_id ) ) {
+			case 'renewal':
+				edd_set_error( 'edd-sl-unique-action', __( 'License renewals and upgrades must be purchased separately. Please complete your license renewal before upgrading it.', 'edd_sl' ) );
+				break;
 
-			edd_set_error( 'edd-sl-invalid-price-id', __( 'Invalid price ID specified for upgrade.', 'edd_sl' ) );
-
-		} else {
-
-			edd_set_error( 'edd-sl-unique-action', __( 'License renewals and upgrades must be purchased separately. Please complete your license renewal before upgrading it.', 'edd_sl' ) );
-
+			default:
+				edd_set_error( 'edd-sl-upgrade-error', __( 'Your upgrade could not be added to the cart.', 'edd_sl' ) );
+				break;
 		}
-
 	}
 
-	wp_redirect( edd_get_checkout_uri() );
+	wp_safe_redirect( edd_get_checkout_uri() );
 	exit;
-
 }
 add_action( 'edd_sl_license_upgrade', 'edd_sl_add_upgrade_to_cart' );
 
@@ -504,37 +571,35 @@ add_action( 'edd_sl_license_upgrade', 'edd_sl_add_upgrade_to_cart' );
 function edd_sl_validate_upgrade_in_cart( $valid_data, $posted ) {
 
 	$cart_items = edd_get_cart_contents();
-	if( ! $cart_items ) {
+	if ( ! $cart_items ) {
 		return;
 	}
 
-	foreach( $cart_items as $item ) {
+	foreach ( $cart_items as $item ) {
 
-		if( ! isset( $item['options']['is_upgrade'] ) ) {
+		if ( ! isset( $item['options']['is_upgrade'] ) ) {
 			continue;
 		}
 
 		$license_id = absint( $item['options']['license_id'] );
 		$license    = edd_software_licensing()->get_license( $license_id );
 
-
-		if( ! $license || ! $license->ID > 0 ) {
+		if ( false === $license ) {
 			continue;
 		}
 
-		if( empty( $license->user_id ) ) {
+		if ( empty( $license->user_id ) ) {
 			continue;
 		}
 
 		$user_id = get_current_user_id();
 
-		if( (int) $user_id !== (int) $license->user_id || ! is_user_logged_in() ) {
+		if ( (int) $user_id !== (int) $license->user_id || ! is_user_logged_in() ) {
 
 			edd_set_error( 'edd_sl_invalid_user_id', __( 'Please log into your account to upgrade your license', 'edd_sl' ) );
 			break;
 
 		}
-
 	}
 }
 add_action( 'edd_checkout_error_checks', 'edd_sl_validate_upgrade_in_cart', 10, 2 );
@@ -548,13 +613,40 @@ add_action( 'edd_checkout_error_checks', 'edd_sl_validate_upgrade_in_cart', 10, 
  */
 function edd_sl_license_upgrade_cart_item_price( $price, $download_id, $options ) {
 
-	if( empty( $options['is_upgrade'] ) || ! isset( $options['upgrade_id'] ) ) {
+	if ( empty( $options['is_upgrade'] ) || ! isset( $options['upgrade_id'] ) ) {
 		return $price;
 	}
 
 	return $options['cost'];
 }
 add_filter( 'edd_cart_item_price', 'edd_sl_license_upgrade_cart_item_price', 10, 3 );
+
+/**
+ * Adds the license key being upgraded to the cart item title.
+ *
+ * @param array $item
+ * @since 3.7
+ */
+function edd_sl_upgrade_details_cart_item( $item ) {
+	if ( empty( $item['options']['is_upgrade'] ) || empty( $item['options']['license_id'] ) ) {
+		return;
+	}
+
+	$license_key = edd_software_licensing()->get_license( $item['options']['license_id'] );
+	if ( ! $license_key ) {
+		return;
+	}
+
+	// If the user is not logged in, or the license is not connected to the logged in user, mask the key.
+	$license_key_output = ! is_user_logged_in() || (int) get_current_user_id() !== (int) $license_key->user_id ? edd_sl_mask_license_key( $license_key->key ) : $license_key->key;
+	?>
+		<div class="edd-sl-upgrade-details edd-sl-upgrade-details-cart">
+				<span class="edd-sl-upgrade-label"><?php esc_html_e( 'Upgrading', 'edd_sl' ); ?>:</span>
+				<span class="edd-sl-upgrade-key"><?php echo esc_html( $license_key_output ); ?></span>
+		</div>
+	<?php
+}
+add_action( 'edd_checkout_cart_item_title_after', 'edd_sl_upgrade_details_cart_item' );
 
 /**
  * @since 3.3
@@ -566,7 +658,7 @@ add_filter( 'edd_cart_item_price', 'edd_sl_license_upgrade_cart_item_price', 10,
 function edd_sl_license_upgrade_cart_item_price_label( $label, $download_id, $options ) {
 	global $edd_sl_cart_item_quantity_removed;
 
-	if( empty( $options['is_upgrade'] ) || ! isset( $options['upgrade_id'] ) ) {
+	if ( empty( $options['is_upgrade'] ) || ! isset( $options['upgrade_id'] ) ) {
 		return $label;
 	}
 
@@ -585,16 +677,15 @@ add_filter( 'edd_cart_item_price_label', 'edd_sl_license_upgrade_cart_item_price
 function edd_sl_disable_renewals_on_upgrades( $ret ) {
 
 	$cart_items = edd_get_cart_contents();
-	if( $cart_items ) {
-		foreach( $cart_items as $item ) {
-			if( isset( $item['options']['is_upgrade'] ) ) {
+	if ( $cart_items ) {
+		foreach ( $cart_items as $item ) {
+			if ( isset( $item['options']['is_upgrade'] ) ) {
 				return false;
 			}
 		}
 	}
 
 	return $ret;
-
 }
 add_filter( 'edd_sl_renewals_allowed', 'edd_sl_disable_renewals_on_upgrades' );
 
@@ -607,13 +698,13 @@ add_filter( 'edd_sl_renewals_allowed', 'edd_sl_disable_renewals_on_upgrades' );
 function edd_sl_process_license_upgrade( $download_id = 0, $payment_id = 0, $type = 'default', $cart_item = array(), $cart_index = 0 ) {
 
 	// Bail if this is not an upgrade item
-	if( empty( $cart_item['item_number']['options']['is_upgrade'] ) ) {
+	if ( empty( $cart_item['item_number']['options']['is_upgrade'] ) ) {
 		return;
 	}
 
-	$license_id      = $cart_item['item_number']['options']['license_id'];
-	$license         = edd_software_licensing()->get_license( $license_id );
-	$old_cart_index  = $license->cart_index;
+	$license_id     = $cart_item['item_number']['options']['license_id'];
+	$license        = edd_software_licensing()->get_license( $license_id );
+	$old_cart_index = $license->cart_index;
 
 	$upgrade_id      = $cart_item['item_number']['options']['upgrade_id'];
 	$old_payment_ids = $license->payment_ids;
@@ -623,38 +714,30 @@ function edd_sl_process_license_upgrade( $download_id = 0, $payment_id = 0, $typ
 
 	edd_debug_log( sprintf( 'Upgrading license ID %d for payment ID %d', $license_id, $payment_id ) );
 
-	edd_debug_log( sprintf( 'Old Payment ID: %s'     , $old_payment_id  ) );
-	edd_debug_log( sprintf( 'Old Download ID: %s'    , $old_download_id ) );
-	edd_debug_log( sprintf( 'Old Price ID: %s'       , $old_price_id    ) );
+	edd_debug_log( sprintf( 'Old Payment ID: %s', $old_payment_id ) );
+	edd_debug_log( sprintf( 'Old Download ID: %s', $old_download_id ) );
+	edd_debug_log( sprintf( 'Old Price ID: %s', $old_price_id ) );
 
-	$old_payment     = new EDD_Payment( $old_payment_id );
-	$purchase_date   = $old_payment->date;
-	$upgrade         = edd_sl_get_upgrade_path( $old_download_id, $upgrade_id );
+	$old_payment   = new EDD_Payment( $old_payment_id );
+	$purchase_date = $old_payment->date;
+	$upgrade       = edd_sl_get_upgrade_path( $old_download_id, $upgrade_id );
 
 	edd_debug_log( sprintf( 'Upgrade path: %s', print_r( $upgrade, true ) ) );
 
-	$price_id        = isset( $upgrade['price_id'] ) ? $upgrade['price_id'] : false;
+	$price_id = isset( $upgrade['price_id'] ) ? $upgrade['price_id'] : false;
 
+	// Set up downloads.
 	$old_download = new EDD_SL_Download( $old_download_id );
 	$new_download = new EDD_SL_Download( $download_id );
 
-	$old_payment  = new EDD_Payment( $old_payment_id );
-	$new_payment  = new EDD_Payment( $payment_id );
+	// Set up payments.
+	$old_payment = new EDD_Payment( $old_payment_id );
+	$new_payment = new EDD_Payment( $payment_id );
 
 	// Setup some checks if we need to modify the expiration date of the upgraded license.
 	$expiration_change = false;
-	$old_length = $license->license_length();
-
-	if( false !== $price_id && edd_software_licensing()->get_price_is_lifetime( $download_id, $price_id ) ) {
-
-		$new_length = 'lifetime';
-
-	} else {
-
-		$new_length = '+' . $new_download->get_expiration_length() . ' ' . $new_download->get_expiration_unit();
-
-	}
-
+	$old_length        = $license->license_length();
+	$new_length        = edd_sl_get_product_license_length( $download_id, $price_id );
 
 	edd_debug_log( sprintf( 'Old Length: %s - New Length: %s', $old_length, $new_length ) );
 
@@ -668,13 +751,13 @@ function edd_sl_process_license_upgrade( $download_id = 0, $payment_id = 0, $typ
 		$expiration_change = true;
 	}
 
-	edd_debug_log( sprintf( 'Lengths Found: %s',     print_r( $lengths, true ) ) );
+	edd_debug_log( sprintf( 'Lengths Found: %s', print_r( $lengths, true ) ) );
 	edd_debug_log( sprintf( 'Expiration Change: %s', print_r( $lengths, true ) ) );
 
 	edd_debug_log( sprintf( 'Old Download is Bundle: %s', print_r( $old_download->is_bundled_download(), true ) ) );
 	edd_debug_log( sprintf( 'New Download is Bundle: %s', print_r( $new_download->is_bundled_download(), true ) ) );
 
-	if( $new_download->is_bundled_download() && ! $old_download->is_bundled_download() ) {
+	if ( $new_download->is_bundled_download() && ! $old_download->is_bundled_download() ) {
 
 		// Upgrade to a bundle from a standard license.
 		edd_debug_log( 'Starting Standard to Bundle License Upgrade' );
@@ -715,17 +798,16 @@ function edd_sl_process_license_upgrade( $download_id = 0, $payment_id = 0, $typ
 				$license->price_id         = $price_id;
 				$license->activation_limit = $options['activation_limit'];
 				if ( $options['is_lifetime'] ) {
-					$license->is_lifetime = $options[ 'is_lifetime' ];
+					$license->is_lifetime = $options['is_lifetime'];
 				}
 
-				$license->add_meta( '_edd_sl_payment_id',   $payment_id );
+				$license->add_meta( '_edd_sl_payment_id', $payment_id );
 			}
 
 			$license->create( $new_download->ID, $payment_id, $price_id, $cart_index, $options );
 
 			if ( $expiration_change ) {
-				$license_length = '+' . $new_download->get_expiration_length() . ' ' . $new_download->get_expiration_unit();
-				$license->expiration = strtotime( $license_length, strtotime( $purchase_date ) );
+				$license->expiration = strtotime( $new_length, strtotime( $purchase_date ) );
 			}
 
 			// Add the meta to all child licenses as well.
@@ -735,12 +817,11 @@ function edd_sl_process_license_upgrade( $download_id = 0, $payment_id = 0, $typ
 					$child_license->add_meta( '_edd_sl_payment_id', $payment_id );
 				}
 			}
-
 		} else {
 			$downloads = $new_download->get_bundled_downloads();
 			foreach ( $downloads as $d_id ) {
 
-				if( (int) $d_id === (int) $old_download_id ) {
+				if ( (int) $d_id === (int) $old_download_id ) {
 					continue;
 				}
 
@@ -748,22 +829,21 @@ function edd_sl_process_license_upgrade( $download_id = 0, $payment_id = 0, $typ
 				$new_license->create( $d_id, $payment_id, $price_id, $cart_index, $options );
 			}
 		}
-
-	} else if ( $new_download->is_bundled_download() && $old_download->is_bundled_download() ) {
+	} elseif ( $new_download->is_bundled_download() && $old_download->is_bundled_download() ) {
 
 		// Bundle to Bundle upgrade
 		edd_debug_log( 'Starting Bundle to Bundle License Upgrade' );
 
 		// Change out the details on the bundle license
-		$license->cart_index  = $cart_index;
+		$license->cart_index = $cart_index;
 		edd_debug_log( sprintf( 'Set license cart index: %d', $cart_index ) );
 
 		$license->download_id = $download_id;
 		edd_debug_log( sprintf( 'Set license download id: %d', $download_id ) );
 
-		$license->add_meta( '_edd_sl_payment_id',   $payment_id );
+		$license->add_meta( '_edd_sl_payment_id', $payment_id );
 
-		if( $new_download->has_variable_prices() ) {
+		if ( $new_download->has_variable_prices() ) {
 
 			edd_debug_log( 'New download has variable prices' );
 			$limit       = $new_download->get_price_activation_limit( $upgrade['price_id'] );
@@ -787,10 +867,8 @@ function edd_sl_process_license_upgrade( $download_id = 0, $payment_id = 0, $typ
 
 		if ( empty( $is_lifetime ) && 'lifetime' !== $license_length ) {
 			// Set license expiration date
-			// Only change the dates if we're changing downloads, since that's only when license lengths will change.
-			if ( ( $old_download_id !== $download_id && $expiration_change ) ) {
-				$license_length = '+' . $new_download->get_expiration_length() . ' ' . $new_download->get_expiration_unit();
-				$license->expiration = strtotime( $license_length, strtotime( $purchase_date ) );
+			if ( $expiration_change ) {
+				$license->expiration = strtotime( $new_length, strtotime( $purchase_date ) );
 			}
 		} else {
 			$license->is_lifetime = true;
@@ -800,7 +878,7 @@ function edd_sl_process_license_upgrade( $download_id = 0, $payment_id = 0, $typ
 		edd_debug_log( sprintf( 'Old downloads: %s', print_r( $old_bundle_downloads, true ) ) );
 
 		$new_bundle_downloads = $new_download->get_bundled_downloads();
-		edd_debug_log( sprintf( 'Old downloads: %s', print_r( $new_bundle_downloads, true ) ) );
+		edd_debug_log( sprintf( 'New downloads: %s', print_r( $new_bundle_downloads, true ) ) );
 
 		// Before we start generating new keys, let's get existing overlap ones to change
 		foreach ( $new_bundle_downloads as $new_d_id ) {
@@ -814,17 +892,14 @@ function edd_sl_process_license_upgrade( $download_id = 0, $payment_id = 0, $typ
 			$overlap_license = edd_software_licensing()->get_license_by_purchase( $old_payment_id, $new_d_id, $old_cart_index, true );
 			if ( $overlap_license ) {
 
-				$overlap_license->add_meta( '_edd_sl_payment_id',   $payment_id );
+				$overlap_license->add_meta( '_edd_sl_payment_id', $payment_id );
 
 				$overlap_license->update_meta( '_edd_sl_cart_index', $cart_index );
 				$overlap_license->is_lifetime = $is_lifetime;
 
-				// Only change the dates if we're changing downloads, since that's only when license lengths will change.
-				if ( ( $old_download_id !== $download_id && $expiration_change ) ) {
-					$license_length = '+' . $new_download->get_expiration_length() . ' ' . $new_download->get_expiration_unit();
-					$overlap_license->expiration = strtotime( $license_length, strtotime( $purchase_date ) );
+				if ( $expiration_change ) {
+					$overlap_license->expiration = strtotime( $new_length, strtotime( $purchase_date ) );
 				}
-
 			}
 		}
 
@@ -849,16 +924,24 @@ function edd_sl_process_license_upgrade( $download_id = 0, $payment_id = 0, $typ
 		if ( ! empty( $child_licenses ) ) {
 			foreach ( $child_licenses as $child_license ) {
 				$child_license->add_meta( '_edd_sl_payment_id', $payment_id );
+				$price_id_pos = strpos( $new_d_id, '_' );
+				if ( false !== $price_id_pos ) {
+					$child_license->price_id = substr( $new_d_id, $price_id_pos + 1, strlen( $new_d_id ) );
+					$child_license->add_log(
+						__( 'License Upgraded', 'edd_sl' ),
+						/* translators: the new price ID; payment ID*/
+						sprintf( __( 'Price ID updated to %1$d via Payment ID %2$s', 'edd_sl' ), $child_license->price_id, $payment_id )
+					);
+				}
 			}
 		}
-
 	} else {
 
 		// Standard license upgrade
 
 		edd_debug_log( 'Starting Standard License Upgrade' );
 
-		$license->cart_index  = $cart_index;
+		$license->cart_index = $cart_index;
 		edd_debug_log( sprintf( 'Set license cart index: %d', $cart_index ) );
 
 		$license->download_id = $download_id;
@@ -867,7 +950,7 @@ function edd_sl_process_license_upgrade( $download_id = 0, $payment_id = 0, $typ
 		edd_debug_log( sprintf( 'Adding payment ID to license: %d', $payment_id ) );
 		$license->add_meta( '_edd_sl_payment_id', $payment_id );
 
-		if( $new_download->has_variable_prices() ) {
+		if ( $new_download->has_variable_prices() ) {
 
 			edd_debug_log( 'New download has variable prices' );
 			$is_lifetime       = $new_download->is_price_lifetime( $upgrade['price_id'] );
@@ -884,54 +967,40 @@ function edd_sl_process_license_upgrade( $download_id = 0, $payment_id = 0, $typ
 			edd_debug_log( 'Reset license activation count' );
 			$license->reset_activation_limit();
 			$is_lifetime = $new_download->is_lifetime();
-
 		}
 
 		edd_debug_log( sprintf( 'New license is lifetime: %s', print_r( $is_lifetime, true ) ) );
 
 		if ( ! $is_lifetime ) {
 
-			// Only change the dates if we're changing downloads, since that's only when license lengths will change.
-			if ( $old_download_id !== $download_id && $expiration_change ) {
-
-				edd_debug_log( 'Download ID Changed and expiration needs to change, setting expiration' );
-
-				$license_length = '+' . $new_download->get_expiration_length() . ' ' . $new_download->get_expiration_unit();
-				edd_debug_log( sprintf( 'New license length: %s', print_r( $license_length, true ) ) );
-				$license->expiration = strtotime( $license_length, strtotime( $purchase_date ) );
-
-			} else if ( ( $lengths['old'] == 'lifetime' && $lengths['new'] !== 'lifetime' ) || empty( $license->expiration ) ) {
-
-				edd_debug_log( 'Moving from lifetime, setting expiration' );
-
-				$license_length = '+' . $new_download->get_expiration_length() . ' ' . $new_download->get_expiration_unit();
-				edd_debug_log( sprintf( 'New license length: %s', print_r( $license_length, true ) ) );
-				$license->expiration = strtotime( $license_length, current_time( 'timestamp' ) );
-
+			if ( $expiration_change ) {
+				if ( 'lifetime' === $lengths['old'] || empty( $license->expiration ) ) {
+					edd_debug_log( sprintf( 'Moving from lifetime, setting expiration to new length: %s', print_r( $new_length, true ) ) );
+					$license->expiration = strtotime( $new_length, current_time( 'timestamp' ) );
+				} else {
+					edd_debug_log( sprintf( 'Expiration needs to change, setting expiration with new length: %s', print_r( $new_length, true ) ) );
+					$license->expiration = strtotime( $new_length, strtotime( $purchase_date ) );
+				}
 			}
-
 		} else {
-
 			edd_debug_log( 'Marking new license as lifetime' );
 			$license->is_lifetime = true;
-
 		}
-
 	}
 
 	// Now store upgrade details / notes on payments
 
 	$old_product = $old_download->get_name();
-	if( $old_download->has_variable_prices() && false !== $old_price_id ) {
+	if ( $old_download->has_variable_prices() && false !== $old_price_id ) {
 		$old_product .= ' - ' . edd_get_price_option_name( $old_download_id, $old_price_id );
 	}
 
 	$new_product = $new_download->get_name();
-	if( $new_download->has_variable_prices() ) {
+	if ( $new_download->has_variable_prices() ) {
 		$new_product .= ' - ' . edd_get_price_option_name( $download_id, $upgrade['price_id'] );
 	}
 
-	$note = sprintf( __( 'License upgraded from %s to %s', 'edd_sl' ), $old_product, $new_product );
+	$note = sprintf( __( 'License upgraded from %1$s to %2$s', 'edd_sl' ), $old_product, $new_product );
 
 	$new_payment->add_note( $note );
 
@@ -945,11 +1014,11 @@ function edd_sl_process_license_upgrade( $download_id = 0, $payment_id = 0, $typ
 		'old_download_id'  => $old_download_id,
 		'old_price_id'     => $old_price_id,
 		'upgrade_id'       => $upgrade_id,
-		'upgrade_price_id' => false
+		'upgrade_price_id' => false,
 	);
 
-	if ( isset( $upgrade[ 'price_id' ] ) ) {
-		$args[ 'upgrade_price_id' ] = $upgrade[ 'price_id' ];
+	if ( isset( $upgrade['price_id'] ) ) {
+		$args['upgrade_price_id'] = $upgrade['price_id'];
 	}
 
 	/**
@@ -961,7 +1030,6 @@ function edd_sl_process_license_upgrade( $download_id = 0, $payment_id = 0, $typ
 	 * @param array $args
 	 */
 	do_action( 'edd_sl_license_upgraded', $license_id, $args );
-
 }
 add_action( 'edd_complete_download_purchase', 'edd_sl_process_license_upgrade', 0, 5 );
 
@@ -976,28 +1044,28 @@ function edd_sl_payment_details_inner_upgrade_history( $payment_id = 0 ) {
 	$upgraded_from = edd_get_payment_meta( $payment_id, '_edd_sl_upgraded_payment_id', true );
 	$upgraded_to   = edd_get_payment_meta( $payment_id, '_edd_sl_upgraded_to_payment_id', true );
 
-	if( $upgraded_from ) :
+	if ( $upgraded_from ) :
 
 		$view_url = esc_url( admin_url( 'edit.php?post_type=download&page=edd-payment-history&view=view-order-details&id=' ) . $upgraded_from );
-?>
+		?>
 	<div class="edd-admin-box-inside">
 		<p>
 			<?php printf( '<strong>%s:</strong> <a href="%s">#%s</a>', __( 'Upgraded from', 'edd_sl' ), $view_url, edd_get_payment_number( $upgraded_from ) ); ?>&nbsp;
 		</p>
 	</div>
-<?php
+		<?php
 	endif;
 
-	if( $upgraded_to ) :
+	if ( $upgraded_to ) :
 
 		$view_url = esc_url( admin_url( 'edit.php?post_type=download&page=edd-payment-history&view=view-order-details&id=' ) . $upgraded_to );
-?>
+		?>
 	<div class="edd-admin-box-inside">
 		<p>
 			<?php printf( '<strong>%s:</strong> <a href="%s">#%s</a>', __( 'Upgraded to', 'edd_sl' ), $view_url, edd_get_payment_number( $upgraded_to ) ); ?>&nbsp;
 		</p>
 	</div>
-<?php
+		<?php
 	endif;
 }
 add_action( 'edd_view_order_details_payment_meta_after', 'edd_sl_payment_details_inner_upgrade_history' );
@@ -1008,17 +1076,22 @@ add_action( 'edd_view_order_details_payment_meta_after', 'edd_sl_payment_details
  * @since 3.3
  * @return array
  */
-function edd_sl_get_upgrades_by_date( $day = null, $month = null, $year = null, $hour = null  ) {
+function edd_sl_get_upgrades_by_date( $day = null, $month = null, $year = null, $hour = null ) {
 
-	$args = apply_filters( 'edd_get_upgrades_by_date', array(
-		'nopaging'    => true,
-		'post_type'   => 'edd_payment',
-		'post_status' => array( 'revoked', 'publish' ),
-		'meta_key'    => '_edd_sl_upgraded_payment_id',
-		'year'        => $year,
-		'monthnum'    => $month,
-		'fields'      => 'ids'
-	), $day, $month, $year );
+	$args = apply_filters(
+		'edd_get_upgrades_by_date',
+		array(
+			'number'   => -1,
+			'status'   => array( 'revoked', 'publish', 'complete' ),
+			'meta_key' => '_edd_sl_upgraded_payment_id',
+			'year'     => $year,
+			'month'    => $month,
+			'fields'   => 'ids',
+		),
+		$day,
+		$month,
+		$year
+	);
 
 	if ( ! empty( $day ) ) {
 		$args['day'] = $day;
@@ -1028,14 +1101,15 @@ function edd_sl_get_upgrades_by_date( $day = null, $month = null, $year = null, 
 		$args['hour'] = $hour;
 	}
 
-	$upgrades = get_posts( $args );
+	$query    = new EDD_Payments_Query( $args );
+	$upgrades = $query->get_payments();
 
-	$return   = array();
+	$return             = array();
 	$return['earnings'] = 0;
 	$return['count']    = count( $upgrades );
 	if ( $upgrades ) {
 		foreach ( $upgrades as $upgrade ) {
-			$return['earnings'] += edd_get_payment_amount( $upgrade );
+			$return['earnings'] += edd_get_payment_amount( $upgrade->ID );
 		}
 	}
 	return $return;
@@ -1049,26 +1123,26 @@ function edd_sl_get_upgrades_by_date( $day = null, $month = null, $year = null, 
  * @param  array $args Arguements passed by the download
  * @return array
  */
-function edd_sl_add_upgrade_link( $download_id = 0, $args ) {
+function edd_sl_add_upgrade_link( $download_id, $args ) {
 	// Bail if user isn't logged in
-	if( ! is_user_logged_in() ) {
+	if ( ! is_user_logged_in() ) {
 		return;
 	}
 
 	// Bail if option isn't set
-	if( ! edd_get_option( 'edd_sl_inline_upgrade_links', false ) ) {
+	if ( ! edd_get_option( 'edd_sl_inline_upgrade_links', false ) ) {
 		return;
 	}
 
 	$licenses = edd_software_licensing()->get_license_keys_of_user( get_current_user_id(), $download_id );
 
 	// Bail if user isn't licensed for this product
-	if( ! $licenses ) {
+	if ( ! $licenses ) {
 		return;
 	}
 
-	foreach( $licenses as $index => $license ) {
-		if( ! edd_sl_license_has_upgrades( $license->ID ) ) {
+	foreach ( $licenses as $index => $license ) {
+		if ( ! edd_sl_license_has_upgrades( $license->ID ) ) {
 			unset( $licenses[ $index ] );
 		}
 	}
@@ -1076,12 +1150,12 @@ function edd_sl_add_upgrade_link( $download_id = 0, $args ) {
 	// Reset the array keys to 0 based after using unset on licenses without upgrades.
 	$licenses = array_values( $licenses );
 
-	if( count( $licenses ) == 1 ) {
+	if ( count( $licenses ) == 1 ) {
 		echo '<span class="edd-sl-upgrade-link"><a href="' . esc_url( edd_sl_get_license_upgrade_list_url( $licenses[0]->ID ) ) . '">' . __( 'Upgrade your existing license', 'edd_sl' ) . '</a></span>';
 	} else {
-		foreach( $licenses as $license ) {
+		foreach ( $licenses as $license ) {
 			$license_key = apply_filters( 'edd_sl_add_upgrade_link_license_key', substr( edd_software_licensing()->get_license_key( $license->ID ), -4 ), edd_software_licensing()->get_license_key( $license->ID ), $license->ID );
-			echo '<span class="edd-sl-upgrade-link"><a href="' . esc_url( edd_sl_get_license_upgrade_list_url( $license->ID )  ) . '">' . sprintf( __( 'Upgrade license ending in %s', 'edd_sl' ), $license_key ) . '</a></span>';
+			echo '<span class="edd-sl-upgrade-link"><a href="' . esc_url( edd_sl_get_license_upgrade_list_url( $license->ID ) ) . '">' . sprintf( __( 'Upgrade license ending in %s', 'edd_sl' ), $license_key ) . '</a></span>';
 		}
 	}
 }
@@ -1109,16 +1183,22 @@ function edd_sl_get_license_upgrade_list_url( $license_id = 0 ) {
 		if ( $id = $wpdb->get_var( $sql ) ) {
 			$purchase_history_page = $id;
 		}
-
 	}
 
 	$url = '';
 
 	if ( ! empty( $purchase_history_page ) ) {
 		$url = get_permalink( $purchase_history_page );
-		$url = add_query_arg( array( 'action' => 'manage_licenses', 'payment_id' => edd_software_licensing()->get_payment_id( $license_id ), 'view' => 'upgrades', 'license_id' => $license_id ) , $url );
+		$url = add_query_arg(
+			array(
+				'action'     => 'manage_licenses',
+				'payment_id' => edd_software_licensing()->get_payment_id( $license_id ),
+				'view'       => 'upgrades',
+				'license_id' => $license_id,
+			),
+			$url
+		);
 	}
 
 	return apply_filters( 'edd_sl_get_license_upgrade_list_url', $url, $license_id, $purchase_history_page );
-
 }

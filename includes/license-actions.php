@@ -17,29 +17,34 @@ function edd_sl_process_add_site() {
 	}
 
 	if ( ! empty( $_POST['license_id'] ) && empty( $_POST['license'] ) ) {
-		// In 3.5, we switched from checking for license_id to just license. Fallback check for backwards compatibility
+		// In 3.5, we switched from checking for license_id to just license. Fallback check for backwards compatibility.
 		$_POST['license'] = $_POST['license_id'];
 	}
 
-	$license_id  = absint( $_POST['license'] );
-	$license     = edd_software_licensing()->get_license( $license_id );
+	$license_id = absint( $_POST['license'] );
+	$license    = edd_software_licensing()->get_license( $license_id );
+
+	if ( false === $license ) {
+		return;
+	}
+
 	if ( $license_id !== $license->ID ) {
 		return;
 	}
 
-	if ( ( is_admin() && ! current_user_can( 'manage_licenses'  ) ) || ( ! is_admin() && $license->user_id != get_current_user_id() ) ) {
+	if ( ( is_admin() && ! current_user_can( 'manage_licenses' ) ) || ( ! is_admin() && $license->user_id !== get_current_user_id() ) ) {
 		return;
 	}
 
 	$site_url = sanitize_text_field( $_POST['site_url'] );
 
 	if ( $license->is_at_limit() && ! current_user_can( 'manage_licenses' ) ) {
-		// The license is at its activation limit so stop and show an error
-		wp_safe_redirect( add_query_arg( 'edd_sl_error', 'at_limit' ) ); exit;
+		// The license is at its activation limit so stop and show an error.
+		wp_safe_redirect( add_query_arg( 'edd_sl_error', 'at_limit' ) );
+		exit;
 	}
 
 	if ( $license->add_site( $site_url ) ) {
-
 		$license->status = 'active';
 
 		if ( is_admin() ) {
@@ -47,7 +52,6 @@ function edd_sl_process_add_site() {
 		} else {
 			$redirect = remove_query_arg( array( 'edd_action', 'site_url', 'edd_sl_error', '_wpnonce' ) );
 		}
-
 	} else {
 		$redirect = add_query_arg( 'edd_sl_error', 'error_adding_site' );
 	}
@@ -71,11 +75,15 @@ function edd_sl_process_deactivate_site() {
 	$license_id = absint( $_GET['license'] );
 	$license    = edd_software_licensing()->get_license( $license_id );
 
+	if ( false === $license ) {
+		return;
+	}
+
 	if ( $license_id !== $license->ID ) {
 		return;
 	}
 
-	if ( ( is_admin() && ! current_user_can( 'manage_licenses' ) ) || ( ! is_admin() && $license->user_id != get_current_user_id() ) ) {
+	if ( ( is_admin() && ! current_user_can( 'manage_licenses' ) ) || ( ! is_admin() && get_current_user_id() !== $license->user_id ) ) {
 		return;
 	}
 
@@ -91,7 +99,8 @@ function edd_sl_process_deactivate_site() {
 	$license->remove_site( $site );
 
 	$url = remove_query_arg( array( 'edd_action', 'site_url', 'edd_sl_error', '_wpnonce', 'license' ) );
-	wp_safe_redirect( $url ); exit;
+	wp_safe_redirect( $url );
+	exit;
 }
 add_action( 'edd_deactivate_site', 'edd_sl_process_deactivate_site' );
 

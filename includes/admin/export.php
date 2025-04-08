@@ -23,13 +23,13 @@ function edd_sl_license_export_box() {
 				<?php wp_nonce_field( 'edd_ajax_export', 'edd_ajax_export' ); ?>
 				<input type="hidden" name="edd-export-class" value="EDD_SL_License_Export"/>
 				<?php wp_nonce_field( 'edd_sl_export_nonce', 'edd_sl_export_nonce' ); ?>
-				<?php submit_button( __( 'Export', 'edd_sl' ), 'secondary', 'submit', false ); ?>
+				<button type="submit" class="button button-secondary"><?php esc_html_e( 'Export Keys', 'edd_sl' ); ?></button>
 			</form>
 		</div><!-- .inside -->
 	</div><!-- .postbox -->
 	<?php
 }
-add_action( 'edd_tools_tab_import_export', 'edd_sl_license_export_box' );
+add_action( 'edd_tools_import_export_after', 'edd_sl_license_export_box' );
 
 /**
  * Register the license keys batch exporter.

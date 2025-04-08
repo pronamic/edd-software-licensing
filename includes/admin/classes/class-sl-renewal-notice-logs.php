@@ -65,7 +65,7 @@ class EDD_SL_Renewal_Notice_Logs extends WP_List_Table {
 		$license_id = get_post_meta( $item->ID, '_edd_sl_log_license_id', true );
 		$license    = edd_software_licensing()->get_license( $license_id );
 
-		return $license->get_download()->get_name() . ' &mdash; ' . $license->customer->email;
+		return $license ? $license->get_download()->get_name() . ' &mdash; ' . $license->customer->email : $item->ID;
 	}
 
 	/**
